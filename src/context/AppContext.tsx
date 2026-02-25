@@ -24,6 +24,7 @@ interface AppContextType {
   addCustomer: (data: Omit<Customer, 'id' | 'createdAt' | 'updatedAt'>) => void;
   updateCustomer: (id: string, data: Partial<Omit<Customer, 'id' | 'createdAt'>>) => void;
   deleteCustomer: (id: string) => void;
+  addRevenue: (data: Omit<RevenueEntry, 'id'>) => void;
   toasts: Toast[];
   showToast: (message: string, type?: Toast['type']) => void;
 }
@@ -53,7 +54,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return allImportedCustomers;
   });
 
-  const [revenue] = useState<RevenueEntry[]>(importedRevenue);
+  const [revenue, setRevenue] = useState<RevenueEntry[]>(() => {
+    try {
+      const saved = localStorage.getItem('vizemo_revenue');
+      if (saved) {
+        const parsed = JSON.parse(saved) as RevenueEntry[];
+        if (parsed.length > 0) return parsed;
+      }
+    } catch { /* ignore */ }
+    return importedRevenue;
+  });
   const [view, setView] = useState<ViewType>('dashboard');
   const [modal, setModal] = useState<ModalState>({ isOpen: false, customerId: null });
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -61,6 +71,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     localStorage.setItem('vizemo_customers', JSON.stringify(customers));
   }, [customers]);
+
+  useEffect(() => {
+    localStorage.setItem('vizemo_revenue', JSON.stringify(revenue));
+  }, [revenue]);
 
   const openModal = useCallback((customerId?: string) => {
     setModal({ isOpen: true, customerId: customerId ?? null });
@@ -98,11 +112,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, [showToast]);
 
+  const addRevenue = useCallback((data: Omit<RevenueEntry, 'id'>) => {
+    const entry: RevenueEntry = { ...data, id: generateId() };
+    setRevenue(prev => [entry, ...prev]);
+    showToast(`${data.ad} için gelir kaydı eklendi.`);
+  }, [showToast]);
+
   return (
     <AppContext.Provider value={{
       customers, revenue, view, setView,
       modal, openModal, closeModal,
       addCustomer, updateCustomer, deleteCustomer,
+      addRevenue,
       toasts, showToast,
     }}>
       {children}

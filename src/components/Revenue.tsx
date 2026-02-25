@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useApp } from '../context/AppContext';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
@@ -14,11 +14,20 @@ function fmt(n: number) {
 }
 
 export default function Revenue() {
-  const { revenue } = useApp();
+  const { revenue, addRevenue } = useApp();
   const [filterDanisman, setFilterDanisman] = useState('');
   const [filterSehir, setFilterSehir] = useState('');
   const [sortCol, setSortCol] = useState<'ad' | 'danisman' | 'sehir' | 'toplam' | 'onOdemeTarihi'>('onOdemeTarihi');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+  const [showAddModal, setShowAddModal] = useState(false);
+
+  // Form state
+  const emptyForm = {
+    ad: '', danisman: '', sehir: '', odemeYontemi: '💵 Elden',
+    onOdemeTarihi: new Date().toISOString().substring(0, 10),
+    onOdeme: '', kalanTarih: '', kalanOdeme: '',
+  };
+  const [form, setForm] = useState(emptyForm);
 
   // Unique consultants & cities
   const consultants = useMemo(() => {
@@ -116,6 +125,37 @@ export default function Revenue() {
     );
   }
 
+  const handleSubmit = useCallback(() => {
+    if (!form.ad.trim()) return;
+    const onOdeme = parseFloat(form.onOdeme) || 0;
+    const kalanOdeme = parseFloat(form.kalanOdeme) || 0;
+    addRevenue({
+      ad: form.ad.trim(),
+      danisman: form.danisman || 'Belirsiz',
+      sehir: form.sehir || 'Belirsiz',
+      odemeYontemi: form.odemeYontemi,
+      onOdemeTarihi: form.onOdemeTarihi,
+      onOdeme,
+      kalanTarih: form.kalanTarih || '-',
+      kalanOdeme,
+      toplam: onOdeme + kalanOdeme,
+    });
+    setForm(emptyForm);
+    setShowAddModal(false);
+  }, [form, addRevenue, emptyForm]);
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%', padding: '10px 14px', background: 'var(--surface2)',
+    border: '1px solid var(--border)', borderRadius: 10,
+    color: 'var(--text)', fontSize: '0.85rem', fontFamily: "'IBM Plex Mono', monospace",
+    outline: 'none', transition: 'border-color 0.2s',
+  };
+  const labelStyle: React.CSSProperties = {
+    fontSize: '0.68rem', fontFamily: "'IBM Plex Mono', monospace",
+    color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em',
+    marginBottom: 6, display: 'block',
+  };
+
   return (
     <div style={{ padding: 24, minHeight: '100vh' }}>
       {/* Header */}
@@ -124,11 +164,210 @@ export default function Revenue() {
           <div style={{ width: 10, height: 10, borderRadius: '50%', background: GOLD }} />
           <h2 style={{ fontSize: '1.1rem', fontWeight: 600, color: GOLD }}>Gelir Takibi</h2>
           <span style={{ fontSize: '0.68rem', fontFamily: "'IBM Plex Mono', monospace", color: 'var(--muted)', marginLeft: 4 }}>Şubat 2026</span>
+          <button
+            onClick={() => setShowAddModal(true)}
+            style={{
+              marginLeft: 'auto', padding: '8px 18px',
+              background: `linear-gradient(135deg, ${GOLD}, #e5b83a)`,
+              border: 'none', borderRadius: 10, cursor: 'pointer',
+              color: '#0f1117', fontWeight: 700, fontSize: '0.82rem',
+              fontFamily: "'IBM Plex Mono', monospace",
+              boxShadow: `0 4px 16px ${GOLD}33`,
+              transition: 'all 0.2s',
+              display: 'flex', alignItems: 'center', gap: 6,
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = `0 6px 24px ${GOLD}55`; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = `0 4px 16px ${GOLD}33`; }}
+          >
+            ＋ Yeni Gelir
+          </button>
         </div>
         <div style={{ color: 'var(--muted)', fontSize: '0.78rem', marginLeft: 20 }}>
           {revenue.length} işlem · Tüm şubeler
         </div>
       </div>
+
+      {/* Add Revenue Modal */}
+      {showAddModal && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 1000,
+            background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+          onClick={() => setShowAddModal(false)}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: 'var(--surface)', border: `1px solid ${GOLD}44`,
+              borderRadius: 16, padding: '28px 32px',
+              width: '100%', maxWidth: 520,
+              boxShadow: `0 20px 60px rgba(0,0,0,0.5), 0 0 30px ${GOLD}11`,
+              animation: 'fadeIn 0.2s ease-out',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: GOLD }} />
+              <h3 style={{ fontSize: '1rem', fontWeight: 600, color: GOLD, margin: 0 }}>Yeni Gelir Kaydı</h3>
+              <button
+                onClick={() => setShowAddModal(false)}
+                style={{ marginLeft: 'auto', background: 'transparent', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '1.2rem' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Ad Soyad */}
+            <div style={{ marginBottom: 16 }}>
+              <label style={labelStyle}>Müşteri Ad Soyad *</label>
+              <input
+                style={inputStyle}
+                placeholder="Örn: Ahmet Yılmaz"
+                value={form.ad}
+                onChange={e => setForm(f => ({ ...f, ad: e.target.value }))}
+                onFocus={e => (e.target.style.borderColor = GOLD)}
+                onBlur={e => (e.target.style.borderColor = 'var(--border)')}
+                autoFocus
+              />
+            </div>
+
+            {/* Danışman + Şehir */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+              <div>
+                <label style={labelStyle}>Danışman</label>
+                <select
+                  style={{ ...inputStyle, cursor: 'pointer' }}
+                  value={form.danisman}
+                  onChange={e => setForm(f => ({ ...f, danisman: e.target.value }))}
+                >
+                  <option value="">Seçiniz</option>
+                  {consultants.map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={labelStyle}>Şehir</label>
+                <select
+                  style={{ ...inputStyle, cursor: 'pointer' }}
+                  value={form.sehir}
+                  onChange={e => setForm(f => ({ ...f, sehir: e.target.value }))}
+                >
+                  <option value="">Seçiniz</option>
+                  {cities.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+            </div>
+
+            {/* Ödeme Yöntemi + Tarih */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+              <div>
+                <label style={labelStyle}>Ödeme Yöntemi</label>
+                <select
+                  style={{ ...inputStyle, cursor: 'pointer' }}
+                  value={form.odemeYontemi}
+                  onChange={e => setForm(f => ({ ...f, odemeYontemi: e.target.value }))}
+                >
+                  <option value="💵 Elden">💵 Elden</option>
+                  <option value="🏦 İban">🏦 İban</option>
+                  <option value="💳 Kredi Kartı">💳 Kredi Kartı</option>
+                </select>
+              </div>
+              <div>
+                <label style={labelStyle}>Ön Ödeme Tarihi</label>
+                <input
+                  type="date"
+                  style={inputStyle}
+                  value={form.onOdemeTarihi}
+                  onChange={e => setForm(f => ({ ...f, onOdemeTarihi: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            {/* Ön Ödeme + Kalan */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+              <div>
+                <label style={labelStyle}>Ön Ödeme Tutarı (₺)</label>
+                <input
+                  type="number"
+                  style={inputStyle}
+                  placeholder="0"
+                  value={form.onOdeme}
+                  onChange={e => setForm(f => ({ ...f, onOdeme: e.target.value }))}
+                  onFocus={e => (e.target.style.borderColor = GOLD)}
+                  onBlur={e => (e.target.style.borderColor = 'var(--border)')}
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>Kalan Ödeme (₺)</label>
+                <input
+                  type="number"
+                  style={inputStyle}
+                  placeholder="0"
+                  value={form.kalanOdeme}
+                  onChange={e => setForm(f => ({ ...f, kalanOdeme: e.target.value }))}
+                  onFocus={e => (e.target.style.borderColor = GOLD)}
+                  onBlur={e => (e.target.style.borderColor = 'var(--border)')}
+                />
+              </div>
+            </div>
+
+            {/* Kalan Tarih */}
+            <div style={{ marginBottom: 20 }}>
+              <label style={labelStyle}>Kalan Ödeme Tarihi</label>
+              <input
+                type="date"
+                style={inputStyle}
+                value={form.kalanTarih}
+                onChange={e => setForm(f => ({ ...f, kalanTarih: e.target.value }))}
+              />
+            </div>
+
+            {/* Toplam Preview */}
+            <div style={{
+              background: `${GOLD}0a`, border: `1px solid ${GOLD}33`,
+              borderRadius: 10, padding: '12px 16px', marginBottom: 20,
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            }}>
+              <span style={{ fontSize: '0.75rem', fontFamily: "'IBM Plex Mono', monospace", color: 'var(--muted)', textTransform: 'uppercase' }}>Toplam Tutar</span>
+              <span style={{ fontSize: '1.2rem', fontWeight: 700, fontFamily: "'IBM Plex Mono', monospace", color: GOLD }}>
+                {fmt((parseFloat(form.onOdeme) || 0) + (parseFloat(form.kalanOdeme) || 0))}
+              </span>
+            </div>
+
+            {/* Buttons */}
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button
+                onClick={() => setShowAddModal(false)}
+                style={{
+                  flex: 1, padding: '11px 0', background: 'var(--surface2)',
+                  border: '1px solid var(--border)', borderRadius: 10,
+                  color: 'var(--muted)', cursor: 'pointer', fontSize: '0.82rem',
+                  fontFamily: "'IBM Plex Mono', monospace", transition: 'all 0.15s',
+                }}
+              >
+                İptal
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={!form.ad.trim()}
+                style={{
+                  flex: 2, padding: '11px 0',
+                  background: form.ad.trim() ? `linear-gradient(135deg, ${GOLD}, #e5b83a)` : '#333',
+                  border: 'none', borderRadius: 10,
+                  color: form.ad.trim() ? '#0f1117' : '#666',
+                  cursor: form.ad.trim() ? 'pointer' : 'not-allowed',
+                  fontWeight: 700, fontSize: '0.85rem',
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  boxShadow: form.ad.trim() ? `0 4px 16px ${GOLD}33` : 'none',
+                  transition: 'all 0.2s',
+                }}
+              >
+                ✓ Gelir Kaydı Ekle
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* KPI Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 20 }}>
