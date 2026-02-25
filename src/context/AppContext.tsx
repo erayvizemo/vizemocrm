@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { Customer, ModalState, ViewType } from '../types';
 import { allImportedCustomers, revenueData as importedRevenue, RevenueEntry } from '../data/importedData';
 import { generateId } from '../utils/helpers';
+import { sendToGoogleSheets } from '../services/googleSheets';
 
 // Bump this version whenever the imported dataset changes.
 // On version mismatch the stored data is replaced with fresh Excel data.
@@ -95,6 +96,28 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const customer: Customer = { ...data, id: generateId(), createdAt: now, updatedAt: now };
     setCustomers(prev => [customer, ...prev]);
     showToast(`${data.ad} başarıyla eklendi.`);
+
+    // Google Sheets'e otomatik gönder
+    sendToGoogleSheets({
+      id: customer.id,
+      ad: customer.ad,
+      telefon: customer.telefon,
+      email: customer.email,
+      vize: customer.vize,
+      danisman: customer.danisman ?? '',
+      sehir: customer.sehir ?? '',
+      ulke: customer.ulke ?? '',
+      durum: customer.durum,
+      statu: customer.statu ?? '',
+      kaynak: customer.kaynak ?? '',
+      surec: customer.surec,
+      karar: customer.karar,
+      evrakPct: customer.evrakPct ?? '',
+      gorusme: customer.gorusme,
+      takip: customer.takip,
+      not: customer.not,
+      createdAt: now,
+    });
   }, [showToast]);
 
   const updateCustomer = useCallback((id: string, data: Partial<Omit<Customer, 'id' | 'createdAt'>>) => {

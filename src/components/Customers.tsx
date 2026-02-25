@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { StatusType, VISA_TYPES, STATUS_TYPES } from '../types';
 import { getStatusColor, getStatusBg, getStatusBorder, getStatusRowClass, formatDateTime, getDaysUntil, exportToCSV } from '../utils/helpers';
 
-type SortKey = 'ad' | 'durum' | 'vize' | 'takip' | 'gorusme' | 'surec' | 'danisman' | 'sehir' | 'statu';
+type SortKey = 'ad' | 'durum' | 'vize' | 'takip' | 'gorusme' | 'surec' | 'danisman' | 'sehir' | 'statu' | 'createdAt';
 
 function Badge({ color, bg, border, children }: { color: string; bg: string; border: string; children: React.ReactNode }) {
   return (
@@ -27,8 +27,8 @@ export default function Customers() {
   const [search, setSearch] = useState('');
   const [filterDurum, setFilterDurum] = useState('');
   const [filterVize, setFilterVize] = useState('');
-  const [sortKey, setSortKey] = useState<SortKey>('ad');
-  const [sortAsc, setSortAsc] = useState(true);
+  const [sortKey, setSortKey] = useState<SortKey>('createdAt');
+  const [sortAsc, setSortAsc] = useState(false);
 
   const filtered = useMemo(() => {
     let data = customers.filter(c => {
@@ -56,6 +56,7 @@ export default function Customers() {
       else if (sortKey === 'danisman') { va = a.danisman ?? ''; vb = b.danisman ?? ''; }
       else if (sortKey === 'sehir') { va = a.sehir ?? ''; vb = b.sehir ?? ''; }
       else if (sortKey === 'statu') { va = a.statu ?? ''; vb = b.statu ?? ''; }
+      else if (sortKey === 'createdAt') { va = a.createdAt; vb = b.createdAt; }
       return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
     });
 
@@ -211,6 +212,7 @@ export default function Customers() {
               <th style={thStyle('danisman')} onClick={() => handleSort('danisman')}>Danışman<SortIcon col="danisman" /></th>
               <th style={thStyle('durum')} onClick={() => handleSort('durum')}>Durum<SortIcon col="durum" /></th>
               <th style={thStyle('statu')} onClick={() => handleSort('statu')}>Statü<SortIcon col="statu" /></th>
+              <th style={thStyle('createdAt')} onClick={() => handleSort('createdAt')}>Kayıt Tarihi<SortIcon col="createdAt" /></th>
               <th style={{ ...thStyle('ad'), cursor: 'default' }}>Not</th>
               <th style={{ ...thStyle('ad'), cursor: 'default', textAlign: 'right' }}>İşlem</th>
             </tr>
@@ -218,7 +220,7 @@ export default function Customers() {
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={8} style={{ textAlign: 'center', padding: '40px', color: 'var(--muted)', fontSize: '0.85rem' }}>
+                <td colSpan={10} style={{ textAlign: 'center', padding: '40px', color: 'var(--muted)', fontSize: '0.85rem' }}>
                   Kayıt bulunamadı.
                 </td>
               </tr>
@@ -253,6 +255,9 @@ export default function Customers() {
                     </td>
                     <td style={{ padding: '9px 10px', fontSize: '0.72rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace" }}>
                       {c.statu || '—'}
+                    </td>
+                    <td style={{ padding: '9px 10px', fontSize: '0.68rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace", whiteSpace: 'nowrap' }}>
+                      {c.createdAt ? new Date(c.createdAt).toLocaleDateString('tr-TR') : '—'}
                     </td>
                     <td style={{ padding: '9px 10px', maxWidth: 220 }}>
                       <div style={{
