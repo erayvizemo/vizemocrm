@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0d0f14;
+  --surface: #141720;
+  --surface2: #1c2030;
+  --border: #252a3a;
+  --accent: #4f8ef7;
+  --accent2: #38d9a9;
+  --warn: #f5a623;
+  --danger: #e05c5c;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --red-row: rgba(224, 92, 92, 0.10);
+  --yellow-row: rgba(245, 166, 35, 0.10);
+  --green-row: rgba(56, 217, 169, 0.08);
+  --blue-row: rgba(79, 142, 247, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* Focus ring */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+  background: rgba(79, 142, 247, 0.3);
+}
+
+/* Input autofill */
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px var(--surface2) inset !important;
+  -webkit-text-fill-color: var(--text) !important;
+}
+
+/* Custom select arrow */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px !important;
+}
+
+/* Transition all */
+button, a, input, select, textarea {
+  transition: all 0.15s ease;
+}
+
+/* Table row status colors */
+tr.row-olumsuz { background: var(--red-row) !important; }
+tr.row-beklemede { background: var(--yellow-row) !important; }
+tr.row-tamamlandi { background: var(--green-row) !important; }
+tr.row-yeni { background: var(--blue-row) !important; }
+
+/* Recharts tooltip override */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: var(--surface2) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+}
