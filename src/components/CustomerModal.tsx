@@ -5,7 +5,7 @@ import { getStatusColor, getStatusBg } from '../utils/helpers';
 
 const DANISMAN_LIST = ['Eray', 'Dilara', 'Selin', 'Merve', 'Ali', 'Diğer'];
 const SEHIR_LIST = ['Eskişehir', 'Gaziantep', 'İstanbul', 'Ankara', 'Diğer'];
-const KAYNAK_LIST = ['Instagram', 'Referans', 'Web Site', 'Yüz Yüze', 'WhatsApp', 'Diğer'];
+const KAYNAK_LIST = ['Instagram', 'Referans', 'Web Site', 'Yüz Yüze', 'WhatsApp', 'Reklam', 'Diğer'];
 const ULKE_LIST = [
   // Schengen Ülkeleri
   'Almanya', 'Avusturya', 'Belçika', 'Çekya', 'Danimarka', 'Estonya',

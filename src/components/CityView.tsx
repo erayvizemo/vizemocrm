@@ -25,9 +25,21 @@ export default function CityView({ city }: Props) {
 
   const cityColor = cityColors[city] ?? '#4f8ef7';
 
-  // All customers for this city
+  // Danışman Eray veya Dilara ise → Eskişehir datasına yönlendir
+  // Diğer şehirler normal sehir alanına göre filtrelenir
+  const ESKISEHIR_DANISMANLAR = ['Eray', 'Dilara'];
+
   const cityCustomers = useMemo(
-    () => customers.filter(c => c.sehir === city),
+    () => customers.filter(c => {
+      const danismanIsEsk = ESKISEHIR_DANISMANLAR.includes(c.danisman ?? '');
+      if (city === 'Eskişehir') {
+        // Eskişehir: sehir=Eskişehir VEYA danışman Eray/Dilara olan herkes
+        return c.sehir === 'Eskişehir' || danismanIsEsk;
+      } else {
+        // Diğer şehirler: sehir eşleşmeli VE danışman Eray/Dilara olmamalı
+        return c.sehir === city && !danismanIsEsk;
+      }
+    }),
     [customers, city]
   );
 
