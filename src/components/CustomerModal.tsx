@@ -3,6 +3,10 @@ import { useApp } from '../context/AppContext';
 import { Customer, VISA_TYPES, STATUS_TYPES, PROCESS_TYPES, DECISION_TYPES, QUICK_CHIPS } from '../types';
 import { getStatusColor, getStatusBg } from '../utils/helpers';
 
+const DANISMAN_LIST = ['Eray', 'Dilara', 'Selin', 'Merve', 'Ali', 'Diğer'];
+const SEHIR_LIST = ['Eskişehir', 'Gaziantep', 'İstanbul', 'Ankara', 'Diğer'];
+const KAYNAK_LIST = ['Instagram', 'Referans', 'Web Site', 'Yüz Yüze', 'WhatsApp', 'Diğer'];
+
 const inputStyle: React.CSSProperties = {
   background: 'var(--surface2)',
   border: '1px solid var(--border)',
@@ -45,6 +49,7 @@ export default function CustomerModal() {
   const [form, setForm] = useState({
     ad: '', telefon: '', email: '', vize: 'Schengen',
     durum: 'Yeni Lead' as Customer['durum'],
+    danisman: '', sehir: '', statu: '', kaynak: '', ulke: '', evrakPct: '',
     gorusme: '', takip: '', surec: '', karar: '', not: '',
   });
   const [activeChips, setActiveChips] = useState<string[]>([]);
@@ -57,12 +62,19 @@ export default function CustomerModal() {
     if (customer) {
       setForm({
         ad: customer.ad, telefon: customer.telefon, email: customer.email,
-        vize: customer.vize, durum: customer.durum, gorusme: customer.gorusme,
-        takip: customer.takip, surec: customer.surec, karar: customer.karar,
-        not: customer.not,
+        vize: customer.vize, durum: customer.durum,
+        danisman: customer.danisman ?? '', sehir: customer.sehir ?? '',
+        statu: customer.statu ?? '', kaynak: customer.kaynak ?? '',
+        ulke: customer.ulke ?? '', evrakPct: customer.evrakPct ?? '',
+        gorusme: customer.gorusme, takip: customer.takip,
+        surec: customer.surec, karar: customer.karar, not: customer.not,
       });
     } else {
-      setForm({ ad: '', telefon: '', email: '', vize: 'Schengen', durum: 'Yeni Lead', gorusme: '', takip: '', surec: '', karar: '', not: '' });
+      setForm({
+        ad: '', telefon: '', email: '', vize: 'Schengen', durum: 'Yeni Lead',
+        danisman: '', sehir: '', statu: '', kaynak: '', ulke: '', evrakPct: '',
+        gorusme: '', takip: '', surec: '', karar: '', not: '',
+      });
     }
   }, [isOpen, customerId]);
 
@@ -95,7 +107,6 @@ export default function CustomerModal() {
       if (finalNote && finalNote !== customer.not) {
         log.push({ timestamp: nowStr, text: finalNote });
       }
-      // Log status change
       if (form.durum !== customer.durum) {
         log.push({ timestamp: nowStr, text: `Durum değişti: ${customer.durum} → ${form.durum}` });
       }
@@ -126,7 +137,7 @@ export default function CustomerModal() {
         background: 'var(--surface)',
         border: '1px solid var(--border)',
         borderRadius: 16,
-        width: 720,
+        width: 780,
         maxWidth: '96vw',
         maxHeight: '92vh',
         overflowY: 'auto',
@@ -236,96 +247,146 @@ export default function CustomerModal() {
         {/* Info tab */}
         {activeTab === 'info' && (
           <>
-            {/* Form grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <FormField label="Ad Soyad *">
-                <input
-                  type="text"
-                  value={form.ad}
-                  onChange={e => setForm(p => ({ ...p, ad: e.target.value }))}
-                  placeholder="Örn: Ayşe Kement"
-                  style={inputStyle}
-                  onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                  onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                />
-              </FormField>
-              <FormField label="Telefon">
-                <input
-                  type="text"
-                  value={form.telefon}
-                  onChange={e => setForm(p => ({ ...p, telefon: e.target.value }))}
-                  placeholder="+90 5xx xxx xx xx"
-                  style={inputStyle}
-                  onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                  onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                />
-              </FormField>
-              <FormField label="E-posta">
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
-                  placeholder="ornek@mail.com"
-                  style={inputStyle}
-                  onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                  onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                />
-              </FormField>
-              <FormField label="Vize Türü">
-                <select
-                  value={form.vize}
-                  onChange={e => setForm(p => ({ ...p, vize: e.target.value }))}
-                  style={inputStyle}
-                  onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                  onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                >
-                  {VISA_TYPES.map(v => <option key={v}>{v}</option>)}
-                </select>
-              </FormField>
-              <FormField label="Durum">
-                <select
-                  value={form.durum}
-                  onChange={e => setForm(p => ({ ...p, durum: e.target.value as Customer['durum'] }))}
-                  style={{ ...inputStyle, color: getStatusColor(form.durum) }}
-                  onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                  onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                >
-                  {STATUS_TYPES.map(s => <option key={s} style={{ color: 'var(--text)' }}>{s}</option>)}
-                </select>
-              </FormField>
-              <FormField label="Görüşme Tarihi & Saati">
-                <input
-                  type="datetime-local"
-                  value={form.gorusme}
-                  onChange={e => setForm(p => ({ ...p, gorusme: e.target.value }))}
-                  style={{ ...inputStyle, colorScheme: 'dark' }}
-                  onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                  onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                />
-              </FormField>
-              <FormField label="Takip Tarihi">
-                <input
-                  type="date"
-                  value={form.takip}
-                  onChange={e => setForm(p => ({ ...p, takip: e.target.value }))}
-                  style={{ ...inputStyle, colorScheme: 'dark' }}
-                  onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                  onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                />
-              </FormField>
-              <FormField label="Süreç Durumu">
-                <select
-                  value={form.surec}
-                  onChange={e => setForm(p => ({ ...p, surec: e.target.value }))}
-                  style={inputStyle}
-                  onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                  onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                >
-                  <option value="">Seçin...</option>
-                  {PROCESS_TYPES.map(p => <option key={p}>{p}</option>)}
-                </select>
-              </FormField>
-              <div style={{ gridColumn: '1 / -1' }}>
+            {/* Section: Kişisel Bilgiler */}
+            <div style={{ marginBottom: 18 }}>
+              <div style={{ fontSize: '0.62rem', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--accent)', marginBottom: 10, paddingBottom: 4, borderBottom: '1px solid var(--border)' }}>
+                👤 Kişisel Bilgiler
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <FormField label="Ad Soyad *">
+                  <input
+                    type="text"
+                    value={form.ad}
+                    onChange={e => setForm(p => ({ ...p, ad: e.target.value }))}
+                    placeholder="Örn: Ayşe Kement"
+                    style={inputStyle}
+                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
+                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
+                  />
+                </FormField>
+                <FormField label="Telefon">
+                  <input
+                    type="text"
+                    value={form.telefon}
+                    onChange={e => setForm(p => ({ ...p, telefon: e.target.value }))}
+                    placeholder="+90 5xx xxx xx xx"
+                    style={inputStyle}
+                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
+                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
+                  />
+                </FormField>
+                <FormField label="E-posta">
+                  <input
+                    type="email"
+                    value={form.email}
+                    onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
+                    placeholder="ornek@mail.com"
+                    style={inputStyle}
+                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
+                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
+                  />
+                </FormField>
+                <FormField label="Şehir">
+                  <select
+                    value={form.sehir}
+                    onChange={e => setForm(p => ({ ...p, sehir: e.target.value }))}
+                    style={inputStyle}
+                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
+                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
+                  >
+                    <option value="">Seçin...</option>
+                    {SEHIR_LIST.map(s => <option key={s}>{s}</option>)}
+                  </select>
+                </FormField>
+                <FormField label="Ülke">
+                  <input
+                    type="text"
+                    value={form.ulke}
+                    onChange={e => setForm(p => ({ ...p, ulke: e.target.value }))}
+                    placeholder="Örn: Türkiye"
+                    style={inputStyle}
+                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
+                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
+                  />
+                </FormField>
+                <FormField label="Kaynak">
+                  <select
+                    value={form.kaynak}
+                    onChange={e => setForm(p => ({ ...p, kaynak: e.target.value }))}
+                    style={inputStyle}
+                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
+                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
+                  >
+                    <option value="">Seçin...</option>
+                    {KAYNAK_LIST.map(k => <option key={k}>{k}</option>)}
+                  </select>
+                </FormField>
+              </div>
+            </div>
+
+            {/* Section: Vize & Durum */}
+            <div style={{ marginBottom: 18 }}>
+              <div style={{ fontSize: '0.62rem', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--accent)', marginBottom: 10, paddingBottom: 4, borderBottom: '1px solid var(--border)' }}>
+                🛂 Vize & Durum Bilgileri
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <FormField label="Vize Türü">
+                  <select
+                    value={form.vize}
+                    onChange={e => setForm(p => ({ ...p, vize: e.target.value }))}
+                    style={inputStyle}
+                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
+                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
+                  >
+                    {VISA_TYPES.map(v => <option key={v}>{v}</option>)}
+                  </select>
+                </FormField>
+                <FormField label="Danışman">
+                  <select
+                    value={form.danisman}
+                    onChange={e => setForm(p => ({ ...p, danisman: e.target.value }))}
+                    style={inputStyle}
+                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
+                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
+                  >
+                    <option value="">Seçin...</option>
+                    {DANISMAN_LIST.map(d => <option key={d}>{d}</option>)}
+                  </select>
+                </FormField>
+                <FormField label="Durum">
+                  <select
+                    value={form.durum}
+                    onChange={e => setForm(p => ({ ...p, durum: e.target.value as Customer['durum'] }))}
+                    style={{ ...inputStyle, color: getStatusColor(form.durum) }}
+                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
+                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
+                  >
+                    {STATUS_TYPES.map(s => <option key={s} style={{ color: 'var(--text)' }}>{s}</option>)}
+                  </select>
+                </FormField>
+                <FormField label="Statü">
+                  <input
+                    type="text"
+                    value={form.statu}
+                    onChange={e => setForm(p => ({ ...p, statu: e.target.value }))}
+                    placeholder="Örn: Cevap Bekleniyor"
+                    style={inputStyle}
+                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
+                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
+                  />
+                </FormField>
+                <FormField label="Süreç Durumu">
+                  <select
+                    value={form.surec}
+                    onChange={e => setForm(p => ({ ...p, surec: e.target.value }))}
+                    style={inputStyle}
+                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
+                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
+                  >
+                    <option value="">Seçin...</option>
+                    {PROCESS_TYPES.map(p => <option key={p}>{p}</option>)}
+                  </select>
+                </FormField>
                 <FormField label="Müşteri Kararı">
                   <select
                     value={form.karar}
@@ -338,6 +399,46 @@ export default function CustomerModal() {
                     {DECISION_TYPES.map(d => <option key={d}>{d}</option>)}
                   </select>
                 </FormField>
+                <FormField label="Evrak Tamamlanma (%)">
+                  <input
+                    type="text"
+                    value={form.evrakPct}
+                    onChange={e => setForm(p => ({ ...p, evrakPct: e.target.value }))}
+                    placeholder="Örn: %75"
+                    style={inputStyle}
+                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
+                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
+                  />
+                </FormField>
+              </div>
+            </div>
+
+            {/* Section: Tarihler */}
+            <div style={{ marginBottom: 18 }}>
+              <div style={{ fontSize: '0.62rem', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--accent)', marginBottom: 10, paddingBottom: 4, borderBottom: '1px solid var(--border)' }}>
+                📅 Tarih Bilgileri
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <FormField label="Görüşme Tarihi & Saati">
+                  <input
+                    type="datetime-local"
+                    value={form.gorusme}
+                    onChange={e => setForm(p => ({ ...p, gorusme: e.target.value }))}
+                    style={{ ...inputStyle, colorScheme: 'dark' }}
+                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
+                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
+                  />
+                </FormField>
+                <FormField label="Takip Tarihi">
+                  <input
+                    type="date"
+                    value={form.takip}
+                    onChange={e => setForm(p => ({ ...p, takip: e.target.value }))}
+                    style={{ ...inputStyle, colorScheme: 'dark' }}
+                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
+                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
+                  />
+                </FormField>
               </div>
             </div>
 
@@ -347,7 +448,7 @@ export default function CustomerModal() {
               border: '1px solid var(--border)',
               borderRadius: 10,
               padding: 16,
-              marginTop: 16,
+              marginTop: 4,
             }}>
               <div style={{ fontSize: '0.68rem', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--accent)', marginBottom: 10 }}>
                 ⚡ Hızlı Not Oluşturucu

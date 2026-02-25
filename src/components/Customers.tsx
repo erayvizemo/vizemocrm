@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { StatusType, VISA_TYPES, STATUS_TYPES } from '../types';
 import { getStatusColor, getStatusBg, getStatusBorder, getStatusRowClass, formatDateTime, getDaysUntil, exportToCSV } from '../utils/helpers';
 
-type SortKey = 'ad' | 'durum' | 'vize' | 'takip' | 'gorusme' | 'surec';
+type SortKey = 'ad' | 'durum' | 'vize' | 'takip' | 'gorusme' | 'surec' | 'danisman' | 'sehir' | 'statu';
 
 function Badge({ color, bg, border, children }: { color: string; bg: string; border: string; children: React.ReactNode }) {
   return (
@@ -37,7 +37,9 @@ export default function Customers() {
         || c.ad.toLowerCase().includes(q)
         || c.telefon.includes(q)
         || c.email.toLowerCase().includes(q)
-        || c.not.toLowerCase().includes(q);
+        || c.not.toLowerCase().includes(q)
+        || (c.danisman ?? '').toLowerCase().includes(q)
+        || (c.sehir ?? '').toLowerCase().includes(q);
       const matchDurum = !filterDurum || c.durum === filterDurum;
       const matchVize = !filterVize || c.vize === filterVize;
       return matchSearch && matchDurum && matchVize;
@@ -51,6 +53,9 @@ export default function Customers() {
       else if (sortKey === 'takip') { va = a.takip; vb = b.takip; }
       else if (sortKey === 'gorusme') { va = a.gorusme; vb = b.gorusme; }
       else if (sortKey === 'surec') { va = a.surec; vb = b.surec; }
+      else if (sortKey === 'danisman') { va = a.danisman ?? ''; vb = b.danisman ?? ''; }
+      else if (sortKey === 'sehir') { va = a.sehir ?? ''; vb = b.sehir ?? ''; }
+      else if (sortKey === 'statu') { va = a.statu ?? ''; vb = b.statu ?? ''; }
       return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
     });
 
@@ -197,17 +202,15 @@ export default function Customers() {
 
       {/* Table */}
       <div style={{ flex: 1, overflowY: 'auto', overflowX: 'auto', background: 'var(--bg)' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', minWidth: 1050 }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', minWidth: 1200 }}>
           <thead>
             <tr>
               <th style={thStyle('ad')} onClick={() => handleSort('ad')}>Ad Soyad<SortIcon col="ad" /></th>
               <th style={{ ...thStyle('ad'), cursor: 'default' }}>Telefon</th>
-              <th style={thStyle('vize')} onClick={() => handleSort('vize')}>Vize Türü<SortIcon col="vize" /></th>
+              <th style={thStyle('vize')} onClick={() => handleSort('vize')}>Vize<SortIcon col="vize" /></th>
+              <th style={thStyle('danisman')} onClick={() => handleSort('danisman')}>Danışman<SortIcon col="danisman" /></th>
               <th style={thStyle('durum')} onClick={() => handleSort('durum')}>Durum<SortIcon col="durum" /></th>
-              <th style={thStyle('gorusme')} onClick={() => handleSort('gorusme')}>Görüşme<SortIcon col="gorusme" /></th>
-              <th style={thStyle('takip')} onClick={() => handleSort('takip')}>Takip Tarihi<SortIcon col="takip" /></th>
-              <th style={thStyle('surec')} onClick={() => handleSort('surec')}>Süreç<SortIcon col="surec" /></th>
-              <th style={{ ...thStyle('ad'), cursor: 'default' }}>Karar</th>
+              <th style={thStyle('statu')} onClick={() => handleSort('statu')}>Statü<SortIcon col="statu" /></th>
               <th style={{ ...thStyle('ad'), cursor: 'default' }}>Not</th>
               <th style={{ ...thStyle('ad'), cursor: 'default', textAlign: 'right' }}>İşlem</th>
             </tr>
@@ -215,16 +218,12 @@ export default function Customers() {
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={10} style={{ textAlign: 'center', padding: '40px', color: 'var(--muted)', fontSize: '0.85rem' }}>
+                <td colSpan={8} style={{ textAlign: 'center', padding: '40px', color: 'var(--muted)', fontSize: '0.85rem' }}>
                   Kayıt bulunamadı.
                 </td>
               </tr>
             ) : (
               filtered.map(c => {
-                const days = c.takip ? getDaysUntil(c.takip) : null;
-                const takipColor = days === null ? 'var(--muted)' : days < 0 ? 'var(--danger)' : days === 0 ? 'var(--danger)' : days === 1 ? 'var(--warn)' : 'var(--accent2)';
-                const takipText = days === null ? '—' : days < 0 ? `⚠ ${c.takip.substring(0, 10).split('-').reverse().join('.')}` : days === 0 ? '🔴 BUGÜN' : days === 1 ? '🟡 YARIN' : c.takip.substring(0, 10).split('-').reverse().join('.');
-
                 return (
                   <tr
                     key={c.id}
@@ -244,32 +243,25 @@ export default function Customers() {
                         : <span style={{ color: 'var(--muted)' }}>—</span>
                       }
                     </td>
+                    <td style={{ padding: '9px 10px', fontSize: '0.75rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace" }}>
+                      {c.danisman || '—'}
+                    </td>
                     <td style={{ padding: '9px 10px' }}>
                       <Badge color={getStatusColor(c.durum)} bg={getStatusBg(c.durum)} border={getStatusBorder(c.durum)}>
                         {c.durum}
                       </Badge>
                     </td>
-                    <td style={{ padding: '9px 10px', fontSize: '0.72rem', color: 'var(--muted)', whiteSpace: 'nowrap' }}>
-                      {c.gorusme ? formatDateTime(c.gorusme) : '—'}
+                    <td style={{ padding: '9px 10px', fontSize: '0.72rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace" }}>
+                      {c.statu || '—'}
                     </td>
-                    <td style={{ padding: '9px 10px', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.72rem', color: takipColor, whiteSpace: 'nowrap', fontWeight: days !== null && days <= 1 ? 600 : 400 }}>
-                      {takipText}
-                    </td>
-                    <td style={{ padding: '9px 10px' }}>
-                      {c.surec
-                        ? <Badge color="var(--muted)" bg="rgba(100,116,139,0.15)" border="rgba(100,116,139,0.3)">{c.surec}</Badge>
-                        : <span style={{ color: 'var(--muted)' }}>—</span>
-                      }
-                    </td>
-                    <td style={{ padding: '9px 10px', fontSize: '0.75rem', color: 'var(--muted)' }}>{c.karar || '—'}</td>
-                    <td style={{ padding: '9px 10px', maxWidth: 180 }}>
+                    <td style={{ padding: '9px 10px', maxWidth: 220 }}>
                       <div style={{
                         color: 'var(--muted)',
                         fontSize: '0.72rem',
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
-                        maxWidth: 180,
+                        maxWidth: 220,
                       }}>{c.not || ''}</div>
                     </td>
                     <td style={{ padding: '9px 10px', textAlign: 'right', whiteSpace: 'nowrap' }} onClick={e => e.stopPropagation()}>
