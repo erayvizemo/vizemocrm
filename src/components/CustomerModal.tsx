@@ -6,6 +6,16 @@ import { getStatusColor, getStatusBg } from '../utils/helpers';
 const DANISMAN_LIST = ['Eray', 'Dilara', 'Selin', 'Merve', 'Ali', 'Diğer'];
 const SEHIR_LIST = ['Eskişehir', 'Gaziantep', 'İstanbul', 'Ankara', 'Diğer'];
 const KAYNAK_LIST = ['Instagram', 'Referans', 'Web Site', 'Yüz Yüze', 'WhatsApp', 'Diğer'];
+const ULKE_LIST = [
+  // Schengen Ülkeleri
+  'Almanya', 'Avusturya', 'Belçika', 'Çekya', 'Danimarka', 'Estonya',
+  'Finlandiya', 'Fransa', 'Hırvatistan', 'Hollanda', 'İspanya', 'İsveç',
+  'İsviçre', 'İtalya', 'İzlanda', 'Letonya', 'Litvanya', 'Lüksemburg',
+  'Macaristan', 'Malta', 'Norveç', 'Polonya', 'Portekiz', 'Slovakya',
+  'Slovenya', 'Yunanistan',
+  // Diğer Ülkeler
+  'Amerika (ABD)', 'İngiltere', 'Kanada', 'Dubai (BAE)',
+];
 
 const inputStyle: React.CSSProperties = {
   background: 'var(--surface2)',
@@ -299,15 +309,21 @@ export default function CustomerModal() {
                   </select>
                 </FormField>
                 <FormField label="Ülke">
-                  <input
-                    type="text"
+                  <select
                     value={form.ulke}
                     onChange={e => setForm(p => ({ ...p, ulke: e.target.value }))}
-                    placeholder="Örn: Türkiye"
                     style={inputStyle}
                     onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
                     onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                  />
+                  >
+                    <option value="">Seçin...</option>
+                    <optgroup label="Schengen Ülkeleri">
+                      {ULKE_LIST.slice(0, 26).map(u => <option key={u}>{u}</option>)}
+                    </optgroup>
+                    <optgroup label="Diğer Ülkeler">
+                      {ULKE_LIST.slice(26).map(u => <option key={u}>{u}</option>)}
+                    </optgroup>
+                  </select>
                 </FormField>
                 <FormField label="Kaynak">
                   <select

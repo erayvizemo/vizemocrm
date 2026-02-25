@@ -123,11 +123,13 @@ export function exportToCSV(customers: Customer[]): void {
 export function getMonthlyData(customers: Customer[]): { month: string; yeni: number; kapandi: number }[] {
   const months: Record<string, { yeni: number; kapandi: number }> = {};
   const monthNames = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
-  // Last 6 months
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date();
-    d.setMonth(d.getMonth() - i);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  // Start from February 2026, show 6 months forward
+  const startYear = 2026;
+  const startMonth = 1; // 0-indexed: 1 = February
+  for (let i = 0; i < 6; i++) {
+    const m = (startMonth + i) % 12;
+    const y = startYear + Math.floor((startMonth + i) / 12);
+    const key = `${y}-${String(m + 1).padStart(2, '0')}`;
     months[key] = { yeni: 0, kapandi: 0 };
   }
   customers.forEach(c => {
