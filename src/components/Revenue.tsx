@@ -9,6 +9,8 @@ const CITY_COLORS: Record<string, string> = {
   'İstanbul': '#38d9a9',
 };
 
+const DANISMAN_OPTIONS = ['Eray', 'Dilara', 'Elanur'];
+
 function fmt(n: number) {
   return n.toLocaleString('tr-TR') + ' ₺';
 }
@@ -29,9 +31,9 @@ export default function Revenue() {
   };
   const [form, setForm] = useState(emptyForm);
 
-  // Unique consultants & cities
+  // Unique consultants & cities – merge hardcoded list with dynamic ones
   const consultants = useMemo(() => {
-    const s = new Set<string>();
+    const s = new Set<string>(DANISMAN_OPTIONS);
     revenue.forEach(r => { if (r.danisman) s.add(r.danisman); });
     return Array.from(s).sort();
   }, [revenue]);
