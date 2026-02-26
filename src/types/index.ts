@@ -1,5 +1,28 @@
 export type StatusType = 'Yeni Lead' | 'Beklemede' | 'Tamamlandı' | 'Olumsuz';
-export type ViewType = 'dashboard' | 'customers' | 'pipeline' | 'calendar' | 'reports' | 'eskisehir' | 'gaziantep' | 'istanbul' | 'gelir';
+export type ViewType = 'dashboard' | 'customers' | 'pipeline' | 'calendar' | 'reports' | 'eskisehir' | 'gaziantep' | 'istanbul' | 'gelir' | 'leodessaTracking' | 'leodessaLeads';
+
+export type LeodessaStatus = 'new' | 'contacted' | 'transferred' | 'cancelled';
+
+export interface LeodessaLead {
+  id: string;
+  ad: string;
+  telefon: string;
+  email: string;
+  service: string;
+  serviceName: string;
+  serviceIcon: string;
+  score: number;
+  temperature: string;
+  isDisqualified: boolean;
+  answers: Record<string, string>;
+  notes: Record<string, string>;
+  textAnswers: Record<string, string>;
+  summaryText: string;
+  createdAt: string;
+  status: LeodessaStatus;
+  crmTransferred: boolean;
+  crmCustomerId?: string;
+}
 
 export interface LogEntry {
   timestamp: string;

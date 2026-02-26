@@ -8,6 +8,8 @@ import FollowUpCalendar from './components/FollowUpCalendar';
 import Reports from './components/Reports';
 import CityView from './components/CityView';
 import Revenue from './components/Revenue';
+import LeodessaTracking from './components/LeodessaTracking';
+import LeodessaLeads from './components/LeodessaLeads';
 
 function AppShell() {
   const { view, toasts } = useApp();
@@ -25,6 +27,8 @@ function AppShell() {
         {view === 'gaziantep' && <CityView city="Gaziantep" />}
         {view === 'istanbul' && <CityView city="İstanbul" />}
         {view === 'gelir' && <Revenue />}
+        {view === 'leodessaTracking' && <LeodessaTracking />}
+        {view === 'leodessaLeads' && <LeodessaLeads />}
       </main>
       <CustomerModal />
       {/* Toast notifications */}

@@ -1,5 +1,7 @@
 import { useApp } from '../context/AppContext';
 import { ViewType, StatusType } from '../types';
+
+const LEODESSA_COLOR = '#a855f7';
 import { getStatusColor } from '../utils/helpers';
 
 const mainNav: { view: ViewType; icon: string; label: string }[] = [
@@ -24,7 +26,7 @@ const statusDots: { status: StatusType; label: string }[] = [
 ];
 
 export default function Sidebar() {
-  const { view, setView, customers, openModal } = useApp();
+  const { view, setView, customers, openModal, leodessaLeads } = useApp();
 
   const counts: Record<StatusType, number> = {
     'Yeni Lead': 0, 'Beklemede': 0, 'Tamamlandı': 0, 'Olumsuz': 0,
@@ -98,23 +100,43 @@ export default function Sidebar() {
     }}>
       {/* Logo */}
       <div style={{
-        padding: '20px 20px 16px',
+        padding: '24px 20px 20px',
         borderBottom: '1px solid var(--border)',
         flexShrink: 0,
       }}>
         <div style={{
-          fontFamily: "'IBM Plex Mono', monospace",
-          fontWeight: 600,
-          fontSize: '1.05rem',
-          letterSpacing: '0.05em',
-          color: 'var(--accent)',
+          fontFamily: "'Inter', sans-serif",
+          fontWeight: 700,
+          fontSize: '1.15rem',
+          letterSpacing: '0.04em',
+          color: 'var(--text)',
+          lineHeight: 1.3,
         }}>
-          VİZE<span style={{ color: 'var(--text)' }}>MO</span>
-          <span style={{ color: 'var(--accent2)', marginLeft: 4 }}>CRM</span>
+          <span style={{
+            background: 'linear-gradient(135deg, var(--accent), var(--accent2))',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}>VİZEMO</span>
         </div>
-        <div style={{ color: 'var(--muted)', fontSize: '0.65rem', fontFamily: "'IBM Plex Mono', monospace", marginTop: 3 }}>
+        <div style={{
+          fontFamily: "'Inter', sans-serif",
+          fontSize: '0.72rem',
+          fontWeight: 400,
+          color: 'var(--muted)',
+          marginTop: 4,
+          letterSpacing: '0.06em',
+        }}>
           Müşteri Takip Sistemi
         </div>
+        <div style={{
+          width: 36,
+          height: 2,
+          borderRadius: 2,
+          background: 'linear-gradient(90deg, var(--accent), var(--accent2))',
+          marginTop: 10,
+          opacity: 0.7,
+        }} />
       </div>
 
       {/* Scrollable nav */}
@@ -178,6 +200,39 @@ export default function Sidebar() {
         {/* Gelir */}
         <div style={{ height: 1, background: 'var(--border)', margin: '10px 4px 8px' }} />
         <NavBtn item={{ view: 'gelir', icon: '💰', label: 'Gelir Takibi' }} color="#f7c94f" />
+
+        {/* Leodessa */}
+        <div style={{ height: 1, background: 'var(--border)', margin: '10px 4px 8px' }} />
+        <div style={{ fontSize: '0.62rem', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.08em', color: LEODESSA_COLOR, marginBottom: 6, paddingLeft: 4, fontWeight: 700 }}>
+          ✈ Leodessa
+        </div>
+        <NavBtn item={{ view: 'leodessaTracking', icon: '🎯', label: 'Lead Tracking' }} color={LEODESSA_COLOR} />
+        <button
+          onClick={() => setView('leodessaLeads')}
+          style={{
+            width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+            padding: '8px 12px', borderRadius: 8, border: 'none', cursor: 'pointer',
+            fontSize: '0.83rem', fontFamily: "'IBM Plex Sans', sans-serif",
+            fontWeight: view === 'leodessaLeads' ? 500 : 400, marginBottom: 2,
+            background: view === 'leodessaLeads' ? `${LEODESSA_COLOR}22` : 'transparent',
+            color: view === 'leodessaLeads' ? LEODESSA_COLOR : 'var(--muted)',
+            textAlign: 'left', transition: 'all 0.15s',
+          }}
+          onMouseEnter={e => { if (view !== 'leodessaLeads') { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.04)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--text)'; } }}
+          onMouseLeave={e => { if (view !== 'leodessaLeads') { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--muted)'; } }}
+        >
+          <span style={{ fontSize: '0.88rem', lineHeight: 1 }}>⭐</span>
+          <span style={{ flex: 1 }}>New Leads</span>
+          {leodessaLeads.length > 0 && (
+            <span style={{
+              fontSize: '0.65rem', fontFamily: "'IBM Plex Mono', monospace",
+              background: `${LEODESSA_COLOR}22`, color: LEODESSA_COLOR,
+              borderRadius: 4, padding: '1px 5px', fontWeight: 700,
+            }}>
+              {leodessaLeads.length}
+            </span>
+          )}
+        </button>
 
         {/* Divider + Status summary */}
         <div style={{ height: 1, background: 'var(--border)', margin: '10px 4px 8px' }} />

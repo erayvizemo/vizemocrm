@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { Customer, ModalState, ViewType } from '../types';
+import { Customer, ModalState, ViewType, LeodessaLead } from '../types';
 import { allImportedCustomers, revenueData as importedRevenue, RevenueEntry } from '../data/importedData';
 import { generateId } from '../utils/helpers';
 import { sendToGoogleSheets } from '../services/googleSheets';
@@ -28,6 +28,10 @@ interface AppContextType {
   addRevenue: (data: Omit<RevenueEntry, 'id'>) => void;
   toasts: Toast[];
   showToast: (message: string, type?: Toast['type']) => void;
+  leodessaLeads: LeodessaLead[];
+  addLeodessaLead: (data: Omit<LeodessaLead, 'id' | 'createdAt'>) => void;
+  updateLeodessaLead: (id: string, data: Partial<LeodessaLead>) => void;
+  deleteLeodessaLead: (id: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -69,6 +73,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [modal, setModal] = useState<ModalState>({ isOpen: false, customerId: null });
   const [toasts, setToasts] = useState<Toast[]>([]);
 
+  const [leodessaLeads, setLeodessaLeads] = useState<LeodessaLead[]>(() => {
+    try {
+      const saved = localStorage.getItem('vizemo_leodessa_leads');
+      if (saved) return JSON.parse(saved) as LeodessaLead[];
+    } catch { /* ignore */ }
+    return [];
+  });
+
   useEffect(() => {
     localStorage.setItem('vizemo_customers', JSON.stringify(customers));
   }, [customers]);
@@ -76,6 +88,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     localStorage.setItem('vizemo_revenue', JSON.stringify(revenue));
   }, [revenue]);
+
+  useEffect(() => {
+    localStorage.setItem('vizemo_leodessa_leads', JSON.stringify(leodessaLeads));
+  }, [leodessaLeads]);
 
   const openModal = useCallback((customerId?: string) => {
     setModal({ isOpen: true, customerId: customerId ?? null });
@@ -141,6 +157,25 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     showToast(`${data.ad} için gelir kaydı eklendi.`);
   }, [showToast]);
 
+  const addLeodessaLead = useCallback((data: Omit<LeodessaLead, 'id' | 'createdAt'>) => {
+    const now = new Date().toISOString().substring(0, 10);
+    const lead: LeodessaLead = { ...data, id: generateId(), createdAt: now };
+    setLeodessaLeads(prev => [lead, ...prev]);
+    showToast(`${data.ad} Leodessa lead olarak kaydedildi.`);
+  }, [showToast]);
+
+  const updateLeodessaLead = useCallback((id: string, data: Partial<LeodessaLead>) => {
+    setLeodessaLeads(prev => prev.map(l => l.id === id ? { ...l, ...data } : l));
+  }, []);
+
+  const deleteLeodessaLead = useCallback((id: string) => {
+    setLeodessaLeads(prev => {
+      const lead = prev.find(l => l.id === id);
+      showToast(`${lead?.ad ?? 'Lead'} silindi.`, 'info');
+      return prev.filter(l => l.id !== id);
+    });
+  }, [showToast]);
+
   return (
     <AppContext.Provider value={{
       customers, revenue, view, setView,
@@ -148,6 +183,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       addCustomer, updateCustomer, deleteCustomer,
       addRevenue,
       toasts, showToast,
+      leodessaLeads, addLeodessaLead, updateLeodessaLead, deleteLeodessaLead,
     }}>
       {children}
     </AppContext.Provider>
