@@ -47,10 +47,10 @@ function getActionInfo(score: number, disq: boolean) {
 }
 
 const alertColors: Record<string, { bg: string; border: string; color: string }> = {
-  red:    { bg: 'rgba(239,68,68,0.08)',   border: 'rgba(239,68,68,0.3)',   color: '#fca5a5' },
-  green:  { bg: 'rgba(34,197,94,0.08)',   border: 'rgba(34,197,94,0.3)',   color: '#86efac' },
-  yellow: { bg: 'rgba(245,158,11,0.08)',  border: 'rgba(245,158,11,0.3)',  color: '#fde68a' },
-  blue:   { bg: 'rgba(59,130,246,0.08)',  border: 'rgba(59,130,246,0.3)',  color: '#93c5fd' },
+  red: { bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.3)', color: '#fca5a5' },
+  green: { bg: 'rgba(34,197,94,0.08)', border: 'rgba(34,197,94,0.3)', color: '#86efac' },
+  yellow: { bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.3)', color: '#fde68a' },
+  blue: { bg: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.3)', color: '#93c5fd' },
 };
 
 // ────── small reusable input style ──────
@@ -71,31 +71,31 @@ export default function LeodessaTracking() {
   const { addLeodessaLead, setView } = useApp();
 
   // ── Lead identity (persistent across service changes) ──
-  const [leadAd, setLeadAd]       = useState('');
-  const [leadTel, setLeadTel]     = useState('');
+  const [leadAd, setLeadAd] = useState('');
+  const [leadTel, setLeadTel] = useState('');
   const [leadEmail, setLeadEmail] = useState('');
 
   // ── Wizard state ──
   // curStep = -1  →  intro (name/phone collection)
   // curStep ≥ 0   →  qualification steps
   // curStep >= totalSteps → result page
-  const [curSvc, setCurSvc]       = useState<ServiceKey>('schengen');
-  const [curStep, setCurStep]     = useState(-1);
-  const [answers, setAnswers]     = useState<Record<string, string>>({});
-  const [notes, setNotes]         = useState<Record<string, string>>({});
-  const [textAns, setTextAns]     = useState<Record<string, string>>({});
+  const [curSvc, setCurSvc] = useState<ServiceKey>('schengen');
+  const [curStep, setCurStep] = useState(-1);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [notes, setNotes] = useState<Record<string, string>>({});
+  const [textAns, setTextAns] = useState<Record<string, string>>({});
   const [openNotes, setOpenNotes] = useState<Record<string, boolean>>({});
 
   // ── Transfer modal ──
   const [showTransfer, setShowTransfer] = useState(false);
-  const [tAd, setTAd]     = useState('');
-  const [tTel, setTTel]   = useState('');
+  const [tAd, setTAd] = useState('');
+  const [tTel, setTTel] = useState('');
   const [tEmail, setTEmail] = useState('');
 
-  const svc        = services[curSvc];
+  const svc = services[curSvc];
   const totalSteps = svc.steps.length;
-  const isIntro    = curStep === -1;
-  const isResult   = curStep >= totalSteps;
+  const isIntro = curStep === -1;
+  const isResult = curStep >= totalSteps;
 
   // ── Score (derived) ──
   const score = useMemo(() => {
@@ -127,10 +127,10 @@ export default function LeodessaTracking() {
   // ── Progress ──
   const progressPct = isResult ? 100
     : isIntro ? 0
-    : Math.round(((curStep + 1) / totalSteps) * 100);
+      : Math.round(((curStep + 1) / totalSteps) * 100);
   const progressText = isResult ? `${totalSteps} / ${totalSteps}`
     : isIntro ? `0 / ${totalSteps}`
-    : `${curStep + 1} / ${totalSteps}`;
+      : `${curStep + 1} / ${totalSteps}`;
 
   const tempInfo = getTemperatureInfo(score, disq);
 
@@ -190,6 +190,12 @@ export default function LeodessaTracking() {
         const o = q.options.find(x => x.value === answers[q.id]);
         if (o) text += `${q.text}: ${o.label}\n`;
         if (notes[q.id]?.trim()) text += `  → Not: ${notes[q.id]}\n`;
+        if (q.subFields && q.subFields.showOnValues.includes(answers[q.id])) {
+          q.subFields.fields.forEach(sf => {
+            const val = textAns[sf.id];
+            if (val?.trim()) text += `  → ${sf.label}: ${val}\n`;
+          });
+        }
       }
     }));
     return text;
@@ -409,7 +415,7 @@ export default function LeodessaTracking() {
 
   // ─── Qualification step ───
   function renderStep() {
-    if (isIntro)  return renderIntroStep();
+    if (isIntro) return renderIntroStep();
     if (isResult) return renderResult();
 
     const step = svc.steps[curStep];
@@ -482,14 +488,14 @@ export default function LeodessaTracking() {
                       const scoreStr = opt.score > 0 ? `+${opt.score}` : opt.score < 0 ? `${opt.score}` : '0';
                       let btnBg = isSelected ? `${LEODESSA_COLOR}18` : 'transparent';
                       let btnBorder = isSelected ? LEODESSA_COLOR : 'var(--border)';
-                      let btnColor  = isSelected ? LEODESSA_COLOR : 'var(--muted)';
+                      let btnColor = isSelected ? LEODESSA_COLOR : 'var(--muted)';
                       if (cls === 'disqualify') {
-                        btnBg     = isSelected ? 'rgba(239,68,68,0.18)' : 'rgba(239,68,68,0.04)';
+                        btnBg = isSelected ? 'rgba(239,68,68,0.18)' : 'rgba(239,68,68,0.04)';
                         btnBorder = isSelected ? '#ef4444' : 'rgba(239,68,68,0.35)';
-                        btnColor  = isSelected ? '#fca5a5' : 'rgba(239,68,68,0.7)';
+                        btnColor = isSelected ? '#fca5a5' : 'rgba(239,68,68,0.7)';
                       } else if (cls === 'boost') {
                         if (!isSelected) btnBorder = 'rgba(34,197,94,0.4)';
-                        if (isSelected)  { btnBg = 'rgba(34,197,94,0.12)'; btnBorder = '#22c55e'; btnColor = '#86efac'; }
+                        if (isSelected) { btnBg = 'rgba(34,197,94,0.12)'; btnBorder = '#22c55e'; btnColor = '#86efac'; }
                       }
                       return (
                         <button key={opt.value} onClick={() => setAnswers(prev => ({ ...prev, [q.id]: opt.value }))} style={{
@@ -512,6 +518,26 @@ export default function LeodessaTracking() {
                       </div>
                     );
                   })()}
+                  {q.subFields && answers[q.id] && q.subFields.showOnValues.includes(answers[q.id]) && (
+                    <div style={{ padding: '14px 16px', borderRadius: 10, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.25)', marginBottom: 8 }}>
+                      <div style={{ fontSize: '0.62rem', color: '#f59e0b', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 12 }}>
+                        📋 Ek Bilgiler
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                        {q.subFields.fields.map(sf => (
+                          <div key={sf.id}>
+                            <label style={{ ...labelStyle, color: '#fde68a', fontSize: '0.62rem' }}>{sf.label}</label>
+                            <input
+                              value={textAns[sf.id] ?? ''}
+                              onChange={e => setTextAns(prev => ({ ...prev, [sf.id]: e.target.value }))}
+                              placeholder={sf.placeholder ?? ''}
+                              style={inputStyle}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   {q.hasNote && (
                     <div style={{ marginTop: 8 }}>
                       <button onClick={() => setOpenNotes(prev => ({ ...prev, [q.id]: !prev[q.id] }))} style={{ fontSize: '0.72rem', color: noteOpen ? LEODESSA_COLOR : 'var(--muted)', background: 'transparent', border: `1px dashed ${noteOpen ? LEODESSA_COLOR : 'var(--border)'}`, borderRadius: 6, padding: '4px 10px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
@@ -561,6 +587,12 @@ export default function LeodessaTracking() {
         if (o) {
           summaryItems.push({ label: q.text, value: o.label });
           if (notes[q.id]?.trim()) summaryItems.push({ label: `✏️ Not: ${q.text}`, value: notes[q.id], isNote: true });
+          if (q.subFields && q.subFields.showOnValues.includes(answers[q.id])) {
+            q.subFields.fields.forEach(sf => {
+              const val = textAns[sf.id];
+              if (val?.trim()) summaryItems.push({ label: `📋 ${sf.label}`, value: val });
+            });
+          }
         }
       }
     }));
@@ -585,7 +617,7 @@ export default function LeodessaTracking() {
                 {svc.name} — {leadAd} | {leadTel}
               </div>
             </div>
-            <button onClick={() => { const t = buildSummaryText(); navigator.clipboard?.writeText(t).catch(() => {}); }} style={{ marginLeft: 'auto', padding: '7px 14px', background: `${LEODESSA_COLOR}18`, border: `1px solid ${LEODESSA_COLOR}55`, borderRadius: 6, color: LEODESSA_COLOR, fontSize: '0.78rem', cursor: 'pointer' }}>
+            <button onClick={() => { const t = buildSummaryText(); navigator.clipboard?.writeText(t).catch(() => { }); }} style={{ marginLeft: 'auto', padding: '7px 14px', background: `${LEODESSA_COLOR}18`, border: `1px solid ${LEODESSA_COLOR}55`, borderRadius: 6, color: LEODESSA_COLOR, fontSize: '0.78rem', cursor: 'pointer' }}>
               📋 Notu Kopyala
             </button>
           </div>

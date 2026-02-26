@@ -10,6 +10,12 @@ export interface ServiceAlert {
   text: string;
 }
 
+export interface SubField {
+  id: string;
+  label: string;
+  placeholder?: string;
+}
+
 export interface ServiceQuestion {
   id: string;
   text: string;
@@ -20,6 +26,10 @@ export interface ServiceQuestion {
   options?: ServiceOption[];
   alerts?: Record<string, ServiceAlert>;
   placeholder?: string;
+  subFields?: {
+    showOnValues: string[];
+    fields: SubField[];
+  };
 }
 
 export interface ServiceStep {
@@ -196,6 +206,31 @@ export const services: Record<ServiceKey, LeodessaService> = {
               { label: 'Evet, Schengen red var', value: 'schengen_red', score: -3, cssClass: 'disqualify' },
               { label: 'Evet, başka ülke red var', value: 'diger_red', score: -1 },
             ],
+            alerts: {
+              schengen_red: { type: 'yellow', text: '⚠️ Schengen red geçmişi: Red gerekçesini öğrenin. Kaç ay geçtiğini ve hangi ülkeden alındığını not alın.' },
+              diger_red: { type: 'yellow', text: '⚠️ Farklı ülke red geçmişi: Hangi ülke ve ne kadar süre geçtiğini belirtin. Gerekçeyi satış ekibine aktarın.' },
+            },
+            subFields: {
+              showOnValues: ['schengen_red', 'diger_red'],
+              fields: [
+                { id: 'red_kac_ay', label: 'Kaç ay geçmiş?', placeholder: 'Örn: 6 ay önce' },
+                { id: 'red_ulke', label: 'Red aldığı ülke neresi?', placeholder: 'Örn: Almanya Konsolosluğu' },
+              ],
+            },
+          },
+          {
+            id: 'davet_mektubu', text: 'Davet mektubunuz var mı?',
+            script: '"Seyahatiniz için bir davet mektubu var mı? (İş toplantısı, aile ziyareti, fuar vb. için düzenlenmiş resmi davet.)"',
+            type: 'options', hasNote: true, required: false,
+            options: [
+              { label: '✅ Evet, resmi kurumsal davet mektubum var', value: 'resmi', score: 8, cssClass: 'boost' },
+              { label: '👨‍👩‍👧 Evet, aile / kişisel davet var', value: 'kisisel', score: 5 },
+              { label: '❌ Hayır, davet mektubum yok', value: 'yok', score: 0 },
+            ],
+            alerts: {
+              resmi: { type: 'green', text: '✅ Resmi davet mektubu başvuru dosyasını güçlü kılar. Mutlaka dosyaya ekleyin.' },
+              kisisel: { type: 'blue', text: 'ℹ️ Kişisel davet: Noterce onaylı veya konsolosluk onaylı davet mektupları için müşteriyi yönlendirin.' },
+            },
           },
         ],
       },
