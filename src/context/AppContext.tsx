@@ -46,8 +46,7 @@ export const FAKE_USERS: User[] = [
   { id: 'u1', name: 'Dilara', role: 'leodessa_admin' },
   { id: 'u2', name: 'Eray', role: 'sdr' },
   { id: 'u3', name: 'Elanur', role: 'sdr' },
-  { id: 'u4', name: 'Selin', role: 'vizemo_sales' },
-  { id: 'u5', name: 'Merve', role: 'vizemo_sales' }
+  { id: 'u4', name: 'Ayşe', role: 'leodessa_admin' }
 ];
 
 export function AppProvider({ children }: { children: React.ReactNode }) {

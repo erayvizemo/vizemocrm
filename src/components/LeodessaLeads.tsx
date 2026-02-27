@@ -83,10 +83,10 @@ export default function LeodessaLeads() {
       <div style={{ marginBottom: 32 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
           <div style={{ width: 12, height: 12, borderRadius: '50%', background: LEODESSA_COLOR, boxShadow: `0 0 12px ${LEODESSA_COLOR}` }} />
-          <h1 style={{ fontSize: '28px', color: LEODESSA_COLOR }}>Leodessa Akıllı Lead Havuzu</h1>
+          <h1 style={{ fontSize: '28px', color: LEODESSA_COLOR }}>Ayşe & Ortakları Akıllı Lead Havuzu</h1>
         </div>
         <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontFamily: "'DM Sans', sans-serif" }}>
-          Leodessa yapay zeka aracından gelen lead adayları
+          Ayşe & Ortakları yapay zeka aracından gelen lead adayları
         </div>
       </div>
 

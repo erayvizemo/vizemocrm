@@ -9,7 +9,7 @@ const CITY_COLORS: Record<string, string> = {
   'İstanbul': 'var(--accent-emerald)',
 };
 
-const DANISMAN_OPTIONS = ['Eray', 'Dilara', 'Elanur', 'Selin', 'Merve'];
+const DANISMAN_OPTIONS = ['Eray', 'Dilara', 'Elanur'];
 
 function fmt(n: number) {
   return n.toLocaleString('tr-TR') + ' ₺';
