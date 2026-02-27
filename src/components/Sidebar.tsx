@@ -109,6 +109,14 @@ export default function Sidebar() {
         {/* Leodessa */}
         <div className="sidebar-section-title" style={{ color: LEODESSA_COLOR }}>✈ Leodessa</div>
         <button
+          className={`nav-item ${view === 'leodessaUpload' ? 'active' : ''}`}
+          onClick={() => setView('leodessaUpload')}
+          style={{ width: '100%', textAlign: 'left', background: 'transparent' }}
+        >
+          <span style={{ fontSize: '15px' }}>📥</span>
+          <span style={{ flex: 1 }}>Manuel Lead Girişi</span>
+        </button>
+        <button
           className={`nav-item ${view === 'leodessaTracking' ? 'active' : ''}`}
           onClick={() => setView('leodessaTracking')}
           style={{ width: '100%', textAlign: 'left', background: 'transparent' }}

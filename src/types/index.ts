@@ -28,7 +28,7 @@ export const VIZEMO_STAGES: StatusType[] = [
 ];
 export const LEGACY_STAGES: StatusType[] = ['Beklemede', 'Tamamlandı', 'Olumsuz'];
 
-export type ViewType = 'dashboard' | 'customers' | 'pipeline' | 'calendar' | 'reports' | 'eskisehir' | 'gaziantep' | 'istanbul' | 'gelir' | 'leodessaTracking' | 'leodessaLeads' | 'sdrDashboard';
+export type ViewType = 'dashboard' | 'customers' | 'pipeline' | 'calendar' | 'reports' | 'eskisehir' | 'gaziantep' | 'istanbul' | 'gelir' | 'leodessaTracking' | 'leodessaLeads' | 'sdrDashboard' | 'leodessaUpload';
 
 export type LeodessaStatus = 'new' | 'contacted' | 'transferred' | 'cancelled';
 
@@ -52,6 +52,9 @@ export interface LeodessaLead {
   status: LeodessaStatus;
   crmTransferred: boolean;
   crmCustomerId?: string;
+  salesConsultant?: string;   // Satış danışmanı adı soyadı (manuel giriş)
+  kaynak?: string;            // Lead kaynağı (Meta Ads, Google Ads, vb.)
+  sehir?: string;             // Müşteri şehri
 }
 
 export interface LogEntry {

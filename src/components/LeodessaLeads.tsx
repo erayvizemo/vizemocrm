@@ -51,12 +51,13 @@ export default function LeodessaLeads() {
       karar: '',
       not: lead.summaryText.substring(0, 500),
       log: [],
-      sehir: '',
-      danisman: '',
+      sehir: lead.sehir || '',
+      danisman: lead.salesConsultant || '',
       statu: '',
-      kaynak: 'Leodessa Lead',
+      kaynak: lead.kaynak || 'Leodessa Lead',
       evrakPct: '',
-      ulke: ''
+      ulke: '',
+      leadSource: lead.kaynak || 'Diğer',
     });
 
     updateLeodessaLead(lead.id, { crmTransferred: true, status: 'transferred' });
@@ -198,6 +199,16 @@ export default function LeodessaLeads() {
                   }}>
                     {lead.crmTransferred ? '✅ CRM\'e Aktarıldı' : lead.temperature}
                   </span>
+                  {lead.kaynak && (
+                    <span style={{ padding: '4px 10px', borderRadius: 6, fontSize: '11px', color: 'var(--accent-amber)', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', whiteSpace: 'nowrap' }}>
+                      📢 {lead.kaynak}
+                    </span>
+                  )}
+                  {lead.salesConsultant && (
+                    <span style={{ padding: '4px 10px', borderRadius: 6, fontSize: '11px', color: 'var(--text-secondary)', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', whiteSpace: 'nowrap' }}>
+                      👤 {lead.salesConsultant}
+                    </span>
+                  )}
                   <span style={{ padding: '4px 10px', borderRadius: 6, fontSize: '11px', color: 'var(--text-muted)', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
                     {lead.createdAt}
                   </span>

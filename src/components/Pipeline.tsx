@@ -304,27 +304,38 @@ export default function Pipeline() {
                               </div>
                             )}
 
-                            {/* Next stage quick buttons */}
-                            <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--border-subtle)' }}>
-                              {allStages
-                                .filter(s => s !== stage)
-                                .slice(0, 3)
-                                .map(s => (
-                                  <button
-                                    key={s}
-                                    onClick={(e) => moveCustomer(c.id, s, e)}
-                                    style={{
-                                      fontSize: '9px', padding: '2px 6px', borderRadius: 4,
-                                      border: `1px solid ${(STAGE_META[s] ?? STAGE_META['Yeni Lead']).color}40`,
-                                      background: 'transparent',
-                                      color: (STAGE_META[s] ?? STAGE_META['Yeni Lead']).color,
-                                      cursor: 'pointer', fontWeight: 600,
-                                    }}
-                                  >
-                                    → {s.length > 14 ? s.substring(0, 14) + '…' : s}
-                                  </button>
-                                ))}
-                            </div>
+                            {/* Adjacent stage quick buttons */}
+                            {(() => {
+                              const stageIdx = allStages.indexOf(stage);
+                              // Show: prev stage + next 2 stages; highlight Vizemo handoff
+                              const quickBtns: { s: StatusType; dir: 'prev' | 'next' | 'handoff' }[] = [];
+                              if (stageIdx > 0) quickBtns.push({ s: allStages[stageIdx - 1], dir: 'prev' });
+                              if (stageIdx < allStages.length - 1) quickBtns.push({ s: allStages[stageIdx + 1], dir: stage === 'Vizemo Ekibine Devredildi' ? 'handoff' : 'next' });
+                              if (stageIdx < allStages.length - 2 && stage !== 'Vizemo Ekibine Devredildi') quickBtns.push({ s: allStages[stageIdx + 2], dir: 'next' });
+                              return (
+                                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--border-subtle)' }}>
+                                  {quickBtns.map(({ s, dir }) => {
+                                    const sm = STAGE_META[s] ?? STAGE_META['Yeni Lead'];
+                                    const isHandoff = dir === 'handoff';
+                                    return (
+                                      <button
+                                        key={s}
+                                        onClick={(e) => moveCustomer(c.id, s, e)}
+                                        style={{
+                                          fontSize: '9px', padding: isHandoff ? '3px 8px' : '2px 6px', borderRadius: 4,
+                                          border: `1px solid ${isHandoff ? sm.color : sm.color + '40'}`,
+                                          background: isHandoff ? `${sm.color}15` : 'transparent',
+                                          color: sm.color,
+                                          cursor: 'pointer', fontWeight: isHandoff ? 700 : 600,
+                                        }}
+                                      >
+                                        {dir === 'prev' ? '← ' : isHandoff ? '🤝 ' : '→ '}{s.length > 14 ? s.substring(0, 14) + '…' : s}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              );
+                            })()}
                           </div>
                         );
                       })

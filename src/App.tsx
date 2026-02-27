@@ -10,6 +10,7 @@ import CityView from './components/CityView';
 import Revenue from './components/Revenue';
 import LeodessaTracking from './components/LeodessaTracking';
 import LeodessaLeads from './components/LeodessaLeads';
+import LeodessaUpload from './components/LeodessaUpload';
 import SDRDashboard from './components/SDRDashboard';
 
 function AppShell() {
@@ -29,6 +30,7 @@ function AppShell() {
           {view === 'gaziantep' && <CityView city="Gaziantep" />}
           {view === 'istanbul' && <CityView city="İstanbul" />}
           {view === 'gelir' && <Revenue />}
+          {view === 'leodessaUpload' && <LeodessaUpload />}
           {view === 'leodessaTracking' && <LeodessaTracking />}
           {view === 'leodessaLeads' && <LeodessaLeads />}
           {view === 'sdrDashboard' && <SDRDashboard />}
