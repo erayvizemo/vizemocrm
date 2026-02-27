@@ -1,49 +1,30 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { Customer, VISA_TYPES, STATUS_TYPES, PROCESS_TYPES, DECISION_TYPES, QUICK_CHIPS } from '../types';
-import { getStatusColor, getStatusBg } from '../utils/helpers';
+import { getStatusColor, getStatusBg, getStatusClass } from '../utils/helpers';
 
 const DANISMAN_LIST = ['Eray', 'Dilara', 'Selin', 'Merve', 'Ali', 'Diğer'];
 const SEHIR_LIST = ['Eskişehir', 'Gaziantep', 'İstanbul', 'Ankara', 'Diğer'];
 const KAYNAK_LIST = ['Instagram', 'Referans', 'Web Site', 'Yüz Yüze', 'WhatsApp', 'Reklam', 'Diğer'];
 const ULKE_LIST = [
-  // Schengen Ülkeleri
   'Almanya', 'Avusturya', 'Belçika', 'Çekya', 'Danimarka', 'Estonya',
   'Finlandiya', 'Fransa', 'Hırvatistan', 'Hollanda', 'İspanya', 'İsveç',
   'İsviçre', 'İtalya', 'İzlanda', 'Letonya', 'Litvanya', 'Lüksemburg',
   'Macaristan', 'Malta', 'Norveç', 'Polonya', 'Portekiz', 'Slovakya',
-  'Slovenya', 'Yunanistan',
-  // Diğer Ülkeler
-  'Amerika (ABD)', 'İngiltere', 'Kanada', 'Dubai (BAE)',
+  'Slovenya', 'Yunanistan', 'Amerika (ABD)', 'İngiltere', 'Kanada', 'Dubai (BAE)',
 ];
-
-const inputStyle: React.CSSProperties = {
-  background: 'var(--surface2)',
-  border: '1px solid var(--border)',
-  borderRadius: 8,
-  padding: '9px 12px',
-  color: 'var(--text)',
-  fontSize: '0.82rem',
-  fontFamily: "'IBM Plex Sans', sans-serif",
-  outline: 'none',
-  width: '100%',
-  transition: 'border-color 0.15s',
-};
-
-const labelStyle: React.CSSProperties = {
-  fontSize: '0.68rem',
-  fontFamily: "'IBM Plex Mono', monospace",
-  textTransform: 'uppercase',
-  letterSpacing: '0.07em',
-  color: 'var(--muted)',
-  marginBottom: 5,
-  display: 'block',
-};
 
 function FormField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      <label style={labelStyle}>{label}</label>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <label style={{
+        fontSize: '11px',
+        fontFamily: "'Syne', sans-serif",
+        textTransform: 'uppercase',
+        letterSpacing: '0.06em',
+        color: 'var(--text-secondary)',
+        fontWeight: 600,
+      }}>{label}</label>
       {children}
     </div>
   );
@@ -135,118 +116,105 @@ export default function CustomerModal() {
   if (!isOpen) return null;
 
   return (
-    <div
-      style={{
-        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)',
-        zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        backdropFilter: 'blur(4px)',
-      }}
-      onClick={e => { if (e.target === e.currentTarget) closeModal(); }}
-    >
-      <div style={{
-        background: 'var(--surface)',
-        border: '1px solid var(--border)',
-        borderRadius: 16,
-        width: 780,
-        maxWidth: '96vw',
-        maxHeight: '92vh',
-        overflowY: 'auto',
-        padding: 28,
-        animation: 'slide-up 0.2s ease',
-        position: 'relative',
-      }}>
+    <div className="modal-overlay" onClick={e => { if (e.target === e.currentTarget) closeModal(); }}>
+      <div className="modal-content" style={{ width: 800, maxWidth: '96vw', maxHeight: '92vh', overflowY: 'auto' }}>
+
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid var(--border-subtle)' }}>
           <div>
-            <div style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--text)' }}>
-              {isNew ? 'Yeni Müşteri' : form.ad || 'Müşteriyi Düzenle'}
+            <div style={{ fontSize: '24px', fontFamily: "'Syne', sans-serif", fontWeight: 700, color: 'var(--text-primary)' }}>
+              {isNew ? '✨ Yeni Müşteri' : form.ad}
             </div>
             {!isNew && (
-              <div style={{ fontSize: '0.78rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace", marginTop: 3 }}>
-                {form.telefon || '—'}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
+                <span style={{ fontSize: '14px', fontFamily: "'Syne', sans-serif", color: 'var(--text-secondary)' }}>
+                  {form.telefon || 'Telefon yok'}
+                </span>
                 {customer && (
-                  <span style={{
-                    marginLeft: 10,
-                    color: getStatusColor(customer.durum),
-                    background: getStatusBg(customer.durum),
-                    padding: '1px 7px',
-                    borderRadius: 10,
-                    fontSize: '0.65rem',
-                  }}>{customer.durum}</span>
+                  <div className={`status-indicator ${getStatusClass(customer.durum)}`}>
+                    <span className="status-dot"></span>
+                    {customer.durum}
+                  </div>
                 )}
               </div>
             )}
           </div>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 12 }}>
             {!isNew && (
-              <button onClick={handleDelete} style={{
-                padding: '5px 12px',
-                background: 'transparent',
-                color: 'var(--danger)',
-                border: '1px solid rgba(224,92,92,0.3)',
-                borderRadius: 7,
-                cursor: 'pointer',
-                fontSize: '0.72rem',
-                fontFamily: "'IBM Plex Mono', monospace",
-              }}>
-                🗑 Sil
+              <button
+                className="btn-secondary"
+                onClick={handleDelete}
+                style={{ color: 'var(--accent-rose)', borderColor: 'rgba(244,63,94,0.3)', padding: '8px 16px' }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'rgba(244,63,94,0.1)';
+                  e.currentTarget.style.borderColor = 'var(--accent-rose)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.borderColor = 'rgba(244,63,94,0.3)';
+                }}
+              >
+                Sil
               </button>
             )}
-            <button onClick={closeModal} style={{
-              background: 'none', border: 'none', color: 'var(--muted)',
-              cursor: 'pointer', fontSize: '1.2rem', lineHeight: 1, padding: 4,
-            }}>✕</button>
+            <button className="btn-secondary" onClick={closeModal} style={{ padding: '8px 16px' }}>Kapat</button>
           </div>
         </div>
 
-        {/* Tabs (only for edit) */}
+        {/* Tabs */}
         {!isNew && (
-          <div style={{ display: 'flex', gap: 2, marginBottom: 18, borderBottom: '1px solid var(--border)', paddingBottom: 0 }}>
+          <div style={{ display: 'flex', gap: 24, marginBottom: 24, borderBottom: '1px solid var(--border-subtle)', paddingBottom: 0 }}>
             {(['info', 'log'] as const).map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 style={{
-                  padding: '7px 16px',
+                  padding: '0 0 12px 0',
                   background: 'none',
                   border: 'none',
-                  borderBottom: `2px solid ${activeTab === tab ? 'var(--accent)' : 'transparent'}`,
-                  color: activeTab === tab ? 'var(--accent)' : 'var(--muted)',
+                  borderBottom: `2px solid ${activeTab === tab ? 'var(--accent-primary)' : 'transparent'}`,
+                  color: activeTab === tab ? 'var(--accent-primary)' : 'var(--text-secondary)',
                   cursor: 'pointer',
-                  fontSize: '0.78rem',
-                  fontFamily: "'IBM Plex Mono', monospace",
+                  fontSize: '13px',
+                  fontFamily: "'Syne', sans-serif",
+                  fontWeight: 600,
                   marginBottom: -1,
-                  transition: 'all 0.15s',
+                  transition: 'all 0.2s',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
                 }}
               >
-                {tab === 'info' ? '📋 Bilgiler' : `🕐 Geçmiş (${customer?.log.length ?? 0})`}
+                {tab === 'info' ? 'Müşteri Bilgileri' : `İşlem Geçmişi (${customer?.log.length ?? 0})`}
               </button>
             ))}
           </div>
         )}
 
-        {/* Log tab */}
+        {/* Log Tab */}
         {activeTab === 'log' && customer && (
-          <div>
+          <div style={{ minHeight: 300 }}>
             {customer.log.length === 0 ? (
-              <div style={{ color: 'var(--muted)', fontSize: '0.82rem', padding: '20px 0' }}>Henüz aktivite kaydı yok.</div>
+              <div style={{ color: 'var(--text-muted)', fontSize: '14px', padding: '20px 0' }}>Henüz aktivite kaydı yok.</div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 {[...customer.log].reverse().map((entry, i) => (
                   <div key={i} style={{
                     display: 'flex',
-                    gap: 12,
-                    padding: '10px 0',
-                    borderBottom: '1px solid var(--border)',
+                    gap: 16,
+                    paddingBottom: 16,
+                    borderBottom: i < customer.log.length - 1 ? '1px solid var(--border-subtle)' : 'none',
                   }}>
                     <div style={{
-                      fontFamily: "'IBM Plex Mono', monospace",
-                      color: 'var(--muted)',
-                      fontSize: '0.7rem',
-                      minWidth: 110,
+                      fontFamily: "'Syne', sans-serif",
+                      fontWeight: 700,
+                      color: 'var(--text-muted)',
+                      fontSize: '12px',
                       whiteSpace: 'nowrap',
-                    }}>{entry.timestamp}</div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text)' }}>{entry.text}</div>
+                      paddingTop: 2
+                    }}>{entry.timestamp.substring(0, 16)}</div>
+                    <div style={{ fontSize: '14px', color: 'var(--text-primary)', lineHeight: 1.5 }}>
+                      {entry.text}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -254,68 +222,32 @@ export default function CustomerModal() {
           </div>
         )}
 
-        {/* Info tab */}
+        {/* Info Tab */}
         {activeTab === 'info' && (
-          <>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
             {/* Section: Kişisel Bilgiler */}
-            <div style={{ marginBottom: 18 }}>
-              <div style={{ fontSize: '0.62rem', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--accent)', marginBottom: 10, paddingBottom: 4, borderBottom: '1px solid var(--border)' }}>
-                👤 Kişisel Bilgiler
+            <div>
+              <div style={{ fontSize: '12px', fontFamily: "'Syne', sans-serif", fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--accent-primary)', marginBottom: 16 }}>
+                Kişisel Bilgiler
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
                 <FormField label="Ad Soyad *">
-                  <input
-                    type="text"
-                    value={form.ad}
-                    onChange={e => setForm(p => ({ ...p, ad: e.target.value }))}
-                    placeholder="Örn: Ayşe Kement"
-                    style={inputStyle}
-                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                  />
+                  <input className="form-input" type="text" value={form.ad} onChange={e => setForm(p => ({ ...p, ad: e.target.value }))} placeholder="Örn: Ayşe Kement" />
                 </FormField>
                 <FormField label="Telefon">
-                  <input
-                    type="text"
-                    value={form.telefon}
-                    onChange={e => setForm(p => ({ ...p, telefon: e.target.value }))}
-                    placeholder="+90 5xx xxx xx xx"
-                    style={inputStyle}
-                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                  />
+                  <input className="form-input" type="text" value={form.telefon} onChange={e => setForm(p => ({ ...p, telefon: e.target.value }))} placeholder="+90 5xx xxx xx xx" />
                 </FormField>
                 <FormField label="E-posta">
-                  <input
-                    type="email"
-                    value={form.email}
-                    onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
-                    placeholder="ornek@mail.com"
-                    style={inputStyle}
-                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                  />
+                  <input className="form-input" type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} placeholder="ornek@mail.com" />
                 </FormField>
                 <FormField label="Şehir">
-                  <select
-                    value={form.sehir}
-                    onChange={e => setForm(p => ({ ...p, sehir: e.target.value }))}
-                    style={inputStyle}
-                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                  >
+                  <select className="form-input" value={form.sehir} onChange={e => setForm(p => ({ ...p, sehir: e.target.value }))}>
                     <option value="">Seçin...</option>
                     {SEHIR_LIST.map(s => <option key={s}>{s}</option>)}
                   </select>
                 </FormField>
                 <FormField label="Ülke">
-                  <select
-                    value={form.ulke}
-                    onChange={e => setForm(p => ({ ...p, ulke: e.target.value }))}
-                    style={inputStyle}
-                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                  >
+                  <select className="form-input" value={form.ulke} onChange={e => setForm(p => ({ ...p, ulke: e.target.value }))}>
                     <option value="">Seçin...</option>
                     <optgroup label="Schengen Ülkeleri">
                       {ULKE_LIST.slice(0, 26).map(u => <option key={u}>{u}</option>)}
@@ -326,13 +258,7 @@ export default function CustomerModal() {
                   </select>
                 </FormField>
                 <FormField label="Kaynak">
-                  <select
-                    value={form.kaynak}
-                    onChange={e => setForm(p => ({ ...p, kaynak: e.target.value }))}
-                    style={inputStyle}
-                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                  >
+                  <select className="form-input" value={form.kaynak} onChange={e => setForm(p => ({ ...p, kaynak: e.target.value }))}>
                     <option value="">Seçin...</option>
                     {KAYNAK_LIST.map(k => <option key={k}>{k}</option>)}
                   </select>
@@ -341,236 +267,125 @@ export default function CustomerModal() {
             </div>
 
             {/* Section: Vize & Durum */}
-            <div style={{ marginBottom: 18 }}>
-              <div style={{ fontSize: '0.62rem', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--accent)', marginBottom: 10, paddingBottom: 4, borderBottom: '1px solid var(--border)' }}>
-                🛂 Vize & Durum Bilgileri
+            <div>
+              <div style={{ fontSize: '12px', fontFamily: "'Syne', sans-serif", fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--accent-primary)', marginBottom: 16 }}>
+                Vize & Operasyon
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
                 <FormField label="Vize Türü">
-                  <select
-                    value={form.vize}
-                    onChange={e => setForm(p => ({ ...p, vize: e.target.value }))}
-                    style={inputStyle}
-                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                  >
+                  <select className="form-input" value={form.vize} onChange={e => setForm(p => ({ ...p, vize: e.target.value }))}>
                     {VISA_TYPES.map(v => <option key={v}>{v}</option>)}
                   </select>
                 </FormField>
                 <FormField label="Danışman">
-                  <select
-                    value={form.danisman}
-                    onChange={e => setForm(p => ({ ...p, danisman: e.target.value }))}
-                    style={inputStyle}
-                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                  >
+                  <select className="form-input" value={form.danisman} onChange={e => setForm(p => ({ ...p, danisman: e.target.value }))}>
                     <option value="">Seçin...</option>
                     {DANISMAN_LIST.map(d => <option key={d}>{d}</option>)}
                   </select>
                 </FormField>
                 <FormField label="Durum">
-                  <select
-                    value={form.durum}
-                    onChange={e => setForm(p => ({ ...p, durum: e.target.value as Customer['durum'] }))}
-                    style={{ ...inputStyle, color: getStatusColor(form.durum) }}
-                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                  >
-                    {STATUS_TYPES.map(s => <option key={s} style={{ color: 'var(--text)' }}>{s}</option>)}
+                  <select className="form-input" value={form.durum} onChange={e => setForm(p => ({ ...p, durum: e.target.value as Customer['durum'] }))}>
+                    {STATUS_TYPES.map(s => <option key={s}>{s}</option>)}
                   </select>
                 </FormField>
-                <FormField label="Statü">
-                  <input
-                    type="text"
-                    value={form.statu}
-                    onChange={e => setForm(p => ({ ...p, statu: e.target.value }))}
-                    placeholder="Örn: Cevap Bekleniyor"
-                    style={inputStyle}
-                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                  />
+                <FormField label="Müşteri Statüsü">
+                  <input className="form-input" type="text" value={form.statu} onChange={e => setForm(p => ({ ...p, statu: e.target.value }))} placeholder="Örn: Evrak Bekleniyor" />
                 </FormField>
-                <FormField label="Süreç Durumu">
-                  <select
-                    value={form.surec}
-                    onChange={e => setForm(p => ({ ...p, surec: e.target.value }))}
-                    style={inputStyle}
-                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                  >
+                <FormField label="Süreç (Konsolosluk/Başvuru)">
+                  <select className="form-input" value={form.surec} onChange={e => setForm(p => ({ ...p, surec: e.target.value }))}>
                     <option value="">Seçin...</option>
                     {PROCESS_TYPES.map(p => <option key={p}>{p}</option>)}
                   </select>
                 </FormField>
-                <FormField label="Müşteri Kararı">
-                  <select
-                    value={form.karar}
-                    onChange={e => setForm(p => ({ ...p, karar: e.target.value }))}
-                    style={inputStyle}
-                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                  >
+                <FormField label="Müşteri Kararı / Niyeti">
+                  <select className="form-input" value={form.karar} onChange={e => setForm(p => ({ ...p, karar: e.target.value }))}>
                     <option value="">Seçin...</option>
                     {DECISION_TYPES.map(d => <option key={d}>{d}</option>)}
                   </select>
                 </FormField>
-                <FormField label="Evrak Tamamlanma (%)">
-                  <input
-                    type="text"
-                    value={form.evrakPct}
-                    onChange={e => setForm(p => ({ ...p, evrakPct: e.target.value }))}
-                    placeholder="Örn: %75"
-                    style={inputStyle}
-                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                  />
+                <FormField label="Evrak Tamamlanma">
+                  <input className="form-input" type="text" value={form.evrakPct} onChange={e => setForm(p => ({ ...p, evrakPct: e.target.value }))} placeholder="Örn: %75" />
                 </FormField>
               </div>
             </div>
 
             {/* Section: Tarihler */}
-            <div style={{ marginBottom: 18 }}>
-              <div style={{ fontSize: '0.62rem', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--accent)', marginBottom: 10, paddingBottom: 4, borderBottom: '1px solid var(--border)' }}>
-                📅 Tarih Bilgileri
+            <div>
+              <div style={{ fontSize: '12px', fontFamily: "'Syne', sans-serif", fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--accent-primary)', marginBottom: 16 }}>
+                Takvim
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <FormField label="Görüşme Tarihi & Saati">
-                  <input
-                    type="datetime-local"
-                    value={form.gorusme}
-                    onChange={e => setForm(p => ({ ...p, gorusme: e.target.value }))}
-                    style={{ ...inputStyle, colorScheme: 'dark' }}
-                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                  />
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
+                <FormField label="Görüşme Tarihi">
+                  <input className="form-input" type="datetime-local" value={form.gorusme} onChange={e => setForm(p => ({ ...p, gorusme: e.target.value }))} />
                 </FormField>
                 <FormField label="Takip Tarihi">
-                  <input
-                    type="date"
-                    value={form.takip}
-                    onChange={e => setForm(p => ({ ...p, takip: e.target.value }))}
-                    style={{ ...inputStyle, colorScheme: 'dark' }}
-                    onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                    onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                  />
+                  <input className="form-input" type="date" value={form.takip} onChange={e => setForm(p => ({ ...p, takip: e.target.value }))} />
                 </FormField>
               </div>
             </div>
 
             {/* Note builder */}
-            <div style={{
-              background: 'var(--surface2)',
-              border: '1px solid var(--border)',
-              borderRadius: 10,
-              padding: 16,
-              marginTop: 4,
-            }}>
-              <div style={{ fontSize: '0.68rem', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--accent)', marginBottom: 10 }}>
-                ⚡ Hızlı Not Oluşturucu
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
-                {QUICK_CHIPS.map(chip => {
-                  const active = activeChips.includes(chip.text);
-                  return (
-                    <button
-                      key={chip.text}
-                      onClick={() => toggleChip(chip.text)}
-                      style={{
-                        padding: '4px 11px',
-                        borderRadius: 16,
-                        fontSize: '0.7rem',
-                        fontFamily: "'IBM Plex Mono', monospace",
-                        cursor: 'pointer',
-                        border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
-                        background: active ? 'rgba(79,142,247,0.12)' : 'var(--surface)',
-                        color: active ? 'var(--accent)' : 'var(--muted)',
-                        transition: 'all 0.13s',
-                        userSelect: 'none',
-                      }}
-                    >
-                      {chip.label}
-                    </button>
-                  );
-                })}
-              </div>
-              <div style={{ fontSize: '0.65rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace", marginBottom: 6 }}>
-                OLUŞTURULAN NOT:
-              </div>
-              <div style={{
-                background: 'var(--surface)',
-                border: '1px solid var(--border)',
-                borderRadius: 8,
-                padding: '9px 12px',
-                fontSize: '0.78rem',
-                color: generatedNote() ? 'var(--text)' : 'var(--muted)',
-                fontFamily: "'IBM Plex Mono', monospace",
-                minHeight: 44,
-                lineHeight: 1.5,
-              }}>
-                {generatedNote() || 'Chip seçin veya aşağıya yazın...'}
+            <div>
+              <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)', borderRadius: 12, padding: 20 }}>
+                <div style={{ fontSize: '11px', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--accent-cyan)', fontWeight: 600, marginBottom: 16 }}>
+                  Hızlı Not Oluşturucu
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
+                  {QUICK_CHIPS.map(chip => {
+                    const active = activeChips.includes(chip.text);
+                    return (
+                      <button
+                        key={chip.text}
+                        onClick={() => toggleChip(chip.text)}
+                        style={{
+                          padding: '6px 12px',
+                          borderRadius: 20,
+                          fontSize: '11px',
+                          fontFamily: "'Syne', sans-serif",
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          border: `1px solid ${active ? 'var(--accent-cyan)' : 'var(--border-subtle)'}`,
+                          background: active ? 'rgba(6,182,212,0.1)' : 'var(--bg-surface)',
+                          color: active ? 'var(--accent-cyan)' : 'var(--text-secondary)',
+                          transition: 'all 0.2s',
+                        }}
+                      >
+                        {chip.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <FormField label="Ek Not / Açıklama">
+                  <textarea
+                    className="form-input"
+                    value={form.not}
+                    onChange={e => setForm(p => ({ ...p, not: e.target.value }))}
+                    placeholder="Ek detay yazın..."
+                    rows={2}
+                  />
+                </FormField>
+
+                {generatedNote() && (
+                  <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border-subtle)' }}>
+                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Oluşturulan Not Önizleme</div>
+                    <div style={{ fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.5 }}>
+                      {generatedNote()}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Manual note */}
-            <div style={{ marginTop: 12 }}>
-              <label style={labelStyle}>Ek Not (manuel)</label>
-              <textarea
-                value={form.not}
-                onChange={e => setForm(p => ({ ...p, not: e.target.value }))}
-                placeholder="Ek detay yazın..."
-                rows={3}
-                style={{ ...inputStyle, resize: 'vertical', minHeight: 70 }}
-                onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-              />
-            </div>
-          </>
+          </div>
         )}
 
         {/* Footer */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          gap: 10,
-          marginTop: 20,
-          paddingTop: 16,
-          borderTop: '1px solid var(--border)',
-        }}>
-          <button
-            onClick={closeModal}
-            style={{
-              padding: '8px 18px',
-              background: 'transparent',
-              color: 'var(--muted)',
-              border: '1px solid var(--border)',
-              borderRadius: 8,
-              cursor: 'pointer',
-              fontSize: '0.78rem',
-              fontFamily: "'IBM Plex Mono', monospace",
-            }}
-          >
-            İptal
-          </button>
-          <button
-            onClick={handleSave}
-            style={{
-              padding: '8px 20px',
-              background: 'var(--accent)',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 8,
-              cursor: 'pointer',
-              fontSize: '0.78rem',
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontWeight: 500,
-            }}
-            onMouseEnter={e => (e.currentTarget.style.background = '#3a7be0')}
-            onMouseLeave={e => (e.currentTarget.style.background = 'var(--accent)')}
-          >
-            💾 Kaydet
-          </button>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 32, paddingTop: 24, borderTop: '1px solid var(--border-subtle)' }}>
+          <button className="btn-secondary" onClick={closeModal} style={{ padding: '10px 24px' }}>İptal</button>
+          <button className="btn-primary" onClick={handleSave} style={{ padding: '10px 32px' }}>Ayarla ve Kaydet</button>
         </div>
+
       </div>
     </div>
   );

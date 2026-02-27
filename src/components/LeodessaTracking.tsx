@@ -2,15 +2,15 @@ import { useState, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
 import { services, ServiceKey } from '../data/leodessaServices';
 
-const LEODESSA_COLOR = '#a855f7';
+const LEODESSA_COLOR = 'var(--accent-secondary)';
 
 function getTemperatureInfo(score: number, disq: boolean) {
-  if (disq) return { label: '❌ Diskalifiye', color: '#ef4444', scoreDisplay: '✗' };
-  if (score >= 70) return { label: '🔥 Çok Sıcak Lead', color: '#22c55e', scoreDisplay: String(score) };
-  if (score >= 45) return { label: '⚡ Sıcak Lead', color: '#22c55e', scoreDisplay: String(score) };
-  if (score >= 25) return { label: '🌡️ Ilık Lead', color: '#f59e0b', scoreDisplay: String(score) };
-  if (score >= 10) return { label: '❄️ Soğuk Lead', color: '#ef4444', scoreDisplay: String(score) };
-  return { label: '— Başlanmadı —', color: '#64748b', scoreDisplay: String(score) };
+  if (disq) return { label: '❌ Diskalifiye', color: 'var(--accent-rose)', scoreDisplay: '✗' };
+  if (score >= 70) return { label: '🔥 Çok Sıcak Lead', color: 'var(--accent-emerald)', scoreDisplay: String(score) };
+  if (score >= 45) return { label: '⚡ Sıcak Lead', color: 'var(--accent-emerald)', scoreDisplay: String(score) };
+  if (score >= 25) return { label: '🌡️ Ilık Lead', color: 'var(--accent-amber)', scoreDisplay: String(score) };
+  if (score >= 10) return { label: '❄️ Soğuk Lead', color: 'var(--accent-rose)', scoreDisplay: String(score) };
+  return { label: '— Başlanmadı —', color: 'var(--text-muted)', scoreDisplay: String(score) };
 }
 
 function getDisqMsg(disqReason: string) {
@@ -25,46 +25,32 @@ function getDisqMsg(disqReason: string) {
 
 function getActionInfo(score: number, disq: boolean) {
   if (disq) return {
-    color: '#ef4444', bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.3)',
+    color: 'var(--accent-rose)', bg: 'rgba(244, 63, 94, 0.08)', border: 'rgba(244, 63, 94, 0.3)',
     title: '❌ Kaydı Kapat', canTransfer: false,
     items: ["Müşteriye durumu nazikçe açıklayın", "CRM'de \"Olumsuz\" olarak işaretleyin", 'Diskalifiye sebebini not alanına yazın', 'Satış ekibine aktarmayın'],
   };
   if (score >= 60) return {
-    color: '#22c55e', bg: 'rgba(34,197,94,0.08)', border: 'rgba(34,197,94,0.3)',
+    color: 'var(--accent-emerald)', bg: 'rgba(16, 185, 129, 0.08)', border: 'rgba(16, 185, 129, 0.3)',
     title: '🔥 HEMEN Satış Ekibine Aktar!', canTransfer: true,
     items: ['Bu dakika satış ekibini ara veya canlı aktar', 'Fiyat teklifini hazır tut (kampanya fiyatı öner)', 'Gerekirse aynı gün randevu ayarla', 'Garanti Vize paketi de sunulabilir', "CRM'de \"Beklemede / Sıcak\" olarak işaretle"],
   };
   if (score >= 35) return {
-    color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.3)',
+    color: 'var(--accent-amber)', bg: 'rgba(245, 158, 11, 0.08)', border: 'rgba(245, 158, 11, 0.3)',
     title: '⚡ Satış Ekibine İlet + Takip Planla', canTransfer: true,
     items: ['Satış ekibine detaylı brief ile aktar', '24 saat içinde takip araması yap', 'Fiyat bilgisi ver, düşünmesine izin ver', "CRM'de \"Beklemede\" olarak işaretle", 'E-posta ile bilgi dokümanı gönder'],
   };
   return {
-    color: '#ef4444', bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.3)',
+    color: 'var(--accent-rose)', bg: 'rgba(244, 63, 94, 0.08)', border: 'rgba(244, 63, 94, 0.3)',
     title: '❄️ Soğuk Takip', canTransfer: true,
     items: ['1 hafta sonra takip araması planla', 'E-posta ile genel bilgi gönder', "CRM'de \"Yeni Lead\" olarak bırak", 'Karar aşamasına geldiğinde tekrar ara'],
   };
 }
 
 const alertColors: Record<string, { bg: string; border: string; color: string }> = {
-  red: { bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.3)', color: '#fca5a5' },
-  green: { bg: 'rgba(34,197,94,0.08)', border: 'rgba(34,197,94,0.3)', color: '#86efac' },
-  yellow: { bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.3)', color: '#fde68a' },
-  blue: { bg: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.3)', color: '#93c5fd' },
-};
-
-// ────── small reusable input style ──────
-const inputStyle: React.CSSProperties = {
-  width: '100%', padding: '10px 13px',
-  background: 'var(--bg)', border: '1px solid var(--border)',
-  borderRadius: 8, color: 'var(--text)', fontSize: '0.85rem',
-  outline: 'none', fontFamily: 'inherit',
-};
-const labelStyle: React.CSSProperties = {
-  display: 'block', fontSize: '0.68rem', fontWeight: 700,
-  fontFamily: "'IBM Plex Mono', monospace",
-  textTransform: 'uppercase', letterSpacing: '0.08em',
-  color: 'var(--muted)', marginBottom: 5,
+  red: { bg: 'rgba(244, 63, 94, 0.1)', border: 'rgba(244, 63, 94, 0.3)', color: 'var(--accent-rose)' },
+  green: { bg: 'rgba(16, 185, 129, 0.1)', border: 'rgba(16, 185, 129, 0.3)', color: 'var(--accent-emerald)' },
+  yellow: { bg: 'rgba(245, 158, 11, 0.1)', border: 'rgba(245, 158, 11, 0.3)', color: 'var(--accent-amber)' },
+  blue: { bg: 'rgba(6, 182, 212, 0.1)', border: 'rgba(6, 182, 212, 0.3)', color: 'var(--accent-cyan)' },
 };
 
 export default function LeodessaTracking() {
@@ -76,9 +62,6 @@ export default function LeodessaTracking() {
   const [leadEmail, setLeadEmail] = useState('');
 
   // ── Wizard state ──
-  // curStep = -1  →  intro (name/phone collection)
-  // curStep ≥ 0   →  qualification steps
-  // curStep >= totalSteps → result page
   const [curSvc, setCurSvc] = useState<ServiceKey>('schengen');
   const [curStep, setCurStep] = useState(-1);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -138,7 +121,7 @@ export default function LeodessaTracking() {
 
   function handleSelectService(key: ServiceKey) {
     setCurSvc(key);
-    setCurStep(-1);          // back to intro (keep contact info)
+    setCurStep(-1);
     setAnswers({});
     setNotes({});
     setTextAns({});
@@ -147,7 +130,7 @@ export default function LeodessaTracking() {
 
   function handleNext() {
     if (isIntro) {
-      if (!leadAd.trim() || !leadTel.trim()) return; // guard
+      if (!leadAd.trim() || !leadTel.trim()) return;
       setCurStep(0);
       return;
     }
@@ -236,68 +219,77 @@ export default function LeodessaTracking() {
   function renderSidebar() {
     return (
       <aside style={{
-        width: 270, minWidth: 270,
-        background: 'var(--surface)', borderRight: '1px solid var(--border)',
+        width: 320, minWidth: 320,
+        background: 'var(--bg-surface)', borderRight: '1px solid var(--border-subtle)',
         display: 'flex', flexDirection: 'column', overflowY: 'auto', flexShrink: 0,
+        padding: '24px 16px', zIndex: 10
       }}>
         {/* Branding */}
-        <div style={{ padding: '18px 16px 12px', borderBottom: '1px solid var(--border)' }}>
-          <div style={{ fontSize: '0.65rem', fontFamily: "'IBM Plex Mono',monospace", textTransform: 'uppercase', letterSpacing: '0.1em', color: LEODESSA_COLOR, fontWeight: 700, marginBottom: 3 }}>
-            ✈ LEODESSA
+        <div style={{ marginBottom: 32, paddingBottom: 24, borderBottom: '1px solid var(--border-subtle)' }}>
+          <div style={{ fontSize: '12px', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.12em', color: LEODESSA_COLOR, fontWeight: 800, marginBottom: 6 }}>
+            ✈ LEODESSA ASİSTAN
           </div>
-          <div style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>Lead Kalifikasyon Sistemi</div>
+          <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Müşteri Kalifikasyon Akışı</div>
         </div>
 
         {/* Service select */}
-        <div style={{ padding: '10px 16px 5px', fontSize: '0.6rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono',monospace", textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700 }}>
-          Hizmet Seçin
+        <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700, marginBottom: 12, paddingLeft: 12 }}>
+          Hizmet Menüsü
         </div>
-        {(Object.keys(services) as ServiceKey[]).map(key => {
-          const s = services[key];
-          const isActive = curSvc === key;
-          return (
-            <button key={key} onClick={() => handleSelectService(key)} style={{
-              margin: '3px 10px', padding: '10px 12px', borderRadius: 10,
-              border: `1px solid ${isActive ? LEODESSA_COLOR : 'var(--border)'}`,
-              background: isActive ? `${LEODESSA_COLOR}18` : 'transparent',
-              cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s',
-            }}>
-              <div style={{ fontSize: '1.1rem', marginBottom: 3 }}>{s.icon}</div>
-              <div style={{ fontSize: '0.8rem', fontWeight: 600, color: isActive ? LEODESSA_COLOR : 'var(--text)', lineHeight: 1.3 }}>{s.name}</div>
-            </button>
-          );
-        })}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 32 }}>
+          {(Object.keys(services) as ServiceKey[]).map(key => {
+            const s = services[key];
+            const isActive = curSvc === key;
+            return (
+              <button key={key} onClick={() => handleSelectService(key)} style={{
+                padding: '12px 16px', borderRadius: 12,
+                border: `1px solid ${isActive ? LEODESSA_COLOR : 'transparent'}`,
+                background: isActive ? 'rgba(139, 92, 246, 0.1)' : 'transparent',
+                cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s',
+                display: 'flex', alignItems: 'center', gap: 12
+              }}
+                onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'var(--bg-hover)'; }}
+                onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
+              >
+                <div style={{ fontSize: '20px' }}>{s.icon}</div>
+                <div style={{ fontSize: '14px', fontWeight: isActive ? 700 : 600, fontFamily: "'DM Sans', sans-serif", color: isActive ? LEODESSA_COLOR : 'var(--text-secondary)' }}>{s.name}</div>
+              </button>
+            );
+          })}
+        </div>
 
         {/* Customer info summary (shown once filled) */}
         {(leadAd || leadTel) && (
-          <div style={{ margin: '10px 10px 0', padding: '10px 12px', background: `${LEODESSA_COLOR}0d`, borderRadius: 10, border: `1px solid ${LEODESSA_COLOR}30` }}>
-            <div style={{ fontSize: '0.6rem', color: LEODESSA_COLOR, fontFamily: "'IBM Plex Mono',monospace", textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6, fontWeight: 700 }}>
-              👤 Müşteri
+          <div style={{ padding: '16px', background: 'rgba(139, 92, 246, 0.05)', borderRadius: 12, border: `1px solid rgba(139, 92, 246, 0.2)`, marginBottom: 16 }}>
+            <div style={{ fontSize: '10px', color: LEODESSA_COLOR, fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, fontWeight: 700 }}>
+              👤 Müşteri Kimliği
             </div>
-            {leadAd && <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text)', marginBottom: 2 }}>{leadAd}</div>}
-            {leadTel && <div style={{ fontSize: '0.72rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono',monospace" }}>{leadTel}</div>}
+            {leadAd && <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>{leadAd}</div>}
+            {leadTel && <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: "'Syne', sans-serif" }}>{leadTel}</div>}
           </div>
         )}
 
         {/* Score panel */}
-        <div style={{ margin: '10px 10px 0', padding: '12px 14px', background: 'var(--bg)', borderRadius: 10, border: '1px solid var(--border)' }}>
-          <div style={{ fontSize: '0.6rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono',monospace", textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Lead Skoru</div>
-          <div style={{ fontSize: '2.4rem', fontWeight: 800, textAlign: 'center', color: tempInfo.color, fontFamily: "'IBM Plex Mono',monospace" }}>
+        <div style={{ padding: '20px 16px', background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-subtle)', marginBottom: 'auto' }}>
+          <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12, textAlign: 'center' }}>
+            Anlık Lead Skoru
+          </div>
+          <div style={{ fontSize: '48px', fontWeight: 800, textAlign: 'center', color: tempInfo.color, fontFamily: "'Syne', sans-serif", lineHeight: 1 }}>
             {isIntro ? '—' : tempInfo.scoreDisplay}
           </div>
-          <div style={{ fontSize: '0.72rem', textAlign: 'center', color: isIntro ? 'var(--muted)' : tempInfo.color, fontWeight: 600, marginTop: 4, fontFamily: "'IBM Plex Mono',monospace" }}>
-            {isIntro ? '— Başlanmadı —' : tempInfo.label}
+          <div style={{ fontSize: '12px', textAlign: 'center', color: isIntro ? 'var(--text-muted)' : tempInfo.color, fontWeight: 700, marginTop: 12, fontFamily: "'DM Sans', sans-serif" }}>
+            {isIntro ? 'Henüz başlamadı' : tempInfo.label}
           </div>
         </div>
 
         {/* Progress */}
-        <div style={{ padding: '14px 16px', marginTop: 'auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.62rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono',monospace", marginBottom: 6 }}>
-            <span>İlerleme</span>
-            <span>{progressText}</span>
+        <div style={{ padding: '20px 0 0', marginTop: 32, borderTop: '1px solid var(--border-subtle)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-muted)', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10, fontWeight: 600 }}>
+            <span>İlerleme Seviyesi</span>
+            <span style={{ color: 'var(--text-primary)' }}>{progressText}</span>
           </div>
-          <div style={{ height: 6, background: 'var(--border)', borderRadius: 3, overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${progressPct}%`, background: `linear-gradient(90deg,${LEODESSA_COLOR},#c084fc)`, borderRadius: 3, transition: 'width 0.4s' }} />
+          <div style={{ height: 6, background: 'var(--bg-elevated)', borderRadius: 3, overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${progressPct}%`, background: `linear-gradient(90deg, ${LEODESSA_COLOR}, #6366F1)`, borderRadius: 3, transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)' }} />
           </div>
         </div>
       </aside>
@@ -308,105 +300,112 @@ export default function LeodessaTracking() {
   function renderIntroStep() {
     const canProceed = leadAd.trim().length > 0 && leadTel.trim().length > 0;
     return (
-      <div>
+      <div style={{ maxWidth: 640, margin: '0 auto', paddingTop: 32 }}>
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, marginBottom: 32 }}>
           <div style={{
-            width: 36, height: 36, background: LEODESSA_COLOR, borderRadius: '50%',
+            width: 48, height: 48, background: 'rgba(139, 92, 246, 0.1)', border: `1px solid rgba(139, 92, 246, 0.3)`, borderRadius: 12,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '1rem', color: '#fff', flexShrink: 0,
+            fontSize: '24px', color: LEODESSA_COLOR, flexShrink: 0,
           }}>
             👤
           </div>
           <div>
-            <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text)' }}>Müşteri Bilgileri</div>
-            <div style={{ fontSize: '0.76rem', color: 'var(--muted)', marginTop: 2 }}>
-              {svc.icon} {svc.name} — Görüşmeye başlamadan önce müşteri bilgilerini girin
+            <h2 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6, fontFamily: "'Syne', sans-serif" }}>Görüşme Başlangıcı</h2>
+            <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
+              {svc.icon} <strong style={{ color: 'var(--text-primary)' }}>{svc.name}</strong> görüşmesine başlamadan önce temasa geçeceğiniz kişinin bilgilerini girin.
             </div>
           </div>
         </div>
 
         {/* Form card */}
         <div style={{
-          background: 'var(--bg)', border: `1px solid ${LEODESSA_COLOR}33`,
-          borderRadius: 12, padding: '22px 22px 18px',
+          background: 'var(--bg-card)', border: `1px solid var(--border-subtle)`,
+          borderRadius: 16, padding: '32px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
         }}>
-          <div style={{ fontSize: '0.62rem', color: LEODESSA_COLOR, fontFamily: "'IBM Plex Mono',monospace", textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 18 }}>
-            {svc.icon} Müşteri Kimlik Bilgileri
+          <div style={{ fontSize: '12px', color: LEODESSA_COLOR, fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: LEODESSA_COLOR }} />
+            Müşteri Kimlik Detayları
           </div>
 
-          {/* Ad Soyad */}
-          <div style={{ marginBottom: 14 }}>
-            <label style={labelStyle}>
-              Ad Soyad <span style={{ color: '#ef4444' }}>*</span>
-            </label>
-            <input
-              value={leadAd}
-              onChange={e => setLeadAd(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter' && leadAd.trim()) (document.getElementById('intro-tel') as HTMLInputElement)?.focus(); }}
-              placeholder="Müşterinin adı ve soyadı"
-              autoFocus
-              style={inputStyle}
-            />
-          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {/* Ad Soyad */}
+            <div>
+              <label className="form-label">
+                Ad Soyad <span style={{ color: 'var(--accent-rose)' }}>*</span>
+              </label>
+              <input
+                className="form-input"
+                value={leadAd}
+                onChange={e => setLeadAd(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && leadAd.trim()) (document.getElementById('intro-tel') as HTMLInputElement)?.focus(); }}
+                placeholder="Örn: Ayşe Yılmaz"
+                autoFocus
+                style={{ fontSize: '16px', padding: '12px 16px' }}
+              />
+            </div>
 
-          {/* Telefon */}
-          <div style={{ marginBottom: 14 }}>
-            <label style={labelStyle}>
-              Telefon <span style={{ color: '#ef4444' }}>*</span>
-            </label>
-            <input
-              id="intro-tel"
-              value={leadTel}
-              onChange={e => setLeadTel(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter' && leadTel.trim()) (document.getElementById('intro-email') as HTMLInputElement)?.focus(); }}
-              placeholder="05XX XXX XX XX"
-              style={inputStyle}
-            />
-          </div>
+            {/* Telefon */}
+            <div>
+              <label className="form-label">
+                Telefon <span style={{ color: 'var(--accent-rose)' }}>*</span>
+              </label>
+              <input
+                id="intro-tel"
+                className="form-input"
+                value={leadTel}
+                onChange={e => setLeadTel(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && leadTel.trim()) (document.getElementById('intro-email') as HTMLInputElement)?.focus(); }}
+                placeholder="+90 5XX XXX XX XX"
+                style={{ fontSize: '16px', padding: '12px 16px' }}
+              />
+            </div>
 
-          {/* E-posta */}
-          <div>
-            <label style={labelStyle}>
-              E-posta <span style={{ color: 'var(--muted)', fontSize: '0.6rem' }}>(isteğe bağlı)</span>
-            </label>
-            <input
-              id="intro-email"
-              value={leadEmail}
-              onChange={e => setLeadEmail(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter' && canProceed) handleNext(); }}
-              placeholder="ornek@mail.com"
-              style={inputStyle}
-            />
+            {/* E-posta */}
+            <div>
+              <label className="form-label">
+                E-posta <span style={{ color: 'var(--text-muted)' }}>(isteğe bağlı)</span>
+              </label>
+              <input
+                id="intro-email"
+                className="form-input"
+                value={leadEmail}
+                onChange={e => setLeadEmail(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && canProceed) handleNext(); }}
+                placeholder="ornek@mail.com"
+                style={{ fontSize: '16px', padding: '12px 16px' }}
+              />
+            </div>
           </div>
         </div>
 
         {/* Nav */}
-        <div style={{ display: 'flex', gap: 10, marginTop: 20, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 16, marginTop: 32, alignItems: 'center' }}>
           <button
+            className="btn-primary"
             onClick={handleNext}
             disabled={!canProceed}
             style={{
-              padding: '11px 28px',
-              background: canProceed ? LEODESSA_COLOR : 'rgba(168,85,247,0.25)',
-              border: 'none', borderRadius: 8, color: '#fff',
-              cursor: canProceed ? 'pointer' : 'not-allowed',
-              fontSize: '0.88rem', fontWeight: 700,
-              opacity: canProceed ? 1 : 0.6,
+              padding: '14px 32px',
+              background: canProceed ? `linear-gradient(135deg, ${LEODESSA_COLOR}, #8B5CF6)` : 'var(--bg-elevated)',
+              boxShadow: canProceed ? `0 4px 20px rgba(168,85,247,0.3)` : 'none',
+              color: canProceed ? '#fff' : 'var(--text-muted)',
+              fontSize: '15px'
             }}
           >
             Görüşmeye Başla →
           </button>
           {!canProceed && (
-            <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontStyle: 'italic' }}>
-              Ad Soyad ve Telefon zorunlu
+            <span style={{ fontSize: '13px', color: 'var(--accent-rose)', fontWeight: 500 }}>
+              * Ad Soyad ve Telefon girmelisiniz
             </span>
           )}
           <button
+            className="btn-secondary"
             onClick={handleReset}
-            style={{ marginLeft: 'auto', padding: '10px 16px', background: 'transparent', border: '1px solid rgba(239,68,68,0.4)', borderRadius: 8, color: '#ef4444', cursor: 'pointer', fontSize: '0.82rem' }}
+            style={{ marginLeft: 'auto', borderColor: 'rgba(244, 63, 94, 0.3)', color: 'var(--accent-rose)' }}
           >
-            🔄 Temizle
+            Sıfırla
           </button>
         </div>
       </div>
@@ -421,153 +420,148 @@ export default function LeodessaTracking() {
     const step = svc.steps[curStep];
 
     return (
-      <div>
+      <div style={{ maxWidth: 720, margin: '0 auto', paddingTop: 16 }}>
         {/* Disq banner */}
         {disq && (
-          <div style={{ background: 'rgba(239,68,68,0.08)', border: '2px solid rgba(239,68,68,0.4)', borderRadius: 12, padding: '20px 22px', marginBottom: 20, textAlign: 'center' }}>
-            <div style={{ fontSize: '2rem', marginBottom: 6 }}>🚫</div>
-            <div style={{ fontSize: '1rem', fontWeight: 800, color: '#ef4444', marginBottom: 6 }}>Bu Lead Diskalifiye Edildi</div>
-            <div style={{ fontSize: '0.82rem', color: '#fca5a5', marginBottom: 14 }}>{getDisqMsg(disqReason)}</div>
-            <button onClick={handleClearDisq} style={{ padding: '8px 18px', background: 'transparent', border: '1px solid rgba(239,68,68,0.5)', borderRadius: 8, color: '#fca5a5', cursor: 'pointer', fontSize: '0.82rem' }}>
-              Yanıtı Değiştir
+          <div style={{ background: 'rgba(244, 63, 94, 0.05)', border: '1px solid rgba(244, 63, 94, 0.3)', borderRadius: 16, padding: '24px', marginBottom: 32, textAlign: 'center' }}>
+            <div style={{ fontSize: '36px', marginBottom: 12 }}>🚫</div>
+            <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--accent-rose)', fontFamily: "'Syne', sans-serif", marginBottom: 8 }}>Bu Lead Diskalifiye Edildi</div>
+            <div style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: 20 }}>{getDisqMsg(disqReason)}</div>
+            <button className="btn-secondary" onClick={handleClearDisq} style={{ color: 'var(--accent-rose)', borderColor: 'rgba(244, 63, 94, 0.4)' }}>
+              Yanıtı Değiştir ve Devam Et
             </button>
           </div>
         )}
 
-        {/* Customer info mini-bar */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, padding: '8px 14px', background: `${LEODESSA_COLOR}0d`, borderRadius: 8, border: `1px solid ${LEODESSA_COLOR}22` }}>
-          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: LEODESSA_COLOR }}>👤 {leadAd}</span>
-          <span style={{ fontSize: '0.7rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono',monospace" }}>{leadTel}</span>
-          {leadEmail && <span style={{ fontSize: '0.7rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono',monospace" }}>✉ {leadEmail}</span>}
-          <button
-            onClick={() => setCurStep(-1)}
-            style={{ marginLeft: 'auto', fontSize: '0.65rem', color: 'var(--muted)', background: 'transparent', border: '1px dashed var(--border)', borderRadius: 5, padding: '2px 8px', cursor: 'pointer' }}
-          >
-            ✏️ Düzenle
-          </button>
-        </div>
-
         {/* Step header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-          <div style={{ width: 36, height: 36, background: LEODESSA_COLOR, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.85rem', color: '#fff', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
+          <div style={{ width: 48, height: 48, background: `linear-gradient(135deg, ${LEODESSA_COLOR}, #8B5CF6)`, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '20px', fontFamily: "'Syne', sans-serif", color: '#fff', flexShrink: 0, boxShadow: `0 4px 16px rgba(168,85,247,0.3)` }}>
             {curStep + 1}
           </div>
           <div>
-            <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text)' }}>{step.title}</div>
-            <div style={{ fontSize: '0.76rem', color: 'var(--muted)', marginTop: 2 }}>{step.hint}</div>
+            <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", marginBottom: 6 }}>{step.title}</div>
+            <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{step.hint}</div>
           </div>
         </div>
 
         {/* Questions */}
-        {step.questions.map((q, qi) => {
-          const isAnswered = q.type === 'textarea' ? !!(textAns[q.id]?.trim()) : answers[q.id] !== undefined;
-          const selectedAlert = q.alerts && answers[q.id] ? q.alerts[answers[q.id]] : null;
-          const noteOpen = openNotes[q.id] || !!(notes[q.id]?.trim());
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {step.questions.map((q, qi) => {
+            const isAnswered = q.type === 'textarea' ? !!(textAns[q.id]?.trim()) : answers[q.id] !== undefined;
+            const selectedAlert = q.alerts && answers[q.id] ? q.alerts[answers[q.id]] : null;
+            const noteOpen = openNotes[q.id] || !!(notes[q.id]?.trim());
 
-          return (
-            <div key={q.id} style={{
-              background: isAnswered ? 'var(--surface)' : 'var(--bg)',
-              border: `1px solid ${isAnswered ? `${LEODESSA_COLOR}33` : 'var(--border)'}`,
-              borderRadius: 12, padding: '18px 20px', marginBottom: 14, transition: 'border-color 0.2s',
-            }}>
-              <div style={{ fontSize: '0.62rem', color: LEODESSA_COLOR, textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8, fontFamily: "'IBM Plex Mono',monospace" }}>
-                {svc.icon} Soru {qi + 1}
-                {q.required && <span style={{ color: '#ef4444' }}>*Zorunlu</span>}
-              </div>
-              <div style={{ fontSize: '0.92rem', fontWeight: 600, color: 'var(--text)', marginBottom: 4 }}>{q.text}</div>
-              <div style={{ fontSize: '0.76rem', color: 'var(--muted)', fontStyle: 'italic', marginBottom: 12, padding: '7px 11px', background: 'rgba(0,0,0,0.2)', borderLeft: `3px solid ${LEODESSA_COLOR}66`, borderRadius: '0 6px 6px 0', lineHeight: 1.5 }}>
-                {q.script}
-              </div>
+            return (
+              <div key={q.id} style={{
+                background: isAnswered ? 'rgba(255,255,255,0.02)' : 'var(--bg-card)',
+                border: `1px solid ${isAnswered ? 'var(--border-glow)' : 'var(--border-subtle)'}`,
+                borderRadius: 16, padding: '24px', transition: 'all 0.2s',
+              }}>
+                <div style={{ fontSize: '11px', color: LEODESSA_COLOR, textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8, fontFamily: "'Syne', sans-serif" }}>
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: LEODESSA_COLOR }} />
+                  Soru {qi + 1} {q.required && <span style={{ color: 'var(--accent-rose)' }}>*</span>}
+                </div>
+                <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>{q.text}</div>
+                <div style={{ fontSize: '13px', color: 'var(--text-secondary)', fontStyle: 'italic', marginBottom: 20, padding: '10px 14px', background: 'var(--bg-elevated)', borderLeft: `3px solid ${LEODESSA_COLOR}`, borderRadius: '0 8px 8px 0', lineHeight: 1.5 }}>
+                  {q.script}
+                </div>
 
-              {q.type === 'options' && q.options && (
-                <>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>
-                    {q.options.map(opt => {
-                      const isSelected = answers[q.id] === opt.value;
-                      const cls = opt.cssClass;
-                      const scoreStr = opt.score > 0 ? `+${opt.score}` : opt.score < 0 ? `${opt.score}` : '0';
-                      let btnBg = isSelected ? `${LEODESSA_COLOR}18` : 'transparent';
-                      let btnBorder = isSelected ? LEODESSA_COLOR : 'var(--border)';
-                      let btnColor = isSelected ? LEODESSA_COLOR : 'var(--muted)';
-                      if (cls === 'disqualify') {
-                        btnBg = isSelected ? 'rgba(239,68,68,0.18)' : 'rgba(239,68,68,0.04)';
-                        btnBorder = isSelected ? '#ef4444' : 'rgba(239,68,68,0.35)';
-                        btnColor = isSelected ? '#fca5a5' : 'rgba(239,68,68,0.7)';
-                      } else if (cls === 'boost') {
-                        if (!isSelected) btnBorder = 'rgba(34,197,94,0.4)';
-                        if (isSelected) { btnBg = 'rgba(34,197,94,0.12)'; btnBorder = '#22c55e'; btnColor = '#86efac'; }
-                      }
+                {q.type === 'options' && q.options && (
+                  <>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
+                      {q.options.map(opt => {
+                        const isSelected = answers[q.id] === opt.value;
+                        const cls = opt.cssClass;
+                        const scoreStr = opt.score > 0 ? `+${opt.score}` : opt.score < 0 ? `${opt.score}` : '0';
+                        let btnBg = isSelected ? 'rgba(168,85,247,0.1)' : 'var(--bg-elevated)';
+                        let btnBorder = isSelected ? LEODESSA_COLOR : 'var(--border-subtle)';
+                        let btnColor = isSelected ? LEODESSA_COLOR : 'var(--text-secondary)';
+
+                        if (cls === 'disqualify') {
+                          btnBg = isSelected ? 'rgba(244, 63, 94, 0.1)' : 'var(--bg-elevated)';
+                          btnBorder = isSelected ? 'var(--accent-rose)' : 'var(--border-subtle)';
+                          btnColor = isSelected ? 'var(--accent-rose)' : 'var(--text-secondary)';
+                        } else if (cls === 'boost') {
+                          btnBorder = isSelected ? 'var(--accent-emerald)' : 'rgba(16, 185, 129, 0.3)';
+                          btnColor = isSelected ? 'var(--accent-emerald)' : 'var(--text-secondary)';
+                          if (isSelected) { btnBg = 'rgba(16, 185, 129, 0.1)'; }
+                        }
+                        return (
+                          <button key={opt.value} onClick={() => setAnswers(prev => ({ ...prev, [q.id]: opt.value }))} style={{
+                            padding: '10px 16px', borderRadius: 10, border: `1px solid ${btnBorder}`,
+                            background: btnBg, color: btnColor, fontSize: '14px', cursor: 'pointer',
+                            transition: 'all 0.15s', fontWeight: isSelected ? 600 : 500,
+                            display: 'flex', alignItems: 'center', gap: 8,
+                          }}
+                            onMouseEnter={e => { if (!isSelected) e.currentTarget.style.borderColor = btnColor; }}
+                            onMouseLeave={e => { if (!isSelected) e.currentTarget.style.borderColor = btnBorder; }}
+                          >
+                            {opt.label}
+                            <span style={{ fontSize: '11px', fontFamily: "'Syne', sans-serif", fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(0,0,0,0.2)' }}>{scoreStr}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {selectedAlert && (() => {
+                      const ac = alertColors[selectedAlert.type] ?? alertColors.blue;
                       return (
-                        <button key={opt.value} onClick={() => setAnswers(prev => ({ ...prev, [q.id]: opt.value }))} style={{
-                          padding: '7px 14px', borderRadius: 8, border: `1px solid ${btnBorder}`,
-                          background: btnBg, color: btnColor, fontSize: '0.8rem', cursor: 'pointer',
-                          transition: 'all 0.12s', fontWeight: isSelected ? 700 : 500,
-                          display: 'flex', alignItems: 'center', gap: 6,
-                        }}>
-                          {opt.label}
-                          <span style={{ fontSize: '0.65rem', opacity: 0.5 }}>{scoreStr}</span>
-                        </button>
+                        <div style={{ padding: '12px 16px', borderRadius: 10, fontSize: '13px', background: ac.bg, border: `1px solid ${ac.border}`, color: ac.color, marginBottom: 12, lineHeight: 1.5, display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                          <span style={{ fontSize: '16px' }}>ℹ️</span>
+                          <span style={{ paddingTop: 2 }}>{selectedAlert.text}</span>
+                        </div>
                       );
-                    })}
-                  </div>
-                  {selectedAlert && (() => {
-                    const ac = alertColors[selectedAlert.type] ?? alertColors.blue;
-                    return (
-                      <div style={{ padding: '10px 14px', borderRadius: 8, fontSize: '0.8rem', background: ac.bg, border: `1px solid ${ac.border}`, color: ac.color, marginBottom: 8, lineHeight: 1.5 }}>
-                        {selectedAlert.text}
+                    })()}
+                    {q.subFields && answers[q.id] && q.subFields.showOnValues.includes(answers[q.id]) && (
+                      <div style={{ padding: '20px', borderRadius: 12, background: 'rgba(245, 158, 11, 0.03)', border: '1px solid rgba(245, 158, 11, 0.2)', marginBottom: 16 }}>
+                        <div style={{ fontSize: '11px', color: 'var(--accent-amber)', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 16 }}>
+                          📋 Ek Bilgiler Gerekiyor
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                          {q.subFields.fields.map(sf => (
+                            <div key={sf.id}>
+                              <label className="form-label">{sf.label}</label>
+                              <input
+                                className="form-input"
+                                value={textAns[sf.id] ?? ''}
+                                onChange={e => setTextAns(prev => ({ ...prev, [sf.id]: e.target.value }))}
+                                placeholder={sf.placeholder ?? ''}
+                              />
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    );
-                  })()}
-                  {q.subFields && answers[q.id] && q.subFields.showOnValues.includes(answers[q.id]) && (
-                    <div style={{ padding: '14px 16px', borderRadius: 10, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.25)', marginBottom: 8 }}>
-                      <div style={{ fontSize: '0.62rem', color: '#f59e0b', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 12 }}>
-                        📋 Ek Bilgiler
+                    )}
+                    {q.hasNote && (
+                      <div style={{ marginTop: 12 }}>
+                        <button onClick={() => setOpenNotes(prev => ({ ...prev, [q.id]: !prev[q.id] }))} style={{ fontSize: '12px', color: noteOpen ? LEODESSA_COLOR : 'var(--text-muted)', background: 'transparent', border: `1px dashed ${noteOpen ? LEODESSA_COLOR : 'var(--border-subtle)'}`, borderRadius: 8, padding: '6px 12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, transition: 'all 0.2s', fontWeight: 600 }}>
+                          ✏️ {noteOpen ? 'Manuel Notu Gizle' : 'Özel Not Ekle'}
+                        </button>
+                        {noteOpen && (
+                          <textarea className="form-input" value={notes[q.id] ?? ''} onChange={e => setNotes(prev => ({ ...prev, [q.id]: e.target.value }))} placeholder="Bu soruyla ilgili müşterinin belirttiği ekstra detaylar..." style={{ display: 'block', marginTop: 12, minHeight: 80 }} />
+                        )}
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                        {q.subFields.fields.map(sf => (
-                          <div key={sf.id}>
-                            <label style={{ ...labelStyle, color: '#fde68a', fontSize: '0.62rem' }}>{sf.label}</label>
-                            <input
-                              value={textAns[sf.id] ?? ''}
-                              onChange={e => setTextAns(prev => ({ ...prev, [sf.id]: e.target.value }))}
-                              placeholder={sf.placeholder ?? ''}
-                              style={inputStyle}
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {q.hasNote && (
-                    <div style={{ marginTop: 8 }}>
-                      <button onClick={() => setOpenNotes(prev => ({ ...prev, [q.id]: !prev[q.id] }))} style={{ fontSize: '0.72rem', color: noteOpen ? LEODESSA_COLOR : 'var(--muted)', background: 'transparent', border: `1px dashed ${noteOpen ? LEODESSA_COLOR : 'var(--border)'}`, borderRadius: 6, padding: '4px 10px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                        ✏️ {noteOpen ? 'Notu Gizle' : 'Manuel Not Ekle'}
-                      </button>
-                      {noteOpen && (
-                        <textarea value={notes[q.id] ?? ''} onChange={e => setNotes(prev => ({ ...prev, [q.id]: e.target.value }))} placeholder="Bu soru ile ilgili ek not..." style={{ display: 'block', marginTop: 8, width: '100%', padding: '8px 12px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--text)', fontSize: '0.82rem', resize: 'vertical', minHeight: 55, outline: 'none', fontFamily: 'inherit' }} />
-                      )}
-                    </div>
-                  )}
-                </>
-              )}
+                    )}
+                  </>
+                )}
 
-              {q.type === 'textarea' && (
-                <textarea value={textAns[q.id] ?? ''} onChange={e => setTextAns(prev => ({ ...prev, [q.id]: e.target.value }))} placeholder={q.placeholder ?? ''} style={{ width: '100%', padding: '10px 14px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--text)', fontSize: '0.85rem', resize: 'vertical', minHeight: 80, outline: 'none', fontFamily: 'inherit', lineHeight: 1.5 }} />
-              )}
-            </div>
-          );
-        })}
+                {q.type === 'textarea' && (
+                  <textarea className="form-input" value={textAns[q.id] ?? ''} onChange={e => setTextAns(prev => ({ ...prev, [q.id]: e.target.value }))} placeholder={q.placeholder ?? ''} style={{ minHeight: 120 }} />
+                )}
+              </div>
+            );
+          })}
+        </div>
 
         {/* Navigation */}
-        <div style={{ display: 'flex', gap: 10, marginTop: 20, alignItems: 'center', flexWrap: 'wrap' }}>
-          <button onClick={handlePrev} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--muted)', cursor: 'pointer', fontSize: '0.85rem' }}>
-            ← Önceki
+        <div style={{ display: 'flex', gap: 12, marginTop: 32, paddingBottom: 64, alignItems: 'center', flexWrap: 'wrap' }}>
+          <button className="btn-secondary" onClick={handlePrev} style={{ padding: '12px 24px', fontSize: '14px' }}>
+            ← Geri Dön
           </button>
-          <button onClick={handleNext} disabled={disq} style={{ padding: '10px 24px', background: disq ? 'rgba(168,85,247,0.3)' : LEODESSA_COLOR, border: 'none', borderRadius: 8, color: '#fff', cursor: disq ? 'not-allowed' : 'pointer', fontSize: '0.85rem', fontWeight: 700, opacity: disq ? 0.5 : 1 }}>
+          <button className="btn-primary" onClick={handleNext} disabled={disq} style={{ padding: '12px 32px', background: disq ? 'var(--bg-elevated)' : `linear-gradient(135deg, ${LEODESSA_COLOR}, #8B5CF6)`, color: disq ? 'var(--text-muted)' : '#fff', opacity: disq ? 0.5 : 1, fontSize: '15px' }}>
             Sonraki Adım →
           </button>
-          <button onClick={handleReset} style={{ marginLeft: 'auto', padding: '10px 18px', background: 'transparent', border: '1px solid rgba(239,68,68,0.4)', borderRadius: 8, color: '#ef4444', cursor: 'pointer', fontSize: '0.85rem' }}>
-            🔄 Sıfırla
+          <button className="btn-secondary" onClick={handleReset} style={{ marginLeft: 'auto', padding: '12px 24px', borderColor: 'rgba(244, 63, 94, 0.3)', color: 'var(--accent-rose)' }}>
+            Sıfırla
           </button>
         </div>
       </div>
@@ -586,7 +580,7 @@ export default function LeodessaTracking() {
         const o = q.options.find(x => x.value === answers[q.id]);
         if (o) {
           summaryItems.push({ label: q.text, value: o.label });
-          if (notes[q.id]?.trim()) summaryItems.push({ label: `✏️ Not: ${q.text}`, value: notes[q.id], isNote: true });
+          if (notes[q.id]?.trim()) summaryItems.push({ label: `✏️ Ek Not: ${q.text}`, value: notes[q.id], isNote: true });
           if (q.subFields && q.subFields.showOnValues.includes(answers[q.id])) {
             q.subFields.fields.forEach(sf => {
               const val = textAns[sf.id];
@@ -598,60 +592,68 @@ export default function LeodessaTracking() {
     }));
 
     return (
-      <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-          <div style={{ width: 36, height: 36, background: '#22c55e', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '1rem', color: '#fff', flexShrink: 0 }}>✓</div>
+      <div style={{ maxWidth: 760, margin: '0 auto', paddingTop: 16, paddingBottom: 64 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
+          <div style={{ width: 48, height: 48, background: 'var(--accent-emerald)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '24px', color: '#fff', flexShrink: 0, boxShadow: '0 4px 16px rgba(16, 185, 129, 0.4)' }}>✓</div>
           <div>
-            <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text)' }}>Görüşme Tamamlandı</div>
-            <div style={{ fontSize: '0.76rem', color: 'var(--muted)', marginTop: 2 }}>{svc.name} — Lead kalifikasyon sonucu</div>
+            <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", marginBottom: 6 }}>Görüşme Tamamlandı</div>
+            <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{svc.name} — Lead kalifikasyon sonucu ve önerilen aksiyonlar</div>
           </div>
         </div>
 
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, padding: '24px' }}>
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 20, padding: '32px' }}>
           {/* Müşteri + Skor */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 20, flexWrap: 'wrap' }}>
-            <div style={{ fontSize: '3rem', fontWeight: 800, color: tempInfo.color, fontFamily: "'IBM Plex Mono',monospace" }}>{tempInfo.scoreDisplay}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginBottom: 32, flexWrap: 'wrap' }}>
+            <div style={{ fontSize: '64px', fontWeight: 800, color: tempInfo.color, fontFamily: "'Syne', sans-serif", lineHeight: 1 }}>{tempInfo.scoreDisplay}</div>
             <div>
-              <div style={{ fontSize: '1.3rem', fontWeight: 800, color: tempInfo.color }}>{tempInfo.label}</div>
-              <div style={{ fontSize: '0.82rem', color: 'var(--muted)', marginTop: 2 }}>
-                {svc.name} — {leadAd} | {leadTel}
+              <div style={{ fontSize: '24px', fontWeight: 800, color: tempInfo.color, fontFamily: "'Syne', sans-serif", marginBottom: 4 }}>{tempInfo.label}</div>
+              <div style={{ fontSize: '14px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ padding: '2px 8px', borderRadius: 4, background: 'var(--bg-elevated)', color: 'var(--text-primary)' }}>{svc.name}</span>
+                <span>{leadAd}</span>
+                <span style={{ opacity: 0.5 }}>|</span>
+                <span style={{ fontFamily: "'DM Sans', sans-serif" }}>{leadTel}</span>
               </div>
             </div>
-            <button onClick={() => { const t = buildSummaryText(); navigator.clipboard?.writeText(t).catch(() => { }); }} style={{ marginLeft: 'auto', padding: '7px 14px', background: `${LEODESSA_COLOR}18`, border: `1px solid ${LEODESSA_COLOR}55`, borderRadius: 6, color: LEODESSA_COLOR, fontSize: '0.78rem', cursor: 'pointer' }}>
-              📋 Notu Kopyala
+          </div>
+
+          <div style={{ padding: '24px', borderRadius: 16, border: `1px solid ${action.border}`, background: action.bg, marginBottom: 32 }}>
+            <div style={{ fontSize: '14px', fontFamily: "'Syne', sans-serif", fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 16, color: action.color, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: action.color }} />
+              Önerilen Aksiyon Planı
+            </div>
+            <ul style={{ paddingLeft: 24, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {action.items.map((item, i) => <li key={i} style={{ fontSize: '14px', color: action.color, fontWeight: 500 }}>{item}</li>)}
+            </ul>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700 }}>
+              Detaylı Görüşme Özeti
+            </div>
+            <button onClick={() => { const t = buildSummaryText(); navigator.clipboard?.writeText(t).catch(() => { }); }} className="btn-secondary" style={{ padding: '6px 14px', fontSize: '12px', background: 'rgba(139, 92, 246, 0.1)', color: LEODESSA_COLOR, borderColor: 'rgba(139, 92, 246, 0.3)' }}>
+              📋 Metni Kopyala
             </button>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '0 0 16px', fontSize: '0.68rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono',monospace", textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-            Görüşme Özeti <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
-          </div>
-
           {summaryItems.length > 0 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 10, marginBottom: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {summaryItems.map((item, i) => (
-                <div key={i} style={{ background: 'var(--bg)', borderRadius: 8, padding: '12px 14px', border: `1px solid ${item.isNote ? 'var(--border)' : `${LEODESSA_COLOR}20`}`, gridColumn: item.isNote ? '1/-1' : undefined }}>
-                  <div style={{ fontSize: '0.62rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4, fontFamily: "'IBM Plex Mono',monospace" }}>{item.label}</div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text)', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>{item.value}</div>
+                <div key={i} style={{ background: item.isNote ? 'rgba(245, 158, 11, 0.05)' : 'var(--bg-elevated)', borderRadius: 12, padding: '16px 20px', border: `1px solid ${item.isNote ? 'rgba(245, 158, 11, 0.2)' : 'var(--border-subtle)'}` }}>
+                  <div style={{ fontSize: '11px', color: item.isNote ? 'var(--accent-amber)' : 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, fontFamily: "'Syne', sans-serif", fontWeight: 600 }}>{item.label}</div>
+                  <div style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)', whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>{item.value}</div>
                 </div>
               ))}
             </div>
           ) : (
-            <div style={{ fontSize: '0.8rem', color: 'var(--muted)', marginBottom: 16 }}>Henüz cevaplanan soru yok.</div>
+            <div style={{ fontSize: '14px', color: 'var(--text-muted)', textAlign: 'center', padding: '32px', background: 'var(--bg-elevated)', borderRadius: 12 }}>Seçilmiş yanıt yok.</div>
           )}
-
-          <div style={{ padding: '14px 16px', borderRadius: 10, border: `1px solid ${action.border}`, background: action.bg }}>
-            <div style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, color: action.color }}>{action.title}</div>
-            <ul style={{ paddingLeft: 18, margin: 0 }}>
-              {action.items.map((item, i) => <li key={i} style={{ fontSize: '0.8rem', marginBottom: 4, color: action.color }}>{item}</li>)}
-            </ul>
-          </div>
         </div>
 
-        <div style={{ display: 'flex', gap: 10, marginTop: 20, flexWrap: 'wrap', alignItems: 'center' }}>
-          <button onClick={handlePrev} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--muted)', cursor: 'pointer', fontSize: '0.85rem' }}>← Geri Dön</button>
-          <button onClick={handleReset} style={{ padding: '10px 20px', background: 'transparent', border: `1px solid ${LEODESSA_COLOR}55`, borderRadius: 8, color: LEODESSA_COLOR, cursor: 'pointer', fontSize: '0.85rem' }}>🆕 Yeni Lead</button>
-          <button onClick={openTransferModal} style={{ marginLeft: 'auto', padding: '10px 22px', background: LEODESSA_COLOR, border: 'none', borderRadius: 8, color: '#fff', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 700 }}>
-            ⭐ Leodessa'ya Aktar
+        <div style={{ display: 'flex', gap: 16, marginTop: 32, alignItems: 'center' }}>
+          <button className="btn-secondary" onClick={handlePrev} style={{ padding: '12px 24px', fontSize: '14px' }}>← Geri Dön</button>
+          <button className="btn-secondary" onClick={handleReset} style={{ padding: '12px 24px', fontSize: '14px', borderColor: 'var(--accent-secondary)', color: 'var(--accent-secondary)' }}>🆕 Yeni Görüşme Başlat</button>
+          <button className="btn-primary" onClick={openTransferModal} style={{ marginLeft: 'auto', padding: '14px 32px', background: `linear-gradient(135deg, ${LEODESSA_COLOR}, #6366F1)`, fontSize: '15px' }}>
+            ⭐ Leodessa Yapay Zeka Havuzuna Kaydet
           </button>
         </div>
       </div>
@@ -662,32 +664,40 @@ export default function LeodessaTracking() {
   function renderTransferModal() {
     const canSubmit = tAd.trim() && tTel.trim();
     return (
-      <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, padding: 28, width: 420, maxWidth: '92vw' }}>
-          <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text)', marginBottom: 4 }}>⭐ Leodessa Lead Olarak Kaydet</div>
-          <div style={{ fontSize: '0.76rem', color: 'var(--muted)', marginBottom: 18 }}>
-            {svc.icon} {svc.name} — {tempInfo.scoreDisplay} puan
+      <div className="modal-overlay" onClick={() => setShowTransfer(false)}>
+        <div className="modal-content" style={{ maxWidth: 460 }} onClick={e => e.stopPropagation()}>
+          <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", marginBottom: 8, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 10, height: 10, borderRadius: '50%', background: LEODESSA_COLOR, boxShadow: `0 0 10px ${LEODESSA_COLOR}` }} />
+            Lead Havuzuna Kaydet
+          </div>
+          <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: 24 }}>
+            {svc.icon} <strong style={{ color: 'var(--text-primary)' }}>{svc.name}</strong> görüşme sonucu
+            <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: 6, background: 'var(--bg-elevated)', marginLeft: 8, border: '1px solid var(--border-subtle)' }}>{tempInfo.scoreDisplay} puan</span>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
-              <label style={labelStyle}>Ad Soyad <span style={{ color: '#ef4444' }}>*</span></label>
-              <input value={tAd} onChange={e => setTAd(e.target.value)} placeholder="Müşterinin adı soyadı" autoFocus style={inputStyle} />
+              <label className="form-label">Ad Soyad <span style={{ color: 'var(--accent-rose)' }}>*</span></label>
+              <input className="form-input" value={tAd} onChange={e => setTAd(e.target.value)} placeholder="Müşterinin adı soyadı" autoFocus />
             </div>
             <div>
-              <label style={labelStyle}>Telefon <span style={{ color: '#ef4444' }}>*</span></label>
-              <input value={tTel} onChange={e => setTTel(e.target.value)} placeholder="05XX XXX XX XX" style={inputStyle} />
+              <label className="form-label">Telefon <span style={{ color: 'var(--accent-rose)' }}>*</span></label>
+              <input className="form-input" value={tTel} onChange={e => setTTel(e.target.value)} placeholder="05XX XXX XX XX" />
             </div>
             <div>
-              <label style={labelStyle}>E-posta <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(isteğe bağlı)</span></label>
-              <input value={tEmail} onChange={e => setTEmail(e.target.value)} placeholder="ornek@mail.com" style={inputStyle} />
+              <label className="form-label">E-posta <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(isteğe bağlı)</span></label>
+              <input className="form-input" value={tEmail} onChange={e => setTEmail(e.target.value)} placeholder="ornek@mail.com" />
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
-            <button onClick={() => setShowTransfer(false)} style={{ flex: 1, padding: '10px', background: 'transparent', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--muted)', cursor: 'pointer', fontSize: '0.85rem' }}>İptal</button>
-            <button onClick={handleTransferSubmit} disabled={!canSubmit} style={{ flex: 2, padding: '10px', background: canSubmit ? LEODESSA_COLOR : 'rgba(168,85,247,0.3)', border: 'none', borderRadius: 8, color: '#fff', cursor: canSubmit ? 'pointer' : 'not-allowed', fontSize: '0.85rem', fontWeight: 700 }}>
-              ⭐ Kaydet & Leodessa Leads'e Git
+          <div style={{ display: 'flex', gap: 12, marginTop: 32, justifyContent: 'flex-end', borderTop: '1px solid var(--border-subtle)', paddingTop: 24 }}>
+            <button className="btn-secondary" onClick={() => setShowTransfer(false)}>İptal</button>
+            <button className="btn-primary" onClick={handleTransferSubmit} disabled={!canSubmit} style={{
+              background: canSubmit ? `linear-gradient(135deg, ${LEODESSA_COLOR}, #8B5CF6)` : 'var(--bg-elevated)',
+              boxShadow: canSubmit ? `0 4px 16px rgba(168,85,247,0.3)` : 'none',
+              color: canSubmit ? '#fff' : 'var(--text-muted)',
+            }}>
+              Kaydet & Havuza Git
             </button>
           </div>
         </div>
@@ -697,9 +707,9 @@ export default function LeodessaTracking() {
 
   // ────────── Main render ──────────
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: 'var(--bg-void)' }}>
       {renderSidebar()}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '24px 28px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
         {renderStep()}
       </div>
       {showTransfer && renderTransferModal()}

@@ -1,18 +1,19 @@
 import { useApp } from '../context/AppContext';
 import { StatusType } from '../types';
-import { getStatusColor, getStatusBg, getStatusBorder, getDaysUntil } from '../utils/helpers';
+import { getDaysUntil, getVizeClass, getStatusClass } from '../utils/helpers';
 
-const COLUMNS: { status: StatusType; icon: string; desc: string }[] = [
-  { status: 'Yeni Lead', icon: '🔵', desc: 'Yeni gelen müşteriler' },
-  { status: 'Beklemede', icon: '🟡', desc: 'Devam eden süreçler' },
-  { status: 'Tamamlandı', icon: '🟢', desc: 'Başarılı kapanışlar' },
-  { status: 'Olumsuz', icon: '🔴', desc: 'İptal / Red' },
+const COLUMNS: { status: StatusType; icon: string; desc: string; colClass: string }[] = [
+  { status: 'Yeni Lead', icon: '🔵', desc: 'Yeni gelen müşteriler', colClass: 'lead' },
+  { status: 'Beklemede', icon: '🟡', desc: 'Devam eden süreçler', colClass: 'beklemede' },
+  { status: 'Tamamlandı', icon: '🟢', desc: 'Başarılı kapanışlar', colClass: 'tamamlandi' },
+  { status: 'Olumsuz', icon: '🔴', desc: 'İptal / Red', colClass: 'olumsuz' },
 ];
 
 export default function Pipeline() {
   const { customers, openModal, updateCustomer } = useApp();
 
-  function moveCustomer(id: string, newStatus: StatusType) {
+  function moveCustomer(id: string, newStatus: StatusType, e: any) {
+    e.stopPropagation();
     const c = customers.find(x => x.id === id);
     if (!c) return;
     const now = new Date().toLocaleString('tr-TR');
@@ -23,203 +24,103 @@ export default function Pipeline() {
   }
 
   return (
-    <div style={{ padding: 24, minHeight: '100vh' }}>
-      <div style={{ marginBottom: 20 }}>
-        <h2 style={{ fontSize: '1.1rem', fontWeight: 600 }}>Pipeline Görünümü</h2>
-        <div style={{ color: 'var(--muted)', fontSize: '0.78rem', marginTop: 4 }}>
+    <div style={{ padding: '64px 32px 32px', minHeight: '100vh', background: 'var(--bg-void)' }}>
+      <div style={{ marginBottom: 32 }}>
+        <h1 style={{ fontSize: '28px', color: 'var(--text-primary)', marginBottom: 4 }}>Pipeline</h1>
+        <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontFamily: "'DM Sans', sans-serif" }}>
           Müşterileri sürükleyerek veya hızlı butonlarla kolona taşıyın.
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, alignItems: 'start' }}>
+      <div className="kanban-board">
         {COLUMNS.map(col => {
           const colCustomers = customers.filter(c => c.durum === col.status);
+
           return (
-            <div key={col.status} style={{
-              background: 'var(--surface)',
-              border: `1px solid ${getStatusBorder(col.status)}`,
-              borderRadius: 12,
-              overflow: 'hidden',
-            }}>
+            <div key={col.status} className={`kanban-column col-${col.colClass}`}>
               {/* Column header */}
-              <div style={{
-                padding: '12px 14px',
-                borderBottom: `1px solid ${getStatusBorder(col.status)}`,
-                background: getStatusBg(col.status),
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-              }}>
-                <span>{col.icon}</span>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '0.82rem', fontWeight: 600, color: getStatusColor(col.status) }}>
+              <div className="kanban-col-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span className={`kanban-col-title ${col.colClass}`}>
                     {col.status}
-                  </div>
-                  <div style={{ fontSize: '0.65rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace" }}>
-                    {col.desc}
-                  </div>
+                  </span>
                 </div>
-                <span style={{
-                  fontSize: '0.8rem',
-                  fontFamily: "'IBM Plex Mono', monospace",
-                  color: getStatusColor(col.status),
-                  fontWeight: 600,
-                  background: getStatusBg(col.status),
-                  padding: '2px 8px',
-                  borderRadius: 10,
-                  border: `1px solid ${getStatusBorder(col.status)}`,
-                }}>{colCustomers.length}</span>
+                <span className="kanban-count">{colCustomers.length}</span>
               </div>
 
               {/* Cards */}
-              <div style={{ padding: 10, display: 'flex', flexDirection: 'column', gap: 8, minHeight: 120 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', minHeight: 120 }}>
                 {colCustomers.length === 0 && (
                   <div style={{
                     textAlign: 'center',
-                    color: 'var(--muted)',
-                    fontSize: '0.72rem',
-                    fontFamily: "'IBM Plex Mono', monospace",
+                    color: 'var(--text-muted)',
+                    fontSize: '12px',
                     padding: '24px 10px',
                     opacity: 0.6,
-                  }}>Kayıt yok</div>
+                    fontFamily: "'DM Sans', sans-serif"
+                  }}>Süreç boş</div>
                 )}
+
                 {colCustomers.map(c => {
                   const days = c.takip ? getDaysUntil(c.takip) : null;
-                  const showAlert = days !== null && days <= 1;
+                  const hasFollowUp = days !== null && days <= 1;
+
                   return (
                     <div
                       key={c.id}
-                      style={{
-                        background: 'var(--surface2)',
-                        border: '1px solid var(--border)',
-                        borderRadius: 9,
-                        padding: '11px 12px',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s',
-                        borderLeft: showAlert ? `3px solid ${days === 0 ? 'var(--danger)' : 'var(--warn)'}` : '3px solid transparent',
-                      }}
+                      className={`kanban-card ${hasFollowUp ? 'has-follow-up' : ''}`}
                       onClick={() => openModal(c.id)}
-                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(79,142,247,0.07)')}
-                      onMouseLeave={e => (e.currentTarget.style.background = 'var(--surface2)')}
                     >
                       {/* Name + visa */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-                        <div style={{ fontWeight: 500, fontSize: '0.82rem', color: 'var(--text)' }}>{c.ad}</div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <span className="kanban-card-name">{c.ad}</span>
                         {c.vize && (
-                          <span style={{
-                            fontSize: '0.62rem',
-                            fontFamily: "'IBM Plex Mono', monospace",
-                            color: 'var(--accent)',
-                            background: 'rgba(79,142,247,0.12)',
-                            padding: '1px 6px',
-                            borderRadius: 8,
-                            border: '1px solid rgba(79,142,247,0.25)',
-                            flexShrink: 0,
-                            marginLeft: 6,
-                          }}>{c.vize}</span>
+                          <span className={`vize-badge ${getVizeClass(c.vize)}`} style={{ transform: 'scale(0.85)', transformOrigin: 'top right' }}>
+                            {c.vize}
+                          </span>
                         )}
                       </div>
 
-                      {/* Phone */}
-                      {c.telefon && (
-                        <div style={{ fontSize: '0.7rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace", marginBottom: 4 }}>
-                          {c.telefon}
-                        </div>
-                      )}
-
-                      {/* Process */}
-                      {c.surec && (
-                        <div style={{
-                          fontSize: '0.65rem',
-                          color: 'var(--muted)',
-                          background: 'rgba(100,116,139,0.12)',
-                          padding: '2px 7px',
-                          borderRadius: 6,
-                          display: 'inline-block',
-                          marginBottom: 6,
-                          fontFamily: "'IBM Plex Mono', monospace",
-                        }}>{c.surec}</div>
-                      )}
+                      <div className="kanban-card-meta">
+                        <span>{c.danisman || 'Atanmadı'}</span>
+                        <span style={{ fontFamily: "'Syne', sans-serif", fontSize: '12px' }}>{c.telefon || '—'}</span>
+                      </div>
 
                       {/* Follow-up date */}
                       {c.takip && (
-                        <div style={{
-                          fontSize: '0.68rem',
-                          fontFamily: "'IBM Plex Mono', monospace",
-                          color: days === 0 ? 'var(--danger)' : days === 1 ? 'var(--warn)' : 'var(--accent2)',
-                          marginBottom: 6,
-                        }}>
+                        <div className="kanban-follow-up-date" style={{ color: days === 0 ? 'var(--accent-rose)' : days === 1 ? 'var(--accent-amber)' : 'var(--accent-cyan)' }}>
                           📅 {days === 0 ? 'BUGÜN TAKİP!' : days === 1 ? 'YARIN TAKİP' : c.takip.split('-').reverse().join('.')}
                         </div>
-                      )}
-
-                      {/* Note preview */}
-                      {c.not && (
-                        <div style={{
-                          fontSize: '0.68rem',
-                          color: 'var(--muted)',
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          marginBottom: 8,
-                        }}>{c.not}</div>
                       )}
 
                       {/* Move buttons */}
                       <div style={{
                         display: 'flex',
-                        gap: 4,
+                        gap: 6,
                         flexWrap: 'wrap',
-                        marginTop: 4,
-                        paddingTop: 8,
-                        borderTop: '1px solid var(--border)',
-                      }} onClick={e => e.stopPropagation()}>
+                        marginTop: 12,
+                        paddingTop: 10,
+                        borderTop: '1px solid var(--border-subtle)',
+                      }}>
                         {COLUMNS.filter(col2 => col2.status !== col.status).map(col2 => (
                           <button
                             key={col2.status}
-                            onClick={() => moveCustomer(c.id, col2.status)}
+                            className="btn-secondary"
+                            onClick={(e) => moveCustomer(c.id, col2.status, e)}
                             style={{
-                              padding: '2px 7px',
-                              background: getStatusBg(col2.status),
-                              color: getStatusColor(col2.status),
-                              border: `1px solid ${getStatusBorder(col2.status)}`,
-                              borderRadius: 6,
-                              cursor: 'pointer',
-                              fontSize: '0.6rem',
-                              fontFamily: "'IBM Plex Mono', monospace",
-                              transition: 'all 0.12s',
+                              padding: '2px 6px',
+                              fontSize: '10px',
+                              fontFamily: "'Syne', sans-serif",
+                              fontWeight: 600,
                             }}
                           >
-                            {col2.icon} {col2.status}
+                            → {col2.status}
                           </button>
                         ))}
                       </div>
                     </div>
                   );
                 })}
-              </div>
-
-              {/* Add button */}
-              <div style={{ padding: '8px 10px', borderTop: '1px solid var(--border)' }}>
-                <button
-                  onClick={() => {/* openModal with preset status - open modal then set durum */}}
-                  style={{
-                    width: '100%',
-                    padding: '6px',
-                    background: 'transparent',
-                    color: 'var(--muted)',
-                    border: '1px dashed var(--border)',
-                    borderRadius: 7,
-                    cursor: 'pointer',
-                    fontSize: '0.72rem',
-                    fontFamily: "'IBM Plex Mono', monospace",
-                    transition: 'all 0.15s',
-                  }}
-                  onMouseEnter={e => { (e.currentTarget.style.color = getStatusColor(col.status)); (e.currentTarget.style.borderColor = getStatusColor(col.status)); }}
-                  onMouseLeave={e => { (e.currentTarget.style.color = 'var(--muted)'); (e.currentTarget.style.borderColor = 'var(--border)'); }}
-                >
-                  + Yeni Ekle
-                </button>
               </div>
             </div>
           );

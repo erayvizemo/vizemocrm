@@ -55,44 +55,53 @@ export function getUpcomingFollowUps(customers: Customer[], days = 7): Customer[
     .sort((a, b) => new Date(a.takip).getTime() - new Date(b.takip).getTime());
 }
 
-export function getStatusColor(status: StatusType): string {
+export function getStatusColor(status: StatusType | string): string {
   switch (status) {
-    case 'Olumsuz': return 'var(--danger)';
-    case 'Beklemede': return 'var(--warn)';
-    case 'Tamamlandı': return 'var(--accent2)';
-    case 'Yeni Lead': return 'var(--accent)';
-    default: return 'var(--muted)';
+    case 'Olumsuz': return 'var(--accent-rose)';
+    case 'Beklemede': return 'var(--accent-amber)';
+    case 'Tamamlandı': return 'var(--accent-emerald)';
+    case 'Yeni Lead': return 'var(--accent-primary)';
+    default: return 'var(--text-muted)';
   }
 }
 
-export function getStatusBg(status: StatusType): string {
+export function getStatusBg(status: StatusType | string): string {
   switch (status) {
-    case 'Olumsuz': return 'rgba(224,92,92,0.15)';
-    case 'Beklemede': return 'rgba(245,166,35,0.15)';
-    case 'Tamamlandı': return 'rgba(56,217,169,0.15)';
-    case 'Yeni Lead': return 'rgba(79,142,247,0.15)';
-    default: return 'rgba(100,116,139,0.15)';
+    case 'Olumsuz': return 'rgba(244,63,94,0.12)';
+    case 'Beklemede': return 'rgba(245,158,11,0.12)';
+    case 'Tamamlandı': return 'rgba(16,185,129,0.12)';
+    case 'Yeni Lead': return 'rgba(99,102,241,0.12)';
+    default: return 'rgba(74,79,106,0.12)';
   }
 }
 
-export function getStatusBorder(status: StatusType): string {
+export function getStatusBorder(status: StatusType | string): string {
   switch (status) {
-    case 'Olumsuz': return 'rgba(224,92,92,0.3)';
-    case 'Beklemede': return 'rgba(245,166,35,0.3)';
-    case 'Tamamlandı': return 'rgba(56,217,169,0.3)';
-    case 'Yeni Lead': return 'rgba(79,142,247,0.3)';
-    default: return 'rgba(100,116,139,0.3)';
+    case 'Olumsuz': return 'rgba(244,63,94,0.25)';
+    case 'Beklemede': return 'rgba(245,158,11,0.25)';
+    case 'Tamamlandı': return 'rgba(16,185,129,0.25)';
+    case 'Yeni Lead': return 'rgba(99,102,241,0.25)';
+    default: return 'rgba(74,79,106,0.25)';
   }
 }
 
-export function getStatusRowClass(status: StatusType): string {
-  switch (status) {
-    case 'Olumsuz': return 'row-olumsuz';
-    case 'Beklemede': return 'row-beklemede';
-    case 'Tamamlandı': return 'row-tamamlandi';
-    case 'Yeni Lead': return 'row-yeni';
-    default: return '';
-  }
+export function getVizeClass(vize: string) {
+  if (!vize) return 'diger';
+  const v = vize.toLowerCase();
+  if (v.includes('schengen')) return 'schengen';
+  if (v.includes('ispanya')) return 'ispanya';
+  if (v.includes('i̇ngiltere') || v.includes('ingiltere') || v.includes('uk')) return 'ingiltere';
+  return 'diger';
+}
+
+export function getStatusClass(status: string) {
+  if (!status) return '';
+  const s = status.toLowerCase();
+  if (s.includes('yeni lead')) return 'yeni-lead';
+  if (s.includes('beklemede')) return 'beklemede';
+  if (s.includes('tamamlandı') || s.includes('tamamlandi')) return 'tamamlandi';
+  if (s.includes('olumsuz')) return 'olumsuz';
+  return '';
 }
 
 export function exportToCSV(customers: Customer[]): void {

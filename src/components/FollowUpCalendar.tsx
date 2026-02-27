@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
-import { getStatusColor, getStatusBg, getDaysUntil } from '../utils/helpers';
+import { getDaysUntil, getStatusColor, getStatusBg, getStatusClass } from '../utils/helpers';
 
 const DAYS = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
 const MONTHS = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
@@ -50,175 +50,144 @@ export default function FollowUpCalendar() {
     .sort((a, b) => a.takip.localeCompare(b.takip));
 
   return (
-    <div style={{ padding: 24, minHeight: '100vh' }}>
-      <div style={{ marginBottom: 20 }}>
-        <h2 style={{ fontSize: '1.1rem', fontWeight: 600 }}>Takip Takvimi</h2>
-        <div style={{ color: 'var(--muted)', fontSize: '0.78rem', marginTop: 4 }}>Takip tarihleri olan müşteriler takvimde gösterilir.</div>
+    <div style={{ padding: '64px 32px 32px', minHeight: '100vh', background: 'var(--bg-void)' }}>
+      <div style={{ marginBottom: 32 }}>
+        <h1 style={{ fontSize: '28px', color: 'var(--text-primary)', marginBottom: 4 }}>Takvim</h1>
+        <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontFamily: "'DM Sans', sans-serif" }}>Takip tarihleri olan müşteriler takvimde gösterilir.</div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 18 }}>
-        {/* Calendar */}
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, overflow: 'hidden' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 340px', gap: 24, alignItems: 'start' }}>
+
+        {/* Calendar Left Panel */}
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 16, overflow: 'hidden' }}>
           {/* Month nav */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: '14px 18px',
-            borderBottom: '1px solid var(--border)',
+            padding: '20px 24px',
+            borderBottom: '1px solid var(--border-subtle)',
           }}>
             <button
               onClick={prevMonth}
-              style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '1rem', padding: '2px 8px', borderRadius: 6 }}
-              onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
-            >‹</button>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 600, fontSize: '0.9rem' }}>
+              className="btn-secondary"
+              style={{ padding: '6px 12px' }}
+            >‹ Önceki</button>
+            <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: '18px', color: 'var(--text-primary)' }}>
               {MONTHS[viewMonth]} {viewYear}
             </div>
             <button
               onClick={nextMonth}
-              style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '1rem', padding: '2px 8px', borderRadius: 6 }}
-              onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
-            >›</button>
+              className="btn-secondary"
+              style={{ padding: '6px 12px' }}
+            >Sonraki ›</button>
           </div>
 
-          {/* Day headers */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '1px solid var(--border)' }}>
-            {DAYS.map(d => (
-              <div key={d} style={{
-                textAlign: 'center',
-                padding: '8px 4px',
-                fontSize: '0.65rem',
-                fontFamily: "'IBM Plex Mono', monospace",
-                color: 'var(--muted)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-              }}>{d}</div>
-            ))}
-          </div>
+          <div style={{ padding: 24 }}>
+            <div className="calendar-grid">
+              {/* Day headers */}
+              {DAYS.map(d => (
+                <div key={d} className="calendar-day-header">{d}</div>
+              ))}
 
-          {/* Grid cells */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
-            {Array.from({ length: totalCells }).map((_, idx) => {
-              const dayNum = idx - startDow + 1;
-              const isCurrentMonth = dayNum >= 1 && dayNum <= daysInMonth;
-              if (!isCurrentMonth) {
-                return <div key={idx} style={{ minHeight: 70, borderBottom: '1px solid var(--border)', borderRight: '1px solid var(--border)', background: 'rgba(0,0,0,0.15)' }} />;
-              }
-              const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
-              const dt = new Date(viewYear, viewMonth, dayNum);
-              const isToday = dt.getTime() === today.getTime();
-              const isSelected = dateStr === selectedDate;
-              const dayCustomers = followUpMap[dateStr] || [];
-              const hasMeetings = dayCustomers.length > 0;
-              const isPast = dt.getTime() < today.getTime();
+              {/* Grid cells */}
+              {Array.from({ length: totalCells }).map((_, idx) => {
+                const dayNum = idx - startDow + 1;
+                const isCurrentMonth = dayNum >= 1 && dayNum <= daysInMonth;
+                if (!isCurrentMonth) {
+                  return <div key={idx} style={{ background: 'var(--bg-elevated)', opacity: 0.3 }} />;
+                }
+                const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+                const dt = new Date(viewYear, viewMonth, dayNum);
+                const isToday = dt.getTime() === today.getTime();
+                const isSelected = dateStr === selectedDate;
+                const dayCustomers = followUpMap[dateStr] || [];
+                const hasMeetings = dayCustomers.length > 0;
 
-              return (
-                <div
-                  key={idx}
-                  onClick={() => setSelectedDate(isSelected ? '' : dateStr)}
-                  style={{
-                    minHeight: 70,
-                    padding: '6px 8px',
-                    borderBottom: '1px solid var(--border)',
-                    borderRight: '1px solid var(--border)',
-                    cursor: hasMeetings ? 'pointer' : 'default',
-                    background: isSelected
-                      ? 'rgba(79,142,247,0.12)'
-                      : isToday
-                      ? 'rgba(79,142,247,0.06)'
-                      : isPast ? 'rgba(0,0,0,0.08)' : 'transparent',
-                    transition: 'background 0.12s',
-                    position: 'relative',
-                  }}
-                  onMouseEnter={e => { if (hasMeetings && !isSelected) e.currentTarget.style.background = 'rgba(79,142,247,0.06)'; }}
-                  onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = isToday ? 'rgba(79,142,247,0.06)' : isPast ? 'rgba(0,0,0,0.08)' : 'transparent'; }}
-                >
-                  {/* Day number */}
-                  <div style={{
-                    fontSize: '0.8rem',
-                    fontFamily: "'IBM Plex Mono', monospace",
-                    fontWeight: isToday ? 700 : 400,
-                    color: isToday ? '#fff' : isPast ? 'var(--muted)' : 'var(--text)',
-                    width: 24, height: 24,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    borderRadius: '50%',
-                    background: isToday ? 'var(--accent)' : 'transparent',
-                    marginBottom: 4,
-                  }}>{dayNum}</div>
+                return (
+                  <div
+                    key={idx}
+                    className={`calendar-day ${isToday ? 'today' : ''}`}
+                    onClick={() => setSelectedDate(isSelected ? '' : dateStr)}
+                    style={{
+                      cursor: hasMeetings ? 'pointer' : 'default',
+                      background: isSelected ? 'rgba(99, 102, 241, 0.1)' : undefined,
+                      boxShadow: isSelected ? 'inset 0 0 0 1px var(--accent-primary)' : undefined,
+                    }}
+                  >
+                    <span className="calendar-day-num">{dayNum}</span>
 
-                  {/* Customer dots */}
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-                    {dayCustomers.slice(0, 3).map((c, i) => (
-                      <div key={i} style={{
-                        width: 7, height: 7,
-                        borderRadius: '50%',
-                        background: getStatusColor(c.durum),
-                        flexShrink: 0,
-                      }} title={c.ad} />
-                    ))}
-                    {dayCustomers.length > 3 && (
-                      <div style={{ fontSize: '0.55rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace", lineHeight: '7px' }}>
-                        +{dayCustomers.length - 3}
-                      </div>
-                    )}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                      {dayCustomers.slice(0, 3).map((c, i) => (
+                        <div key={i} className={`calendar-event ${getStatusClass(c.durum) === 'beklemede' ? 'beklemede' : 'takip'}`} style={{ color: getStatusColor(c.durum), background: getStatusBg(c.durum) }}>
+                          <span style={{
+                            width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
+                            background: getStatusColor(c.durum)
+                          }}></span>
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {c.ad.split(' ')[0]}
+                          </span>
+                        </div>
+                      ))}
+                      {dayCustomers.length > 3 && (
+                        <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 600, paddingLeft: 4 }}>
+                          +{dayCustomers.length - 3} kayıt
+                        </div>
+                      )}
+                    </div>
                   </div>
-
-                  {/* Names (if few) */}
-                  {dayCustomers.slice(0, 2).map((c, i) => (
-                    <div key={i} style={{
-                      fontSize: '0.58rem',
-                      color: getStatusColor(c.durum),
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      marginTop: 2,
-                      fontFamily: "'IBM Plex Mono', monospace",
-                    }}>{c.ad.split(' ')[0]}</div>
-                  ))}
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
 
         {/* Side panel */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
           {/* Selected date detail */}
           {selectedDate && (
-            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '16px' }}>
-              <div style={{ fontSize: '0.72rem', fontFamily: "'IBM Plex Mono', monospace", color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12 }}>
+            <div className="chart-card" style={{ padding: 20 }}>
+              <div style={{ fontSize: '11px', fontFamily: "'Syne', sans-serif", color: 'var(--accent-cyan)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 16, fontWeight: 700 }}>
                 {selectedDate.split('-').reverse().join('.')} — {selectedCustomers.length} Takip
               </div>
+
               {selectedCustomers.length === 0 ? (
-                <div style={{ color: 'var(--muted)', fontSize: '0.78rem' }}>Bu gün takip yok.</div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Seçili tarihte takip yok.</div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {selectedCustomers.map(c => (
                     <div
                       key={c.id}
                       onClick={() => openModal(c.id)}
                       style={{
-                        padding: '10px 12px',
-                        background: 'var(--surface2)',
-                        border: `1px solid ${getStatusColor(c.durum)}33`,
+                        padding: '12px 14px',
+                        background: 'var(--bg-elevated)',
+                        border: '1px solid var(--border-subtle)',
                         borderLeft: `3px solid ${getStatusColor(c.durum)}`,
-                        borderRadius: 8,
+                        borderRadius: 10,
                         cursor: 'pointer',
-                        transition: 'background 0.12s',
+                        transition: 'all 0.15s',
                       }}
-                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(79,142,247,0.07)')}
-                      onMouseLeave={e => (e.currentTarget.style.background = 'var(--surface2)')}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.background = 'var(--bg-hover)';
+                        e.currentTarget.style.borderColor = 'var(--border-glow)';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.background = 'var(--bg-elevated)';
+                        e.currentTarget.style.borderColor = 'var(--border-subtle)';
+                      }}
                     >
-                      <div style={{ fontWeight: 500, fontSize: '0.82rem', marginBottom: 3 }}>{c.ad}</div>
-                      {c.telefon && <div style={{ fontSize: '0.7rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace", marginBottom: 3 }}>{c.telefon}</div>}
-                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                        {c.vize && <span style={{ fontSize: '0.62rem', color: 'var(--accent)', fontFamily: "'IBM Plex Mono', monospace" }}>{c.vize}</span>}
-                        <span style={{ fontSize: '0.62rem', color: getStatusColor(c.durum), background: getStatusBg(c.durum), padding: '1px 5px', borderRadius: 6, fontFamily: "'IBM Plex Mono', monospace" }}>{c.durum}</span>
+                      <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)', marginBottom: 4 }}>{c.ad}</div>
+                      {c.telefon && <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontFamily: "'Syne', sans-serif", marginBottom: 8 }}>{c.telefon}</div>}
+
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        <div className={`status-indicator ${getStatusClass(c.durum)}`} style={{ transform: 'scale(0.85)', transformOrigin: 'left' }}>
+                          <span className="status-dot"></span>
+                          {c.durum}
+                        </div>
                       </div>
-                      {c.not && <div style={{ fontSize: '0.68rem', color: 'var(--muted)', marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.not}</div>}
+
+                      {c.not && <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>{c.not}</div>}
                     </div>
                   ))}
                 </div>
@@ -227,17 +196,19 @@ export default function FollowUpCalendar() {
           )}
 
           {/* Upcoming 14 days */}
-          <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '16px', flex: 1 }}>
-            <div style={{ fontSize: '0.72rem', fontFamily: "'IBM Plex Mono', monospace", color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12 }}>
+          <div className="chart-card" style={{ padding: 20, flex: 1, maxHeight: 'calc(100vh - 200px)', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ fontSize: '11px', fontFamily: "'Syne', sans-serif", color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 16, fontWeight: 700 }}>
               Yaklaşan 14 Gün
             </div>
+
             {upcoming.length === 0 ? (
-              <div style={{ color: 'var(--muted)', fontSize: '0.78rem' }}>Yaklaşan takip yok.</div>
+              <div style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Yaklaşan takip yok.</div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 480, overflowY: 'auto' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, overflowY: 'auto', flex: 1, paddingRight: 4 }}>
                 {upcoming.map(c => {
                   const days = getDaysUntil(c.takip);
                   const dateLabel = days === 0 ? 'BUGÜN' : days === 1 ? 'YARIN' : c.takip.split('-').reverse().join('.');
+
                   return (
                     <div
                       key={c.id}
@@ -245,31 +216,38 @@ export default function FollowUpCalendar() {
                       style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 8,
-                        padding: '7px 10px',
-                        borderRadius: 7,
+                        gap: 12,
+                        padding: '10px 12px',
+                        borderRadius: 10,
                         cursor: 'pointer',
-                        background: 'var(--surface2)',
-                        border: '1px solid var(--border)',
-                        transition: 'background 0.12s',
+                        background: 'var(--bg-elevated)',
+                        border: '1px solid transparent',
+                        transition: 'all 0.15s',
                       }}
-                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(79,142,247,0.07)')}
-                      onMouseLeave={e => (e.currentTarget.style.background = 'var(--surface2)')}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.background = 'var(--bg-hover)';
+                        e.currentTarget.style.borderColor = 'var(--border-subtle)';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.background = 'var(--bg-elevated)';
+                        e.currentTarget.style.borderColor = 'transparent';
+                      }}
                     >
-                      <span style={{
-                        fontSize: '0.65rem',
-                        fontFamily: "'IBM Plex Mono', monospace",
-                        color: days === 0 ? 'var(--danger)' : days === 1 ? 'var(--warn)' : 'var(--accent2)',
-                        fontWeight: days <= 1 ? 700 : 400,
+                      <div style={{
+                        fontSize: '11px',
+                        fontFamily: "'Syne', sans-serif",
+                        color: days === 0 ? 'var(--accent-rose)' : days === 1 ? 'var(--accent-amber)' : 'var(--text-secondary)',
+                        fontWeight: 700,
                         minWidth: 50,
-                      }}>{dateLabel}</span>
-                      <span style={{ fontSize: '0.78rem', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.ad}</span>
-                      <span style={{
-                        width: 7, height: 7,
-                        borderRadius: '50%',
-                        background: getStatusColor(c.durum),
-                        flexShrink: 0,
-                      }} />
+                      }}>{dateLabel}</div>
+
+                      <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {c.ad}
+                      </div>
+
+                      <div className={`status-indicator ${getStatusClass(c.durum).replace('-', '_')}`} style={{ margin: 0 }}>
+                        <span className="status-dot"></span>
+                      </div>
                     </div>
                   );
                 })}

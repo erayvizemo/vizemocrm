@@ -2,14 +2,14 @@ import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { LeodessaLead } from '../types';
 
-const LEODESSA_COLOR = '#a855f7';
+const LEODESSA_COLOR = 'var(--accent-secondary)';
 
 function getTemperatureColor(temp: string): string {
-  if (temp.includes('Çok Sıcak') || temp.includes('Sıcak')) return '#22c55e';
-  if (temp.includes('Ilık')) return '#f59e0b';
-  if (temp.includes('Soğuk')) return '#ef4444';
-  if (temp.includes('Diskalifiye')) return '#ef4444';
-  return '#64748b';
+  if (temp.includes('Çok Sıcak') || temp.includes('Sıcak')) return 'var(--accent-emerald)';
+  if (temp.includes('Ilık')) return 'var(--accent-amber)';
+  if (temp.includes('Soğuk')) return 'var(--accent-rose)';
+  if (temp.includes('Diskalifiye')) return 'var(--accent-rose)';
+  return 'var(--text-secondary)';
 }
 
 export default function LeodessaLeads() {
@@ -45,7 +45,7 @@ export default function LeodessaLeads() {
     addCustomer({
       ad: lead.ad,
       telefon: lead.telefon,
-      email: lead.email,
+      email: lead.email || '',
       vize: lead.serviceName,
       durum,
       gorusme: '',
@@ -56,7 +56,10 @@ export default function LeodessaLeads() {
       log: [],
       sehir: '',
       danisman: '',
+      statu: '',
       kaynak: 'Leodessa Lead',
+      evrakPct: '',
+      ulke: ''
     });
 
     updateLeodessaLead(lead.id, { crmTransferred: true, status: 'transferred' });
@@ -65,44 +68,43 @@ export default function LeodessaLeads() {
 
   function StatCard({ label, value, color }: { label: string; value: number; color: string }) {
     return (
-      <div style={{
-        background: 'var(--surface)', border: '1px solid var(--border)',
-        borderRadius: 10, padding: '14px 18px', flex: 1, minWidth: 100,
-      }}>
-        <div style={{ fontSize: '1.6rem', fontWeight: 800, color, fontFamily: "'IBM Plex Mono', monospace" }}>{value}</div>
-        <div style={{ fontSize: '0.7rem', color: 'var(--muted)', marginTop: 2 }}>{label}</div>
+      <div className="chart-card" style={{ padding: '20px', flex: 1, minWidth: 140, position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', right: -20, top: -20, width: 80, height: 80, background: `radial-gradient(circle, ${color}20 0%, transparent 70%)`, borderRadius: '50%' }} />
+        <div style={{ fontSize: '32px', fontWeight: 800, color, fontFamily: "'Syne', sans-serif", letterSpacing: '-0.02em', lineHeight: 1 }}>{value}</div>
+        <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.07em', marginTop: 8, fontWeight: 700 }}>{label}</div>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: 24, minHeight: '100vh' }}>
+    <div style={{ padding: '64px 32px 32px', minHeight: '100vh', background: 'var(--bg-void)' }}>
       {/* Header */}
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-          <div style={{ width: 10, height: 10, borderRadius: '50%', background: LEODESSA_COLOR }} />
-          <h2 style={{ fontSize: '1.1rem', fontWeight: 600, color: LEODESSA_COLOR }}>Leodessa New Leads</h2>
+      <div style={{ marginBottom: 32 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+          <div style={{ width: 12, height: 12, borderRadius: '50%', background: LEODESSA_COLOR, boxShadow: `0 0 12px ${LEODESSA_COLOR}` }} />
+          <h1 style={{ fontSize: '28px', color: LEODESSA_COLOR }}>Leodessa Akıllı Lead Havuzu</h1>
         </div>
-        <div style={{ color: 'var(--muted)', fontSize: '0.78rem', marginLeft: 20 }}>
-          Leodessa sisteminden aktarılan lead kayıtları
+        <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontFamily: "'DM Sans', sans-serif" }}>
+          Leodessa yapay zeka aracından gelen lead adayları
         </div>
       </div>
 
       {/* Stats */}
-      <div style={{ display: 'flex', gap: 10, marginBottom: 18, flexWrap: 'wrap' }}>
-        <StatCard label="Toplam Lead" value={stats.total} color={LEODESSA_COLOR} />
-        <StatCard label="Sıcak Lead" value={stats.hot} color="#22c55e" />
-        <StatCard label="Ilık Lead" value={stats.warm} color="#f59e0b" />
-        <StatCard label="Diskalifiye" value={stats.disq} color="#ef4444" />
-        <StatCard label="CRM'e Aktarılan" value={stats.transferred} color="#4f8ef7" />
+      <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
+        <StatCard label="Toplam Lead Yoklaması" value={stats.total} color={LEODESSA_COLOR} />
+        <StatCard label="Sıcak Lead" value={stats.hot} color="var(--accent-emerald)" />
+        <StatCard label="Ilık Lead" value={stats.warm} color="var(--accent-amber)" />
+        <StatCard label="Diskalifiye" value={stats.disq} color="var(--accent-rose)" />
+        <StatCard label="CRM'e Aktarılan" value={stats.transferred} color="var(--accent-primary)" />
       </div>
 
       {/* Filters */}
-      <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 12, marginBottom: 24, flexWrap: 'wrap', alignItems: 'center' }}>
         <select
+          className="form-input"
           value={filterService}
           onChange={e => setFilterService(e.target.value)}
-          style={{ padding: '8px 12px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, color: filterService ? LEODESSA_COLOR : 'var(--muted)', fontSize: '0.82rem', cursor: 'pointer', outline: 'none' }}
+          style={{ width: 'auto', minWidth: 200, color: filterService ? LEODESSA_COLOR : 'var(--text-secondary)' }}
         >
           <option value="">Tüm Hizmetler</option>
           <option value="schengen">🇪🇺 Schengen</option>
@@ -111,9 +113,10 @@ export default function LeodessaLeads() {
           <option value="amerika">🇺🇸 Amerika</option>
         </select>
         <select
+          className="form-input"
           value={filterStatus}
           onChange={e => setFilterStatus(e.target.value)}
-          style={{ padding: '8px 12px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, color: filterStatus ? LEODESSA_COLOR : 'var(--muted)', fontSize: '0.82rem', cursor: 'pointer', outline: 'none' }}
+          style={{ width: 'auto', minWidth: 200, color: filterStatus ? LEODESSA_COLOR : 'var(--text-secondary)' }}
         >
           <option value="">Tüm Durumlar</option>
           <option value="hot">🔥 Sıcak Lead</option>
@@ -122,114 +125,111 @@ export default function LeodessaLeads() {
           <option value="disq">❌ Diskalifiye</option>
           <option value="transferred">✅ CRM'e Aktarılan</option>
         </select>
-        <span style={{ fontSize: '0.75rem', color: 'var(--muted)', alignSelf: 'center', fontFamily: "'IBM Plex Mono', monospace" }}>
-          {filtered.length} sonuç
+        <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: "'Syne', sans-serif", fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          {filtered.length} sonuç bulundu
         </span>
       </div>
 
       {/* Empty state */}
       {leodessaLeads.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '60px 24px', color: 'var(--muted)' }}>
-          <div style={{ fontSize: '3rem', marginBottom: 12 }}>⭐</div>
-          <div style={{ fontSize: '1rem', fontWeight: 600, marginBottom: 6 }}>Henüz lead yok</div>
-          <div style={{ fontSize: '0.82rem' }}>Leodessa Lead Tracking sayfasından görüşme yapın ve lead aktarın.</div>
+        <div style={{ textAlign: 'center', padding: '80px 24px', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 16 }}>
+          <div style={{ fontSize: '48px', marginBottom: 16 }}>🤖</div>
+          <div style={{ fontSize: '18px', fontFamily: "'Syne', sans-serif", fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>Havuz Boş</div>
+          <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Leodessa asistanı üzerinden yapılan görüşmeler buraya düşecek.</div>
         </div>
       )}
 
       {/* Lead cards */}
       {filtered.length > 0 && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: 16 }}>
           {filtered.map(lead => {
             const tempColor = getTemperatureColor(lead.temperature);
             return (
               <div
                 key={lead.id}
                 style={{
-                  background: 'var(--surface)', border: '1px solid var(--border)',
-                  borderRadius: 12, padding: '16px 18px',
-                  borderLeft: `3px solid ${lead.crmTransferred ? '#4f8ef7' : tempColor}`,
-                  transition: 'border-color 0.15s',
+                  background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)',
+                  borderRadius: 16, padding: '20px',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.02)',
+                  transition: 'all 0.2s',
+                  position: 'relative',
+                  overflow: 'hidden'
                 }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = lead.crmTransferred ? 'var(--accent-primary)' : tempColor; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-subtle)'; e.currentTarget.style.transform = 'translateY(0)'; }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                  {/* Avatar */}
-                  <div style={{
-                    width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
-                    background: `${LEODESSA_COLOR}20`, border: `1px solid ${LEODESSA_COLOR}40`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '1rem', fontWeight: 700, color: LEODESSA_COLOR,
-                  }}>
-                    {lead.ad.charAt(0).toUpperCase()}
+                <div style={{ position: 'absolute', top: 0, left: 0, width: 4, height: '100%', background: lead.crmTransferred ? 'var(--accent-primary)' : tempColor }} />
+
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16, paddingLeft: 8 }}>
+                  <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+                    <div style={{
+                      width: 48, height: 48, borderRadius: 12, flexShrink: 0,
+                      background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.2)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '18px', fontWeight: 800, color: LEODESSA_COLOR, fontFamily: "'Syne', sans-serif"
+                    }}>
+                      {lead.ad.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>{lead.ad}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: 4 }}>{lead.telefon}</div>
+                    </div>
                   </div>
 
-                  {/* Name + info */}
-                  <div style={{ flex: 1, minWidth: 120 }}>
-                    <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text)' }}>{lead.ad}</div>
-                    <div style={{ fontSize: '0.74rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace", marginTop: 1 }}>{lead.telefon}</div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '24px', fontWeight: 800, color: tempColor, fontFamily: "'Syne', sans-serif", lineHeight: 1 }}>
+                      {lead.isDisqualified ? '✗' : lead.score}
+                    </div>
+                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: 4, fontWeight: 700 }}>puan</div>
                   </div>
+                </div>
 
-                  {/* Service badge */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, paddingLeft: 8, marginBottom: 20 }}>
                   <span style={{
-                    padding: '4px 10px', borderRadius: 6, fontSize: '0.72rem',
-                    background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.25)',
-                    color: LEODESSA_COLOR, fontFamily: "'IBM Plex Mono', monospace", whiteSpace: 'nowrap',
+                    padding: '4px 10px', borderRadius: 6, fontSize: '11px', fontWeight: 600,
+                    background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.2)',
+                    color: LEODESSA_COLOR, whiteSpace: 'nowrap',
                   }}>
                     {lead.serviceIcon} {lead.serviceName}
                   </span>
-
-                  {/* Score */}
-                  <div style={{ textAlign: 'center', minWidth: 52 }}>
-                    <div style={{ fontSize: '1.3rem', fontWeight: 800, color: tempColor, fontFamily: "'IBM Plex Mono', monospace", lineHeight: 1 }}>
-                      {lead.isDisqualified ? '✗' : lead.score}
-                    </div>
-                    <div style={{ fontSize: '0.6rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace" }}>puan</div>
-                  </div>
-
-                  {/* Temperature */}
                   <span style={{
-                    padding: '4px 10px', borderRadius: 6, fontSize: '0.7rem',
-                    background: `${tempColor}12`, border: `1px solid ${tempColor}33`,
-                    color: tempColor, fontFamily: "'IBM Plex Mono', monospace", whiteSpace: 'nowrap', fontWeight: 600,
+                    padding: '4px 10px', borderRadius: 6, fontSize: '11px', fontWeight: 600,
+                    background: lead.crmTransferred ? 'rgba(99, 102, 241, 0.1)' : `${tempColor}15`,
+                    border: `1px solid ${lead.crmTransferred ? 'rgba(99, 102, 241, 0.2)' : `${tempColor}30`}`,
+                    color: lead.crmTransferred ? 'var(--accent-primary)' : tempColor, whiteSpace: 'nowrap',
                   }}>
-                    {lead.temperature}
+                    {lead.crmTransferred ? '✅ CRM\'e Aktarıldı' : lead.temperature}
                   </span>
-
-                  {/* Date */}
-                  <span style={{ fontSize: '0.7rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace", whiteSpace: 'nowrap' }}>
+                  <span style={{ padding: '4px 10px', borderRadius: 6, fontSize: '11px', color: 'var(--text-muted)', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
                     {lead.createdAt}
                   </span>
+                </div>
 
-                  {/* CRM transferred badge */}
-                  {lead.crmTransferred && (
-                    <span style={{ padding: '3px 8px', borderRadius: 6, fontSize: '0.65rem', background: 'rgba(79,142,247,0.12)', border: '1px solid rgba(79,142,247,0.3)', color: '#4f8ef7', fontFamily: "'IBM Plex Mono', monospace" }}>
-                      ✅ CRM'de
-                    </span>
+                <div style={{ display: 'flex', gap: 8, paddingLeft: 8 }}>
+                  <button
+                    onClick={() => { setSelectedLead(lead); setShowDetail(true); }}
+                    className="btn-secondary"
+                    style={{ flex: 1, padding: '8px 0', fontSize: '12px' }}
+                  >
+                    Detayı Gör
+                  </button>
+                  {!lead.crmTransferred && !lead.isDisqualified && (
+                    <button
+                      onClick={() => handleCrmTransfer(lead)}
+                      className="btn-primary"
+                      style={{ flex: 1, padding: '8px 0', fontSize: '12px', background: 'rgba(99, 102, 241, 0.15)', color: 'var(--accent-primary)', boxShadow: 'none' }}
+                    >
+                      CRM'e Aktar
+                    </button>
                   )}
-
-                  {/* Actions */}
-                  <div style={{ display: 'flex', gap: 6, marginLeft: 'auto' }}>
-                    <button
-                      onClick={() => { setSelectedLead(lead); setShowDetail(true); }}
-                      style={{ padding: '6px 12px', background: 'transparent', border: '1px solid var(--border)', borderRadius: 7, color: 'var(--muted)', cursor: 'pointer', fontSize: '0.75rem' }}
-                    >
-                      📋 Detay
-                    </button>
-                    {!lead.crmTransferred && !lead.isDisqualified && (
-                      <button
-                        onClick={() => handleCrmTransfer(lead)}
-                        style={{ padding: '6px 12px', background: 'rgba(79,142,247,0.12)', border: '1px solid rgba(79,142,247,0.35)', borderRadius: 7, color: '#4f8ef7', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600 }}
-                      >
-                        CRM'e Aktar
-                      </button>
-                    )}
-                    <button
-                      onClick={() => deleteLeodessaLead(lead.id)}
-                      style={{ padding: '6px 10px', background: 'transparent', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 7, color: '#ef4444', cursor: 'pointer', fontSize: '0.75rem' }}
-                      title="Sil"
-                    >
-                      ✕
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => deleteLeodessaLead(lead.id)}
+                    className="btn-secondary"
+                    style={{ padding: '8px 12px', borderColor: 'rgba(244, 63, 94, 0.2)', color: 'var(--accent-rose)' }}
+                    title="Sil"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                  </button>
                 </div>
               </div>
             );
@@ -239,45 +239,66 @@ export default function LeodessaLeads() {
 
       {/* Detail modal */}
       {showDetail && selectedLead && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, padding: 28, width: 580, maxWidth: '92vw', maxHeight: '85vh', overflowY: 'auto' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-              <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text)', flex: 1 }}>
-                {selectedLead.serviceIcon} {selectedLead.ad} — {selectedLead.serviceName}
+        <div className="modal-overlay" onClick={() => setShowDetail(false)}>
+          <div className="modal-content" style={{ width: 620, maxWidth: '95vw' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24, borderBottom: '1px solid var(--border-subtle)', paddingBottom: 16 }}>
+              <div>
+                <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", marginBottom: 6 }}>
+                  {selectedLead.ad}
+                </div>
+                <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                  {selectedLead.serviceIcon} {selectedLead.serviceName}
+                </div>
               </div>
-              <button onClick={() => setShowDetail(false)} style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
+              <button
+                onClick={() => setShowDetail(false)}
+                className="btn-secondary"
+                style={{ padding: '6px 12px', fontSize: '12px' }}
+              >
+                Kapat
+              </button>
             </div>
 
-            <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-              <span style={{ padding: '4px 10px', borderRadius: 6, fontSize: '0.72rem', background: `${getTemperatureColor(selectedLead.temperature)}12`, border: `1px solid ${getTemperatureColor(selectedLead.temperature)}33`, color: getTemperatureColor(selectedLead.temperature), fontFamily: "'IBM Plex Mono', monospace" }}>
-                {selectedLead.isDisqualified ? '✗' : selectedLead.score} puan — {selectedLead.temperature}
+            <div style={{ display: 'flex', gap: 10, marginBottom: 24, flexWrap: 'wrap' }}>
+              <span style={{ padding: '6px 12px', borderRadius: 8, fontSize: '12px', fontWeight: 600, background: `${getTemperatureColor(selectedLead.temperature)}15`, border: `1px solid ${getTemperatureColor(selectedLead.temperature)}30`, color: getTemperatureColor(selectedLead.temperature) }}>
+                {selectedLead.isDisqualified ? '✗' : selectedLead.score} Puan — {selectedLead.temperature}
               </span>
-              <span style={{ padding: '4px 10px', borderRadius: 6, fontSize: '0.72rem', background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.25)', color: LEODESSA_COLOR, fontFamily: "'IBM Plex Mono', monospace" }}>
+              <span style={{ padding: '6px 12px', borderRadius: 8, fontSize: '12px', fontWeight: 600, background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.2)', color: LEODESSA_COLOR }}>
                 📅 {selectedLead.createdAt}
               </span>
               {selectedLead.email && (
-                <span style={{ padding: '4px 10px', borderRadius: 6, fontSize: '0.72rem', background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace" }}>
+                <span style={{ padding: '6px 12px', borderRadius: 8, fontSize: '12px', background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}>
                   ✉ {selectedLead.email}
                 </span>
               )}
             </div>
 
-            {/* Summary text */}
-            <div style={{ background: 'var(--bg)', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border)' }}>
-              <div style={{ fontSize: '0.62rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Görüşme Özeti</div>
-              <pre style={{ fontSize: '0.78rem', color: 'var(--text)', whiteSpace: 'pre-wrap', fontFamily: "'IBM Plex Mono', monospace", lineHeight: 1.6, margin: 0 }}>
+            {/* AI Summary text */}
+            <div style={{ background: 'var(--bg-elevated)', borderRadius: 12, padding: '20px', border: '1px solid var(--border-subtle)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: LEODESSA_COLOR }} />
+                <div style={{ fontSize: '11px', color: LEODESSA_COLOR, fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>
+                  Yapay Zeka Görüşme Özeti
+                </div>
+              </div>
+              <pre style={{ fontSize: '13px', color: 'var(--text-primary)', whiteSpace: 'pre-wrap', fontFamily: "'DM Sans', sans-serif", lineHeight: 1.6, margin: 0 }}>
                 {selectedLead.summaryText}
               </pre>
             </div>
 
-            <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
-              <button onClick={() => setShowDetail(false)} style={{ flex: 1, padding: '9px', background: 'transparent', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--muted)', cursor: 'pointer', fontSize: '0.82rem' }}>
-                Kapat
+            <div style={{ display: 'flex', gap: 12, marginTop: 24, justifyContent: 'flex-end', borderTop: '1px solid var(--border-subtle)', paddingTop: 20 }}>
+              <button
+                className="btn-secondary"
+                onClick={() => setShowDetail(false)}
+                style={{ minWidth: 100 }}
+              >
+                İptal
               </button>
               {!selectedLead.crmTransferred && !selectedLead.isDisqualified && (
                 <button
+                  className="btn-primary"
                   onClick={() => { handleCrmTransfer(selectedLead); setShowDetail(false); }}
-                  style={{ flex: 2, padding: '9px', background: 'rgba(79,142,247,0.15)', border: '1px solid rgba(79,142,247,0.4)', borderRadius: 8, color: '#4f8ef7', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 700 }}
+                  style={{ minWidth: 160 }}
                 >
                   CRM'e Aktar
                 </button>

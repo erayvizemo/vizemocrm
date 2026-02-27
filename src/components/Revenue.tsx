@@ -2,14 +2,14 @@ import { useState, useMemo, useCallback } from 'react';
 import { useApp } from '../context/AppContext';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
-const GOLD = '#f7c94f';
+const GOLD = 'var(--accent-amber)';
 const CITY_COLORS: Record<string, string> = {
-  'Eskişehir': '#4f8ef7',
-  'Gaziantep': '#f7a14f',
-  'İstanbul': '#38d9a9',
+  'Eskişehir': 'var(--accent-primary)',
+  'Gaziantep': 'var(--accent-amber)',
+  'İstanbul': 'var(--accent-emerald)',
 };
 
-const DANISMAN_OPTIONS = ['Eray', 'Dilara', 'Elanur'];
+const DANISMAN_OPTIONS = ['Eray', 'Dilara', 'Elanur', 'Selin', 'Merve'];
 
 function fmt(n: number) {
   return n.toLocaleString('tr-TR') + ' ₺';
@@ -109,21 +109,22 @@ export default function Revenue() {
       <th
         onClick={() => toggleSort(col)}
         style={{
-          padding: '10px 14px',
+          padding: '12px 16px',
           textAlign: 'left',
-          fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: '0.65rem',
-          textTransform: 'uppercase' as const,
-          letterSpacing: '0.07em',
-          color: sortCol === col ? GOLD : 'var(--muted)',
+          fontFamily: "'Syne', sans-serif",
+          fontSize: '11px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.06em',
+          color: sortCol === col ? GOLD : 'var(--text-muted)',
           cursor: 'pointer',
-          userSelect: 'none' as const,
-          whiteSpace: 'nowrap' as const,
-          borderBottom: '1px solid var(--border)',
-          background: 'var(--surface)',
+          userSelect: 'none',
+          whiteSpace: 'nowrap',
+          borderBottom: '1px solid var(--border-subtle)',
+          background: 'var(--bg-surface)',
+          transition: 'color 0.2s',
         }}
       >
-        {label} {sortCol === col ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+        {label} <span style={{ color: sortCol === col ? GOLD : 'transparent' }}>{sortDir === 'asc' ? '↑' : '↓'}</span>
       </th>
     );
   }
@@ -176,335 +177,128 @@ export default function Revenue() {
     }
   };
 
-  const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '10px 14px', background: 'var(--surface2)',
-    border: '1px solid var(--border)', borderRadius: 10,
-    color: 'var(--text)', fontSize: '0.85rem', fontFamily: "'IBM Plex Mono', monospace",
-    outline: 'none', transition: 'border-color 0.2s',
-  };
-  const labelStyle: React.CSSProperties = {
-    fontSize: '0.68rem', fontFamily: "'IBM Plex Mono', monospace",
-    color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em',
-    marginBottom: 6, display: 'block',
-  };
-
   return (
-    <div style={{ padding: 24, minHeight: '100vh' }}>
+    <div style={{ padding: '64px 32px 32px', minHeight: '100vh', background: 'var(--bg-void)' }}>
       {/* Header */}
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-          <div style={{ width: 10, height: 10, borderRadius: '50%', background: GOLD }} />
-          <h2 style={{ fontSize: '1.1rem', fontWeight: 600, color: GOLD }}>Gelir Takibi</h2>
-          <span style={{ fontSize: '0.68rem', fontFamily: "'IBM Plex Mono', monospace", color: 'var(--muted)', marginLeft: 4 }}>Şubat 2026</span>
-          <button
-            onClick={() => {
-              setEditEntryId(null);
-              setForm(emptyForm);
-              setShowAddModal(true);
-            }}
-            style={{
-              marginLeft: 'auto', padding: '8px 18px',
-              background: `linear-gradient(135deg, ${GOLD}, #e5b83a)`,
-              border: 'none', borderRadius: 10, cursor: 'pointer',
-              color: '#0f1117', fontWeight: 700, fontSize: '0.82rem',
-              fontFamily: "'IBM Plex Mono', monospace",
-              boxShadow: `0 4px 16px ${GOLD}33`,
-              transition: 'all 0.2s',
-              display: 'flex', alignItems: 'center', gap: 6,
-            }}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = `0 6px 24px ${GOLD}55`; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = `0 4px 16px ${GOLD}33`; }}
-          >
-            ＋ Yeni Gelir
-          </button>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32 }}>
+        <div>
+          <h1 style={{ fontSize: '28px', color: GOLD, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ width: 12, height: 12, borderRadius: '50%', background: GOLD, boxShadow: `0 0 12px ${GOLD}` }} />
+            Gelir Takibi
+          </h1>
+          <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontFamily: "'DM Sans', sans-serif" }}>
+            Mali veriler ve tahsilat durumları
+          </div>
         </div>
-        <div style={{ color: 'var(--muted)', fontSize: '0.78rem', marginLeft: 20 }}>
-          {revenue.length} işlem · Tüm şubeler
-        </div>
+
+        <button
+          className="btn-primary"
+          onClick={() => {
+            setEditEntryId(null);
+            setForm(emptyForm);
+            setShowAddModal(true);
+          }}
+          style={{ background: `linear-gradient(135deg, ${GOLD}, #d97706)`, boxShadow: `0 4px 16px rgba(245, 158, 11, 0.25)` }}
+        >
+          ＋ Yeni Gelir
+        </button>
       </div>
 
-      {/* Add Revenue Modal */}
-      {showAddModal && (
-        <div
-          style={{
-            position: 'fixed', inset: 0, zIndex: 1000,
-            background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}
-          onClick={() => {
-            setShowAddModal(false);
-            setEditEntryId(null);
-          }}
-        >
-          <div
-            onClick={e => e.stopPropagation()}
-            style={{
-              background: 'var(--surface)', border: `1px solid ${GOLD}44`,
-              borderRadius: 16, padding: '28px 32px',
-              width: '100%', maxWidth: 520,
-              boxShadow: `0 20px 60px rgba(0,0,0,0.5), 0 0 30px ${GOLD}11`,
-              animation: 'fadeIn 0.2s ease-out',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: GOLD }} />
-              <h3 style={{ fontSize: '1rem', fontWeight: 600, color: GOLD, margin: 0 }}>
-                {editEntryId ? 'Gelir Kaydını Düzenle' : 'Yeni Gelir Kaydı'}
-              </h3>
-              <button
-                onClick={() => {
-                  setShowAddModal(false);
-                  setEditEntryId(null);
-                }}
-                style={{ marginLeft: 'auto', background: 'transparent', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '1.2rem' }}
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Ad Soyad */}
-            <div style={{ marginBottom: 16 }}>
-              <label style={labelStyle}>Müşteri Ad Soyad *</label>
-              <input
-                style={inputStyle}
-                placeholder="Örn: Ahmet Yılmaz"
-                value={form.ad}
-                onChange={e => setForm(f => ({ ...f, ad: e.target.value }))}
-                onFocus={e => (e.target.style.borderColor = GOLD)}
-                onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                autoFocus
-              />
-            </div>
-
-            {/* Danışman + Şehir */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
-              <div>
-                <label style={labelStyle}>Danışman</label>
-                <select
-                  style={{ ...inputStyle, cursor: 'pointer' }}
-                  value={form.danisman}
-                  onChange={e => setForm(f => ({ ...f, danisman: e.target.value }))}
-                >
-                  <option value="">Seçiniz</option>
-                  {consultants.map(d => <option key={d} value={d}>{d}</option>)}
-                </select>
-              </div>
-              <div>
-                <label style={labelStyle}>Şehir</label>
-                <select
-                  style={{ ...inputStyle, cursor: 'pointer' }}
-                  value={form.sehir}
-                  onChange={e => setForm(f => ({ ...f, sehir: e.target.value }))}
-                >
-                  <option value="">Seçiniz</option>
-                  {cities.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-            </div>
-
-            {/* Ödeme Yöntemi + Tarih */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
-              <div>
-                <label style={labelStyle}>Ödeme Yöntemi</label>
-                <select
-                  style={{ ...inputStyle, cursor: 'pointer' }}
-                  value={form.odemeYontemi}
-                  onChange={e => setForm(f => ({ ...f, odemeYontemi: e.target.value }))}
-                >
-                  <option value="💵 Elden">💵 Elden</option>
-                  <option value="🏦 İban">🏦 İban</option>
-                  <option value="💳 Kredi Kartı">💳 Kredi Kartı</option>
-                </select>
-              </div>
-              <div>
-                <label style={labelStyle}>Ön Ödeme Tarihi</label>
-                <input
-                  type="date"
-                  style={inputStyle}
-                  value={form.onOdemeTarihi}
-                  onChange={e => setForm(f => ({ ...f, onOdemeTarihi: e.target.value }))}
-                />
-              </div>
-            </div>
-
-            {/* Ön Ödeme + Kalan */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
-              <div>
-                <label style={labelStyle}>Ön Ödeme Tutarı (₺)</label>
-                <input
-                  type="number"
-                  style={inputStyle}
-                  placeholder="0"
-                  value={form.onOdeme}
-                  onChange={e => setForm(f => ({ ...f, onOdeme: e.target.value }))}
-                  onFocus={e => (e.target.style.borderColor = GOLD)}
-                  onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                />
-              </div>
-              <div>
-                <label style={labelStyle}>Kalan Ödeme (₺)</label>
-                <input
-                  type="number"
-                  style={inputStyle}
-                  placeholder="0"
-                  value={form.kalanOdeme}
-                  onChange={e => setForm(f => ({ ...f, kalanOdeme: e.target.value }))}
-                  onFocus={e => (e.target.style.borderColor = GOLD)}
-                  onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-                />
-              </div>
-            </div>
-
-            {/* Kalan Tarih */}
-            <div style={{ marginBottom: 20 }}>
-              <label style={labelStyle}>Kalan Ödeme Tarihi</label>
-              <input
-                type="date"
-                style={inputStyle}
-                value={form.kalanTarih}
-                onChange={e => setForm(f => ({ ...f, kalanTarih: e.target.value }))}
-              />
-            </div>
-
-            {/* Toplam Preview */}
-            <div style={{
-              background: `${GOLD}0a`, border: `1px solid ${GOLD}33`,
-              borderRadius: 10, padding: '12px 16px', marginBottom: 20,
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            }}>
-              <span style={{ fontSize: '0.75rem', fontFamily: "'IBM Plex Mono', monospace", color: 'var(--muted)', textTransform: 'uppercase' }}>Toplam Tutar</span>
-              <span style={{ fontSize: '1.2rem', fontWeight: 700, fontFamily: "'IBM Plex Mono', monospace", color: GOLD }}>
-                {fmt((parseFloat(form.onOdeme) || 0) + (parseFloat(form.kalanOdeme) || 0))}
-              </span>
-            </div>
-
-            {/* Buttons */}
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button
-                onClick={() => {
-                  setShowAddModal(false);
-                  setEditEntryId(null);
-                }}
-                style={{
-                  flex: 1, padding: '11px 0', background: 'var(--surface2)',
-                  border: '1px solid var(--border)', borderRadius: 10,
-                  color: 'var(--muted)', cursor: 'pointer', fontSize: '0.82rem',
-                  fontFamily: "'IBM Plex Mono', monospace", transition: 'all 0.15s',
-                }}
-              >
-                İptal
-              </button>
-              <button
-                onClick={handleSubmit}
-                disabled={!form.ad.trim()}
-                style={{
-                  flex: 2, padding: '11px 0',
-                  background: form.ad.trim() ? `linear-gradient(135deg, ${GOLD}, #e5b83a)` : '#333',
-                  border: 'none', borderRadius: 10,
-                  color: form.ad.trim() ? '#0f1117' : '#666',
-                  cursor: form.ad.trim() ? 'pointer' : 'not-allowed',
-                  fontWeight: 700, fontSize: '0.85rem',
-                  fontFamily: "'IBM Plex Mono', monospace",
-                  boxShadow: form.ad.trim() ? `0 4px 16px ${GOLD}33` : 'none',
-                  transition: 'all 0.2s',
-                }}
-              >
-                ✓ {editEntryId ? 'Güncelle' : 'Gelir Kaydı Ekle'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* KPI Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 20 }}>
-        <div style={{ background: 'var(--surface)', border: `1px solid ${GOLD}44`, borderRadius: 12, padding: '18px 20px' }}>
-          <div style={{ fontSize: '0.68rem', fontFamily: "'IBM Plex Mono', monospace", color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>Toplam Gelir</div>
-          <div style={{ fontSize: '1.6rem', fontWeight: 700, fontFamily: "'IBM Plex Mono', monospace", color: GOLD }}>{fmt(toplam)}</div>
-          <div style={{ fontSize: '0.7rem', color: 'var(--muted)', marginTop: 4 }}>{revenue.length} müşteri</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
+        <div className="chart-card" style={{ padding: '24px', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', right: -20, top: -20, width: 100, height: 100, background: 'radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%)', borderRadius: '50%' }} />
+          <div style={{ fontSize: '11px', fontFamily: "'Syne', sans-serif", color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12, fontWeight: 700 }}>Toplam Gelir</div>
+          <div style={{ fontSize: '36px', fontWeight: 800, fontFamily: "'Syne', sans-serif", color: GOLD, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{fmt(toplam)}</div>
+          <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: 8 }}>{revenue.length} müşteri kaydı</div>
         </div>
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '18px 20px' }}>
-          <div style={{ fontSize: '0.68rem', fontFamily: "'IBM Plex Mono', monospace", color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>Tahsil Edilen</div>
-          <div style={{ fontSize: '1.6rem', fontWeight: 700, fontFamily: "'IBM Plex Mono', monospace", color: '#38d9a9' }}>{fmt(onOdemeToplam)}</div>
-          <div style={{ fontSize: '0.7rem', color: 'var(--muted)', marginTop: 4 }}>
-            {toplam > 0 ? Math.round(onOdemeToplam / toplam * 100) : 0}% tahsil
+        <div className="chart-card" style={{ padding: '24px', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', right: -20, top: -20, width: 100, height: 100, background: 'radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%)', borderRadius: '50%' }} />
+          <div style={{ fontSize: '11px', fontFamily: "'Syne', sans-serif", color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12, fontWeight: 700 }}>Tahsil Edilen</div>
+          <div style={{ fontSize: '36px', fontWeight: 800, fontFamily: "'Syne', sans-serif", color: 'var(--accent-emerald)', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{fmt(onOdemeToplam)}</div>
+          <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: 8 }}>
+            {toplam > 0 ? Math.round(onOdemeToplam / toplam * 100) : 0}% tahsil edildi
           </div>
         </div>
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '18px 20px' }}>
-          <div style={{ fontSize: '0.68rem', fontFamily: "'IBM Plex Mono', monospace", color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>Kalan Tahsilat</div>
-          <div style={{ fontSize: '1.6rem', fontWeight: 700, fontFamily: "'IBM Plex Mono', monospace", color: kalanToplam > 0 ? '#e05c5c' : '#38d9a9' }}>{fmt(kalanToplam)}</div>
-          <div style={{ fontSize: '0.7rem', color: 'var(--muted)', marginTop: 4 }}>
-            {kalanToplam === 0 ? '✓ Tüm ödemeler tamamlandı' : 'bekleyen ödeme'}
+        <div className="chart-card" style={{ padding: '24px', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', right: -20, top: -20, width: 100, height: 100, background: 'radial-gradient(circle, rgba(244, 63, 94, 0.15) 0%, transparent 70%)', borderRadius: '50%' }} />
+          <div style={{ fontSize: '11px', fontFamily: "'Syne', sans-serif", color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12, fontWeight: 700 }}>Kalan Tahsilat</div>
+          <div style={{ fontSize: '36px', fontWeight: 800, fontFamily: "'Syne', sans-serif", color: kalanToplam > 0 ? 'var(--accent-rose)' : 'var(--accent-emerald)', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{fmt(kalanToplam)}</div>
+          <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: 8 }}>
+            {kalanToplam === 0 ? '✓ Tüm ödemeler tahsil edildi' : 'Bekleyen ödemeler var'}
           </div>
         </div>
       </div>
 
       {/* Charts row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }}>
         {/* Consultant bar chart */}
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '18px' }}>
-          <div style={{ fontSize: '0.72rem', fontFamily: "'IBM Plex Mono', monospace", color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 14 }}>
-            Danışman Bazlı Gelir
+        <div className="chart-card">
+          <div className="chart-title">Danışman Bazlı Gelir</div>
+          <div className="chart-subtitle">Danışmanların toplam getirdikleri gelir</div>
+          <div style={{ height: 200 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={danismanStats} barSize={40} margin={{ left: -20 }}>
+                <XAxis dataKey="name" tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: "'DM Sans', sans-serif" }} axisLine={{ stroke: 'var(--border-subtle)' }} tickLine={false} />
+                <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: "'DM Sans', sans-serif" }} axisLine={false} tickLine={false} tickFormatter={(v) => (v / 1000).toFixed(0) + 'K'} />
+                <Tooltip
+                  contentStyle={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)', borderRadius: 8, fontSize: '12px', fontFamily: "'DM Sans', sans-serif" }}
+                  formatter={(v: number) => [fmt(v), 'Toplam']}
+                  cursor={{ fill: 'rgba(255,255,255,0.03)' }}
+                />
+                <Bar dataKey="toplam" radius={[6, 6, 0, 0]}>
+                  {danismanStats.map((_, i) => (
+                    <Cell key={i} fill={['var(--accent-primary)', 'var(--accent-emerald)', 'var(--accent-amber)', 'var(--accent-cyan)', 'var(--accent-secondary)'][i % 5]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </div>
-          <ResponsiveContainer width="100%" height={160}>
-            <BarChart data={danismanStats} barSize={36}>
-              <XAxis dataKey="name" tick={{ fill: 'var(--muted)', fontSize: 11, fontFamily: 'IBM Plex Mono, monospace' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: 'var(--muted)', fontSize: 10, fontFamily: 'IBM Plex Mono, monospace' }} axisLine={false} tickLine={false} tickFormatter={(v) => (v / 1000).toFixed(0) + 'K'} />
-              <Tooltip
-                contentStyle={{ background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 8, fontSize: '0.75rem', fontFamily: 'IBM Plex Mono, monospace' }}
-                formatter={(v: number) => [fmt(v), 'Toplam']}
-                cursor={{ fill: 'rgba(255,255,255,0.04)' }}
-              />
-              <Bar dataKey="toplam" radius={[4, 4, 0, 0]}>
-                {danismanStats.map((_, i) => (
-                  <Cell key={i} fill={[GOLD, '#4f8ef7', '#38d9a9', '#f7a14f'][i % 4]} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
         </div>
 
         {/* City breakdown */}
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '18px' }}>
-          <div style={{ fontSize: '0.72rem', fontFamily: "'IBM Plex Mono', monospace", color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 14 }}>
-            Şehir Bazlı Gelir
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div className="chart-card">
+          <div className="chart-title">Şehir ve Ödeme Analizi</div>
+          <div className="chart-subtitle">Lokasyon ve ödeme yöntemi dağılımı</div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {sehirStats.sort((a, b) => b.toplam - a.toplam).map(s => {
               const pct = toplam > 0 ? (s.toplam / toplam) * 100 : 0;
-              const color = CITY_COLORS[s.name] ?? '#6c7a8a';
+              const color = CITY_COLORS[s.name] ?? 'var(--accent-primary)';
               return (
                 <div key={s.name}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--text)' }}>{s.name}</span>
-                    <span style={{ fontSize: '0.72rem', fontFamily: "'IBM Plex Mono', monospace", color }}>
-                      {fmt(s.toplam)} <span style={{ color: 'var(--muted)' }}>({s.count} işlem)</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <span style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 600 }}>{s.name}</span>
+                    <span style={{ fontSize: '13px', fontFamily: "'Syne', sans-serif", fontWeight: 700, color }}>
+                      {fmt(s.toplam)} <span style={{ color: 'var(--text-muted)', fontWeight: 500, marginLeft: 4 }}>({s.count} kayıt)</span>
                     </span>
                   </div>
-                  <div style={{ height: 6, background: 'var(--border)', borderRadius: 4, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: 4, transition: 'width 0.4s ease' }} />
+                  <div style={{ height: 6, background: 'var(--bg-elevated)', borderRadius: 4, overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: 4, transition: 'width 0.5s ease' }} />
                   </div>
                 </div>
               );
             })}
           </div>
+
           {/* Payment methods */}
-          <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
-            <div style={{ fontSize: '0.68rem', fontFamily: "'IBM Plex Mono', monospace", color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
-              Ödeme Yöntemi
+          <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--border-subtle)' }}>
+            <div style={{ fontSize: '11px', fontFamily: "'Syne', sans-serif", color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12, fontWeight: 700 }}>
+              Ödeme Yöntemleri Dağılımı
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
               {odemeStats.map(o => (
                 <div key={o.name} style={{
-                  padding: '5px 12px',
-                  background: 'var(--surface2)',
-                  border: '1px solid var(--border)',
+                  padding: '6px 14px',
+                  background: 'var(--bg-elevated)',
+                  border: '1px solid var(--border-subtle)',
                   borderRadius: 20,
-                  fontSize: '0.72rem',
-                  fontFamily: "'IBM Plex Mono', monospace",
-                  color: 'var(--text)',
+                  fontSize: '12px',
+                  fontFamily: "'DM Sans', sans-serif",
+                  color: 'var(--text-secondary)',
+                  fontWeight: 500
                 }}>
-                  {o.name} — <span style={{ color: GOLD }}>{fmt(o.value)}</span>
+                  {o.name} — <span style={{ color: GOLD, fontWeight: 700, fontFamily: "'Syne', sans-serif" }}>{fmt(o.value)}</span>
                 </div>
               ))}
             </div>
@@ -513,23 +307,26 @@ export default function Revenue() {
       </div>
 
       {/* Filters */}
-      <div style={{ display: 'flex', gap: 10, marginBottom: 14, flexWrap: 'wrap', alignItems: 'center' }}>
-        <span style={{ fontSize: '0.78rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace" }}>Filtrele:</span>
+      <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center' }}>
+        <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Filtrele:</span>
         {consultants.map(d => (
           <button
             key={d}
             onClick={() => setFilterDanisman(filterDanisman === d ? '' : d)}
             style={{
-              padding: '5px 12px',
-              background: filterDanisman === d ? `${GOLD}22` : 'var(--surface)',
-              border: filterDanisman === d ? `1px solid ${GOLD}` : '1px solid var(--border)',
+              padding: '6px 14px',
+              background: filterDanisman === d ? 'rgba(245, 158, 11, 0.1)' : 'var(--bg-elevated)',
+              border: filterDanisman === d ? `1px solid ${GOLD}` : '1px solid var(--border-subtle)',
               borderRadius: 20,
               cursor: 'pointer',
-              fontSize: '0.75rem',
-              fontFamily: "'IBM Plex Mono', monospace",
-              color: filterDanisman === d ? GOLD : 'var(--muted)',
-              transition: 'all 0.15s',
+              fontSize: '13px',
+              fontFamily: "'DM Sans', sans-serif",
+              fontWeight: 500,
+              color: filterDanisman === d ? GOLD : 'var(--text-secondary)',
+              transition: 'all 0.2s',
             }}
+            onMouseEnter={e => { if (filterDanisman !== d) { e.currentTarget.style.borderColor = 'var(--border-glow)'; e.currentTarget.style.color = 'var(--text-primary)'; } }}
+            onMouseLeave={e => { if (filterDanisman !== d) { e.currentTarget.style.borderColor = 'var(--border-subtle)'; e.currentTarget.style.color = 'var(--text-secondary)'; } }}
           >
             👤 {d}
           </button>
@@ -539,16 +336,19 @@ export default function Revenue() {
             key={c}
             onClick={() => setFilterSehir(filterSehir === c ? '' : c)}
             style={{
-              padding: '5px 12px',
-              background: filterSehir === c ? `${CITY_COLORS[c] ?? '#6c7a8a'}22` : 'var(--surface)',
-              border: filterSehir === c ? `1px solid ${CITY_COLORS[c] ?? '#6c7a8a'}` : '1px solid var(--border)',
+              padding: '6px 14px',
+              background: filterSehir === c ? 'rgba(99, 102, 241, 0.1)' : 'var(--bg-elevated)',
+              border: filterSehir === c ? '1px solid var(--accent-primary)' : '1px solid var(--border-subtle)',
               borderRadius: 20,
               cursor: 'pointer',
-              fontSize: '0.75rem',
-              fontFamily: "'IBM Plex Mono', monospace",
-              color: filterSehir === c ? (CITY_COLORS[c] ?? '#6c7a8a') : 'var(--muted)',
-              transition: 'all 0.15s',
+              fontSize: '13px',
+              fontFamily: "'DM Sans', sans-serif",
+              fontWeight: 500,
+              color: filterSehir === c ? 'var(--accent-primary)' : 'var(--text-secondary)',
+              transition: 'all 0.2s',
             }}
+            onMouseEnter={e => { if (filterSehir !== c) { e.currentTarget.style.borderColor = 'var(--border-glow)'; e.currentTarget.style.color = 'var(--text-primary)'; } }}
+            onMouseLeave={e => { if (filterSehir !== c) { e.currentTarget.style.borderColor = 'var(--border-subtle)'; e.currentTarget.style.color = 'var(--text-secondary)'; } }}
           >
             🏙️ {c}
           </button>
@@ -556,105 +356,108 @@ export default function Revenue() {
         {(filterDanisman || filterSehir) && (
           <button
             onClick={() => { setFilterDanisman(''); setFilterSehir(''); }}
-            style={{ padding: '5px 10px', background: 'transparent', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '0.75rem' }}
+            style={{ padding: '6px 12px', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '13px', transition: 'color 0.2s' }}
+            onMouseEnter={e => e.currentTarget.style.color = 'var(--accent-rose)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
           >
             ✕ Temizle
           </button>
         )}
-        <span style={{ marginLeft: 'auto', fontSize: '0.72rem', fontFamily: "'IBM Plex Mono', monospace", color: 'var(--muted)' }}>
-          {filtered.length} kayıt · {fmt(filtered.reduce((a, r) => a + r.toplam, 0))} toplam
-        </span>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+            <strong>{filtered.length}</strong> kayıt bulundur
+          </span>
+          <span style={{ height: 16, width: 1, background: 'var(--border-subtle)' }} />
+          <span style={{ fontSize: '14px', fontFamily: "'Syne', sans-serif", fontWeight: 700, color: GOLD }}>
+            {fmt(filtered.reduce((a, r) => a + r.toplam, 0))}
+          </span>
+        </div>
       </div>
 
       {/* Table */}
-      <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 16, overflow: 'hidden' }}>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table className="data-table">
             <thead>
               <tr>
                 <TH col="ad" label="Müşteri" />
                 <TH col="danisman" label="Danışman" />
                 <TH col="sehir" label="Şehir" />
-                <th style={{ padding: '10px 14px', textAlign: 'left', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--muted)', borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>Ödeme Yöntemi</th>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontFamily: "'Syne', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>Ödeme Yöntemi</th>
                 <TH col="onOdemeTarihi" label="Ön Ödeme Tarihi" />
-                <th style={{ padding: '10px 14px', textAlign: 'right', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--muted)', borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>Ön Ödeme</th>
-                <th style={{ padding: '10px 14px', textAlign: 'left', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--muted)', borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>Kalan Tarih</th>
-                <th style={{ padding: '10px 14px', textAlign: 'right', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--muted)', borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>Kalan</th>
+                <th style={{ padding: '12px 16px', textAlign: 'right', fontFamily: "'Syne', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>Ön Ödeme</th>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontFamily: "'Syne', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>Kalan Tarih</th>
+                <th style={{ padding: '12px 16px', textAlign: 'right', fontFamily: "'Syne', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>Kalan</th>
                 <TH col="toplam" label="Toplam" />
-                <th style={{ padding: '10px 14px', textAlign: 'center', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--muted)', borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>İşlem</th>
+                <th style={{ padding: '12px 16px', textAlign: 'center', fontFamily: "'Syne', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>İşlem</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={10} style={{ padding: 32, textAlign: 'center', color: 'var(--muted)', fontSize: '0.82rem' }}>Kayıt bulunamadı.</td>
+                  <td colSpan={10} style={{ padding: '48px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '14px' }}>Filtrelere uygun gelir kaydı bulunamadı.</td>
                 </tr>
               )}
-              {filtered.map((r, i) => {
-                const cityColor = CITY_COLORS[r.sehir] ?? '#6c7a8a';
+              {filtered.map(r => {
+                const cityColor = CITY_COLORS[r.sehir] ?? 'var(--accent-primary)';
                 return (
-                  <tr
-                    key={r.id}
-                    style={{
-                      background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.018)',
-                      borderBottom: '1px solid var(--border)',
-                      transition: 'background 0.12s',
-                    }}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(247,201,79,0.05)')}
-                    onMouseLeave={e => (e.currentTarget.style.background = i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.018)')}
-                  >
-                    <td style={{ padding: '10px 14px', fontSize: '0.83rem', fontWeight: 500 }}>{r.ad}</td>
-                    <td style={{ padding: '10px 14px', fontSize: '0.75rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace" }}>{r.danisman}</td>
-                    <td style={{ padding: '10px 14px' }}>
+                  <tr key={r.id}>
+                    <td className="td-name">{r.ad}</td>
+                    <td>{r.danisman}</td>
+                    <td>
                       <span style={{
-                        fontSize: '0.68rem',
-                        background: `${cityColor}18`,
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        background: 'rgba(255,255,255,0.03)',
                         color: cityColor,
-                        border: `1px solid ${cityColor}33`,
-                        borderRadius: 8,
-                        padding: '2px 8px',
-                        fontFamily: "'IBM Plex Mono', monospace",
-                      }}>{r.sehir}</span>
+                        border: `1px solid ${cityColor}44`,
+                        borderRadius: 6,
+                        padding: '3px 8px',
+                      }}>
+                        {r.sehir}
+                      </span>
                     </td>
-                    <td style={{ padding: '10px 14px', fontSize: '0.75rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace" }}>{r.odemeYontemi}</td>
-                    <td style={{ padding: '10px 14px', fontSize: '0.75rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace", whiteSpace: 'nowrap' }}>{r.onOdemeTarihi}</td>
-                    <td style={{ padding: '10px 14px', textAlign: 'right', fontSize: '0.8rem', fontFamily: "'IBM Plex Mono', monospace", color: '#38d9a9', fontWeight: 500 }}>
+                    <td>{r.odemeYontemi}</td>
+                    <td style={{ color: 'var(--text-secondary)' }}>{r.onOdemeTarihi.split('-').reverse().join('.')}</td>
+                    <td style={{ textAlign: 'right', fontFamily: "'Syne', sans-serif", color: 'var(--accent-emerald)', fontWeight: 600 }}>
                       {r.onOdeme > 0 ? fmt(r.onOdeme) : '—'}
                     </td>
-                    <td style={{ padding: '10px 14px', fontSize: '0.75rem', color: 'var(--muted)', fontFamily: "'IBM Plex Mono', monospace", whiteSpace: 'nowrap' }}>
-                      {r.kalanTarih && r.kalanTarih !== '-' ? r.kalanTarih : '—'}
+                    <td style={{ color: 'var(--text-secondary)' }}>
+                      {r.kalanTarih && r.kalanTarih !== '-' ? r.kalanTarih.split('-').reverse().join('.') : '—'}
                     </td>
-                    <td style={{ padding: '10px 14px', textAlign: 'right', fontSize: '0.8rem', fontFamily: "'IBM Plex Mono', monospace", color: r.kalanOdeme > 0 ? '#e05c5c' : 'var(--muted)', fontWeight: r.kalanOdeme > 0 ? 600 : 400 }}>
+                    <td style={{ textAlign: 'right', fontFamily: "'Syne', sans-serif", color: r.kalanOdeme > 0 ? 'var(--accent-rose)' : 'var(--text-muted)', fontWeight: r.kalanOdeme > 0 ? 700 : 400 }}>
                       {r.kalanOdeme > 0 ? fmt(r.kalanOdeme) : '—'}
                     </td>
-                    <td style={{ padding: '10px 14px', textAlign: 'right', fontSize: '0.85rem', fontFamily: "'IBM Plex Mono', monospace", color: GOLD, fontWeight: 700 }}>
+                    <td style={{ textAlign: 'right', fontFamily: "'Syne', sans-serif", color: GOLD, fontWeight: 700 }}>
                       {fmt(r.toplam)}
                     </td>
-                    <td style={{ padding: '10px 14px', textAlign: 'center' }}>
+                    <td style={{ textAlign: 'center' }}>
                       <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
                         <button
                           onClick={() => handleEdit(r)}
                           style={{
-                            background: 'rgba(79, 142, 247, 0.1)', border: '1px solid rgba(79, 142, 247, 0.3)',
-                            borderRadius: 6, color: '#4f8ef7', cursor: 'pointer', padding: '4px 8px', fontSize: '0.75rem',
+                            background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.3)',
+                            borderRadius: 6, color: 'var(--accent-primary)', cursor: 'pointer', padding: '6px',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
                             transition: 'all 0.15s'
                           }}
-                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(79, 142, 247, 0.2)'; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(79, 142, 247, 0.1)'; }}
+                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99, 102, 241, 0.2)'; e.currentTarget.style.borderColor = 'var(--accent-primary)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)'; e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.3)'; }}
                         >
-                          ✏️
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                         </button>
                         <button
                           onClick={() => handleDelete(r.id)}
                           style={{
-                            background: 'rgba(224, 92, 92, 0.1)', border: '1px solid rgba(224, 92, 92, 0.3)',
-                            borderRadius: 6, color: '#e05c5c', cursor: 'pointer', padding: '4px 8px', fontSize: '0.75rem',
+                            background: 'rgba(244, 63, 94, 0.1)', border: '1px solid rgba(244, 63, 94, 0.3)',
+                            borderRadius: 6, color: 'var(--accent-rose)', cursor: 'pointer', padding: '6px',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
                             transition: 'all 0.15s'
                           }}
-                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(224, 92, 92, 0.2)'; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(224, 92, 92, 0.1)'; }}
+                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(244, 63, 94, 0.2)'; e.currentTarget.style.borderColor = 'var(--accent-rose)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(244, 63, 94, 0.1)'; e.currentTarget.style.borderColor = 'rgba(244, 63, 94, 0.3)'; }}
                         >
-                          🗑️
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                         </button>
                       </div>
                     </td>
@@ -665,28 +468,177 @@ export default function Revenue() {
             {/* Footer totals */}
             {filtered.length > 0 && (
               <tfoot>
-                <tr style={{ borderTop: `2px solid ${GOLD}44` }}>
-                  <td colSpan={5} style={{ padding: '12px 14px', fontSize: '0.75rem', fontFamily: "'IBM Plex Mono', monospace", color: 'var(--muted)' }}>
-                    TOPLAM — {filtered.length} işlem
+                <tr style={{ borderTop: `1px solid var(--border-glow)`, background: 'rgba(245, 158, 11, 0.05)' }}>
+                  <td colSpan={5} style={{ padding: '16px', fontSize: '13px', fontFamily: "'Syne', sans-serif", color: 'var(--text-primary)', fontWeight: 700 }}>
+                    KARŞILAŞTIRILAN TOPLAM YEKÜN ({filtered.length} işlem)
                   </td>
-                  <td style={{ padding: '12px 14px', textAlign: 'right', fontSize: '0.8rem', fontFamily: "'IBM Plex Mono', monospace", color: '#38d9a9', fontWeight: 700 }}>
+                  <td style={{ padding: '16px', textAlign: 'right', fontSize: '14px', fontFamily: "'Syne', sans-serif", color: 'var(--accent-emerald)', fontWeight: 800 }}>
                     {fmt(filtered.reduce((a, r) => a + r.onOdeme, 0))}
                   </td>
                   <td />
-                  <td style={{ padding: '12px 14px', textAlign: 'right', fontSize: '0.8rem', fontFamily: "'IBM Plex Mono', monospace", color: '#e05c5c', fontWeight: 700 }}>
+                  <td style={{ padding: '16px', textAlign: 'right', fontSize: '14px', fontFamily: "'Syne', sans-serif", color: 'var(--accent-rose)', fontWeight: 800 }}>
                     {filtered.reduce((a, r) => a + r.kalanOdeme, 0) > 0
                       ? fmt(filtered.reduce((a, r) => a + r.kalanOdeme, 0))
                       : '—'}
                   </td>
-                  <td style={{ padding: '12px 14px', textAlign: 'right', fontSize: '0.9rem', fontFamily: "'IBM Plex Mono', monospace", color: GOLD, fontWeight: 700 }}>
+                  <td style={{ padding: '16px', textAlign: 'right', fontSize: '16px', fontFamily: "'Syne', sans-serif", color: GOLD, fontWeight: 800 }}>
                     {fmt(filtered.reduce((a, r) => a + r.toplam, 0))}
                   </td>
+                  <td />
                 </tr>
               </tfoot>
             )}
           </table>
         </div>
       </div>
+
+      {/* Add/Edit Modal */}
+      {showAddModal && (
+        <div className="modal-overlay" onClick={() => { setShowAddModal(false); setEditEntryId(null); }}>
+          <div className="modal-content" style={{ maxWidth: 540 }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28, borderBottom: '1px solid var(--border-subtle)', paddingBottom: 16 }}>
+              <div style={{ width: 12, height: 12, borderRadius: '50%', background: GOLD, boxShadow: `0 0 12px ${GOLD}` }} />
+              <h3 style={{ fontSize: '20px', fontFamily: "'Syne', sans-serif", fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+                {editEntryId ? 'Gelir Kaydını Düzenle' : 'Yeni Gelir Kaydı Ekle'}
+              </h3>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {/* Ad Soyad */}
+              <div>
+                <label className="form-label">Müşteri Ad Soyad *</label>
+                <input
+                  className="form-input"
+                  placeholder="Örn: Ahmet Yılmaz"
+                  value={form.ad}
+                  onChange={e => setForm(f => ({ ...f, ad: e.target.value }))}
+                  autoFocus
+                />
+              </div>
+
+              {/* Danışman + Şehir */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div>
+                  <label className="form-label">Danışman</label>
+                  <select
+                    className="form-input"
+                    value={form.danisman}
+                    onChange={e => setForm(f => ({ ...f, danisman: e.target.value }))}
+                  >
+                    <option value="">Seçiniz</option>
+                    {consultants.map(d => <option key={d} value={d}>{d}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="form-label">Şehir</label>
+                  <select
+                    className="form-input"
+                    value={form.sehir}
+                    onChange={e => setForm(f => ({ ...f, sehir: e.target.value }))}
+                  >
+                    <option value="">Seçiniz</option>
+                    {cities.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              {/* Ödeme Yöntemi + Tarih */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div>
+                  <label className="form-label">Ödeme Yöntemi</label>
+                  <select
+                    className="form-input"
+                    value={form.odemeYontemi}
+                    onChange={e => setForm(f => ({ ...f, odemeYontemi: e.target.value }))}
+                  >
+                    <option value="💵 Elden">💵 Elden</option>
+                    <option value="🏦 İban">🏦 İban</option>
+                    <option value="💳 Kredi Kartı">💳 Kredi Kartı</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="form-label">Ön Ödeme Tarihi</label>
+                  <input
+                    type="date"
+                    className="form-input"
+                    value={form.onOdemeTarihi}
+                    onChange={e => setForm(f => ({ ...f, onOdemeTarihi: e.target.value }))}
+                  />
+                </div>
+              </div>
+
+              {/* Ön Ödeme + Kalan */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div>
+                  <label className="form-label">Ön Ödeme Tutarı (₺)</label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    placeholder="0"
+                    value={form.onOdeme}
+                    onChange={e => setForm(f => ({ ...f, onOdeme: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="form-label">Kalan Ödeme (₺)</label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    placeholder="0"
+                    value={form.kalanOdeme}
+                    onChange={e => setForm(f => ({ ...f, kalanOdeme: e.target.value }))}
+                  />
+                </div>
+              </div>
+
+              {/* Kalan Tarih */}
+              <div>
+                <label className="form-label">Kalan Ödeme Tarihi</label>
+                <input
+                  type="date"
+                  className="form-input"
+                  value={form.kalanTarih}
+                  onChange={e => setForm(f => ({ ...f, kalanTarih: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            {/* Toplam Preview */}
+            <div style={{
+              background: 'rgba(245, 158, 11, 0.05)', border: `1px solid rgba(245, 158, 11, 0.2)`,
+              borderRadius: 12, padding: '16px 20px', marginTop: 24, marginBottom: 32,
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            }}>
+              <span style={{ fontSize: '12px', fontFamily: "'Syne', sans-serif", color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Hesaplanan Toplam Tutar</span>
+              <span style={{ fontSize: '24px', fontWeight: 800, fontFamily: "'Syne', sans-serif", color: GOLD }}>
+                {fmt((parseFloat(form.onOdeme) || 0) + (parseFloat(form.kalanOdeme) || 0))}
+              </span>
+            </div>
+
+            {/* Buttons */}
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', borderTop: '1px solid var(--border-subtle)', paddingTop: 24 }}>
+              <button
+                className="btn-secondary"
+                onClick={() => { setShowAddModal(false); setEditEntryId(null); }}
+              >
+                İptal
+              </button>
+              <button
+                className="btn-primary"
+                onClick={handleSubmit}
+                disabled={!form.ad.trim()}
+                style={{
+                  background: form.ad.trim() ? `linear-gradient(135deg, ${GOLD}, #d97706)` : '#333',
+                  boxShadow: form.ad.trim() ? `0 4px 16px rgba(245, 158, 11, 0.3)` : 'none',
+                  color: form.ad.trim() ? '#111' : '#666'
+                }}
+              >
+                {editEntryId ? 'Değişiklikleri Kaydet' : 'Gelir Kaydı Ekle'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useApp } from '../context/AppContext';
 import { StatusType } from '../types';
-import { getTodayFollowUps, getUpcomingFollowUps, getStatusColor, getStatusBg, getMonthlyData, formatDateTime } from '../utils/helpers';
+import { getTodayFollowUps, getUpcomingFollowUps, getStatusColor, getStatusBg, getMonthlyData } from '../utils/helpers';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
@@ -15,7 +15,7 @@ const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
   return (
-    <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={11} fontFamily="IBM Plex Mono">
+    <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={11} fontFamily="'Syne', sans-serif" fontWeight={700}>
       {`${(percent * 100).toFixed(0)}%`}
     </text>
   );
@@ -25,17 +25,17 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
     <div style={{
-      background: 'var(--surface2)',
-      border: '1px solid var(--border)',
+      background: 'var(--bg-elevated)',
+      border: '1px solid var(--border-subtle)',
       borderRadius: 8,
       padding: '10px 14px',
-      fontFamily: "'IBM Plex Mono', monospace",
-      fontSize: '0.72rem',
+      fontFamily: "'DM Sans', sans-serif",
+      fontSize: '12px',
     }}>
-      <div style={{ color: 'var(--muted)', marginBottom: 6 }}>{label}</div>
+      <div style={{ color: 'var(--text-muted)', marginBottom: 6 }}>{label}</div>
       {payload.map((p: any) => (
         <div key={p.name} style={{ color: p.color, marginBottom: 2 }}>
-          {p.name}: <strong>{p.value}</strong>
+          {p.name}: <strong style={{ color: 'var(--text-primary)' }}>{p.value}</strong>
         </div>
       ))}
     </div>
@@ -62,14 +62,21 @@ export default function Dashboard() {
   customers.forEach(c => {
     if (c.vize) vizeCounts[c.vize] = (vizeCounts[c.vize] || 0) + 1;
   });
-  const vizeColors = ['#4f8ef7', '#38d9a9', '#f5a623', '#e05c5c', '#a78bfa'];
-  const vizePieData = Object.entries(vizeCounts).map(([name, value], i) => ({
-    name, value, color: vizeColors[i % vizeColors.length],
-  }));
 
-  // Conversion rate
-  const conversionRate = customers.length > 0
-    ? ((counts['Tamamlandı'] / customers.length) * 100).toFixed(1)
+  const vizeColors = ['var(--accent-primary)', 'var(--accent-cyan)', 'var(--accent-amber)', 'var(--accent-emerald)', 'var(--accent-secondary)'];
+  const vizePieData = Object.entries(vizeCounts)
+    .sort((a, b) => b[1] - a[1]) // Sort by count desc
+    .map(([name, value], i) => ({
+      name, value, color: vizeColors[i % vizeColors.length],
+    }));
+
+  // Conversion rate calculation
+  const totalLeads = customers.length;
+  const activeLeads = customers.filter(c => c.durum === 'Yeni Lead' || c.durum === 'Beklemede').length;
+  const completedLeads = counts['Tamamlandı'];
+
+  const conversionRate = totalLeads > 0
+    ? ((completedLeads / totalLeads) * 100).toFixed(1)
     : '0.0';
 
   // Recent activity
@@ -83,18 +90,18 @@ export default function Dashboard() {
   const latestActivity = recentActivity.slice(0, 8);
 
   const statCards = [
-    { label: 'Yeni Lead', value: counts['Yeni Lead'], color: 'var(--accent)', bg: 'rgba(79,142,247,0.1)', border: 'rgba(79,142,247,0.2)', icon: '🔵' },
-    { label: 'Beklemede', value: counts['Beklemede'], color: 'var(--warn)', bg: 'rgba(245,166,35,0.1)', border: 'rgba(245,166,35,0.2)', icon: '🟡' },
-    { label: 'Tamamlandı', value: counts['Tamamlandı'], color: 'var(--accent2)', bg: 'rgba(56,217,169,0.1)', border: 'rgba(56,217,169,0.2)', icon: '🟢' },
-    { label: 'Olumsuz', value: counts['Olumsuz'], color: 'var(--danger)', bg: 'rgba(224,92,92,0.1)', border: 'rgba(224,92,92,0.2)', icon: '🔴' },
+    { label: 'Yeni Lead', value: counts['Yeni Lead'], class: 'lead', icon: '📩' },
+    { label: 'Beklemede', value: counts['Beklemede'], class: 'beklemede', icon: '⏳' },
+    { label: 'Tamamlandı', value: counts['Tamamlandı'], class: 'tamamlandi', icon: '✓' },
+    { label: 'Olumsuz', value: counts['Olumsuz'], class: 'olumsuz', icon: '✕' },
   ];
 
   return (
-    <div style={{ padding: 28, minHeight: '100vh' }}>
+    <div style={{ padding: '64px 32px 40px 32px', maxWidth: 1400, margin: '0 auto' }}>
       {/* Header */}
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: '1.3rem', fontWeight: 600, color: 'var(--text)' }}>Dashboard</h1>
-        <div style={{ color: 'var(--muted)', fontSize: '0.8rem', marginTop: 4, fontFamily: "'IBM Plex Mono', monospace" }}>
+      <div style={{ marginBottom: 32 }}>
+        <h1 style={{ fontSize: '28px', color: 'var(--text-primary)' }}>Genel Bakış</h1>
+        <div style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: 4 }}>
           {new Date().toLocaleDateString('tr-TR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </div>
       </div>
@@ -102,23 +109,23 @@ export default function Dashboard() {
       {/* Today's reminders */}
       {todayFollowUps.length > 0 && (
         <div style={{
-          background: 'rgba(245,166,35,0.1)',
-          border: '1px solid rgba(245,166,35,0.25)',
-          borderLeft: '3px solid var(--warn)',
-          borderRadius: 10,
-          padding: '12px 16px',
-          marginBottom: 20,
+          background: 'rgba(245,158,11,0.08)',
+          border: '1px solid rgba(245,158,11,0.2)',
+          borderLeft: '4px solid var(--accent-amber)',
+          borderRadius: 12,
+          padding: '16px 20px',
+          marginBottom: 32,
           display: 'flex',
           alignItems: 'center',
-          gap: 12,
-          flexWrap: 'wrap',
+          gap: 16,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
         }}>
-          <span style={{ fontSize: '1.1rem' }}>🔔</span>
+          <span style={{ fontSize: '20px', filter: 'drop-shadow(0 0 8px rgba(245,158,11,0.6))' }}>🔔</span>
           <div>
-            <span style={{ color: 'var(--warn)', fontWeight: 600, fontSize: '0.85rem' }}>
+            <span style={{ color: 'var(--accent-amber)', fontWeight: 600, fontSize: '14px' }}>
               Bugün {todayFollowUps.length} müşteri takip edilmeli:
             </span>
-            <span style={{ color: 'var(--text)', fontSize: '0.82rem', marginLeft: 8 }}>
+            <span style={{ color: 'var(--text-primary)', fontSize: '14px', marginLeft: 8, fontFamily: "'DM Sans', sans-serif" }}>
               {todayFollowUps.map(m => m.ad).join(', ')}
             </span>
           </div>
@@ -126,219 +133,248 @@ export default function Dashboard() {
       )}
 
       {/* Stat cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, marginBottom: 32 }}>
         {statCards.map(card => (
-          <div key={card.label} style={{
-            background: card.bg,
-            border: `1px solid ${card.border}`,
-            borderRadius: 12,
-            padding: '18px 20px',
-            position: 'relative',
-            overflow: 'hidden',
-          }}>
-            <div style={{ color: 'var(--muted)', fontSize: '0.72rem', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
-              {card.label}
-            </div>
-            <div style={{ fontSize: '2.2rem', fontWeight: 600, color: card.color, fontFamily: "'IBM Plex Mono', monospace", lineHeight: 1 }}>
-              {card.value}
-            </div>
-            <div style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', fontSize: '1.8rem', opacity: 0.3 }}>
+          <div key={card.label} className={`kpi-card ${card.class}`}>
+            <div className={`kpi-icon ${card.class}`}>
               {card.icon}
             </div>
+            <div className="kpi-number">{card.value}</div>
+            <div className="kpi-label">{card.label}</div>
           </div>
         ))}
       </div>
 
-      {/* KPI row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 24 }}>
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '16px 20px' }}>
-          <div style={{ color: 'var(--muted)', fontSize: '0.68rem', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>Toplam Kayıt</div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 600, color: 'var(--text)', fontFamily: "'IBM Plex Mono', monospace" }}>{customers.length}</div>
+      {/* Conversion Funnel & General Stats */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 24, marginBottom: 32 }}>
+        <div className="chart-card" style={{ gridColumn: 'span 8' }}>
+          <div className="chart-title">Dönüşüm Hunisi</div>
+          <div className="chart-subtitle">Gelen taleplerden başarılı vize işlemlerine dönüşüm oranı</div>
+
+          <div style={{ marginTop: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+              <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>Toplam Lead</span>
+              <span style={{ fontSize: 13, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontWeight: 700 }}>{totalLeads}</span>
+            </div>
+            <div className="funnel-bar total" style={{ width: '100%' }}>{totalLeads}</div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, marginTop: 12 }}>
+              <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>Aktif Görülen (Yeni + Beklemede)</span>
+              <span style={{ fontSize: 13, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontWeight: 700 }}>{activeLeads}</span>
+            </div>
+            <div className="funnel-bar active" style={{ width: `${totalLeads > 0 ? (activeLeads / totalLeads) * 100 : 0}%`, minWidth: 40 }}>{activeLeads}</div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, marginTop: 12 }}>
+              <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>Dönüşen (Tamamlandı)</span>
+              <span style={{ fontSize: 13, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontWeight: 700 }}>{completedLeads}</span>
+            </div>
+            <div className="funnel-bar converted" style={{ width: `${totalLeads > 0 ? (completedLeads / totalLeads) * 100 : 0}%`, minWidth: 40 }}>{completedLeads}</div>
+          </div>
         </div>
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '16px 20px' }}>
-          <div style={{ color: 'var(--muted)', fontSize: '0.68rem', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>Dönüşüm Oranı</div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 600, color: 'var(--accent2)', fontFamily: "'IBM Plex Mono', monospace" }}>{conversionRate}%</div>
-        </div>
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '16px 20px' }}>
-          <div style={{ color: 'var(--muted)', fontSize: '0.68rem', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>Bu Hafta Takip</div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 600, color: 'var(--warn)', fontFamily: "'IBM Plex Mono', monospace" }}>{upcoming.length}</div>
+
+        <div style={{ gridColumn: 'span 4', display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <div className="chart-card" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <div className="chart-title">Dönüşüm Oranı</div>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, marginTop: 16 }}>
+              <span style={{ fontSize: 48, fontFamily: "'Syne', sans-serif", fontWeight: 800, color: 'var(--accent-emerald)', lineHeight: 1 }}>
+                %{conversionRate}
+              </span>
+            </div>
+          </div>
+
+          <div className="chart-card" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <div className="chart-title">Bu Hafta Takip</div>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, marginTop: 16 }}>
+              <span style={{ fontSize: 48, fontFamily: "'Syne', sans-serif", fontWeight: 800, color: 'var(--accent-primary)', lineHeight: 1 }}>
+                {upcoming.length}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Charts row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 24, marginBottom: 32 }}>
         {/* Monthly bar chart */}
-        <div style={{ gridColumn: '1 / 3', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '18px 20px' }}>
-          <div style={{ fontSize: '0.72rem', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--muted)', marginBottom: 16 }}>
-            Aylık Müşteri Aktivitesi
+        <div className="chart-card" style={{ gridColumn: 'span 8' }}>
+          <div className="chart-title">Aylık Müşteri Aktivitesi</div>
+          <div className="chart-subtitle">Yeni leads ve kapanan işlemler</div>
+          <div style={{ height: 260, marginTop: 8 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={monthlyData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(99, 102, 241, 0.1)" vertical={false} />
+                <XAxis dataKey="month" tick={{ fill: 'var(--text-muted)', fontSize: 12, fontFamily: "'DM Sans', sans-serif" }} axisLine={{ stroke: 'var(--border-subtle)' }} tickLine={false} />
+                <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 12, fontFamily: "'DM Sans', sans-serif" }} axisLine={false} tickLine={false} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
+                <Bar dataKey="yeni" name="Yeni Müşteri" fill="var(--accent-primary)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="kapandi" name="Kapandı" fill="var(--accent-emerald)" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
-          <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={monthlyData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(37,42,58,0.8)" vertical={false} />
-              <XAxis dataKey="month" tick={{ fill: '#64748b', fontSize: 10, fontFamily: 'IBM Plex Mono' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#64748b', fontSize: 10, fontFamily: 'IBM Plex Mono' }} axisLine={false} tickLine={false} />
-              <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="yeni" name="Yeni Müşteri" fill="var(--accent)" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="kapandi" name="Kapandı" fill="var(--accent2)" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
         </div>
 
         {/* Status pie */}
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '18px 20px' }}>
-          <div style={{ fontSize: '0.72rem', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--muted)', marginBottom: 16 }}>
-            Durum Dağılımı
+        <div className="chart-card" style={{ gridColumn: 'span 4' }}>
+          <div className="chart-title">Durum Dağılımı</div>
+          <div className="chart-subtitle">Tüm kayıtlı müşteriler</div>
+          <div style={{ height: 260 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={90}
+                  labelLine={false}
+                  label={renderCustomLabel}
+                  dataKey="value"
+                  stroke="var(--bg-card)"
+                  strokeWidth={2}
+                >
+                  {pieData.map((entry, i) => (
+                    <Cell key={i} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Legend
+                  formatter={(value) => <span style={{ color: 'var(--text-secondary)', fontSize: '13px', fontFamily: "'DM Sans', sans-serif" }}>{value}</span>}
+                  iconSize={10}
+                  iconType="circle"
+                  wrapperStyle={{ paddingTop: 20 }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
-          <ResponsiveContainer width="100%" height={180}>
-            <PieChart>
-              <Pie
-                data={pieData}
-                cx="50%"
-                cy="50%"
-                innerRadius={45}
-                outerRadius={70}
-                labelLine={false}
-                label={renderCustomLabel}
-                dataKey="value"
-              >
-                {pieData.map((entry, i) => (
-                  <Cell key={i} fill={entry.color} />
-                ))}
-              </Pie>
-              <Legend
-                formatter={(value) => <span style={{ color: 'var(--muted)', fontSize: '0.68rem', fontFamily: 'IBM Plex Mono' }}>{value}</span>}
-                iconSize={8}
-              />
-            </PieChart>
-          </ResponsiveContainer>
         </div>
       </div>
 
       {/* Bottom row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-        {/* Upcoming follow-ups */}
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '18px 20px' }}>
-          <div style={{ fontSize: '0.72rem', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--muted)', marginBottom: 14 }}>
-            Yaklaşan Takipler (7 Gün)
-          </div>
-          {upcoming.length === 0 ? (
-            <div style={{ color: 'var(--muted)', fontSize: '0.82rem', padding: '8px 0' }}>Bu hafta takip yok.</div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {upcoming.slice(0, 6).map(c => {
-                const parts = c.takip.split('-');
-                const dateStr = parts.length === 3 ? `${parts[2]}.${parts[1]}.${parts[0]}` : c.takip;
-                const days = Math.round((new Date(c.takip).setHours(0,0,0,0) - new Date().setHours(0,0,0,0)) / 86400000);
-                return (
-                  <div
-                    key={c.id}
-                    onClick={() => openModal(c.id)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 10,
-                      padding: '7px 10px',
-                      borderRadius: 7,
-                      cursor: 'pointer',
-                      background: 'rgba(255,255,255,0.02)',
-                      border: '1px solid var(--border)',
-                      transition: 'background 0.15s',
-                    }}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(79,142,247,0.06)')}
-                    onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.02)')}
-                  >
-                    <span style={{
-                      fontSize: '0.68rem',
-                      fontFamily: "'IBM Plex Mono', monospace",
-                      color: days === 0 ? 'var(--danger)' : days === 1 ? 'var(--warn)' : 'var(--accent2)',
-                      minWidth: 56,
-                      fontWeight: 600,
-                    }}>
-                      {days === 0 ? 'BUGÜN' : days === 1 ? 'YARIN' : dateStr}
-                    </span>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text)', flex: 1 }}>{c.ad}</span>
-                    <span style={{
-                      fontSize: '0.65rem',
-                      fontFamily: "'IBM Plex Mono', monospace",
-                      color: getStatusColor(c.durum),
-                      background: getStatusBg(c.durum),
-                      padding: '2px 6px',
-                      borderRadius: 8,
-                    }}>{c.durum}</span>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 24 }}>
+        {/* Visa type chart */}
+        <div className="chart-card" style={{ gridColumn: 'span 4' }}>
+          <div className="chart-title">Vize Türü</div>
+          <div className="chart-subtitle">Tercih edilen vize kategorileri</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 16 }}>
+            {vizePieData.map(d => (
+              <div key={d.name}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span className="legend-dot" style={{ background: d.color }} />
+                    <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{d.name}</span>
                   </div>
-                );
-              })}
-            </div>
-          )}
+                  <span style={{ fontSize: '14px', fontFamily: "'Syne', sans-serif", fontWeight: 700, color: 'var(--text-primary)' }}>
+                    {d.value}
+                  </span>
+                </div>
+                <div style={{ width: '100%', height: 6, background: 'var(--bg-elevated)', borderRadius: 3, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${(d.value / customers.length) * 100}%`, background: d.color, borderRadius: 3 }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Upcoming follow-ups */}
+        <div className="chart-card" style={{ gridColumn: 'span 4', display: 'flex', flexDirection: 'column' }}>
+          <div className="chart-title">Yaklaşan Takipler</div>
+          <div className="chart-subtitle">Önümüzdeki 7 gün</div>
+          <div style={{ flex: 1, overflowY: 'auto' }}>
+            {upcoming.length === 0 ? (
+              <div style={{ color: 'var(--text-muted)', fontSize: '14px', padding: '16px 0' }}>Takip bulunmuyor.</div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {upcoming.slice(0, 7).map(c => {
+                  const parts = c.takip.split('-');
+                  const dateStr = parts.length === 3 ? `${parts[2]}.${parts[1]}.${parts[0]}` : c.takip;
+                  const days = Math.round((new Date(c.takip).setHours(0, 0, 0, 0) - new Date().setHours(0, 0, 0, 0)) / 86400000);
+
+                  return (
+                    <div
+                      key={c.id}
+                      onClick={() => openModal(c.id)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '10px 14px',
+                        borderRadius: 10,
+                        cursor: 'pointer',
+                        background: 'var(--bg-elevated)',
+                        border: '1px solid transparent',
+                        transition: 'all 0.2s',
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.background = 'var(--bg-hover)';
+                        e.currentTarget.style.borderColor = 'var(--border-subtle)';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.background = 'var(--bg-elevated)';
+                        e.currentTarget.style.borderColor = 'transparent';
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>{c.ad}</div>
+                        <div style={{
+                          fontSize: '11px',
+                          fontFamily: "'Syne', sans-serif",
+                          color: days === 0 ? 'var(--accent-rose)' : days === 1 ? 'var(--accent-amber)' : 'var(--accent-primary)',
+                          fontWeight: 700,
+                        }}>
+                          {days === 0 ? 'BUGÜN' : days === 1 ? 'YARIN' : dateStr}
+                        </div>
+                      </div>
+                      <div className={`status-indicator ${(c.durum || '').toLowerCase().replace(' ', '-')}`}>
+                        <span className="status-dot" />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Recent activity */}
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '18px 20px' }}>
-          <div style={{ fontSize: '0.72rem', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--muted)', marginBottom: 14 }}>
-            Son Aktiviteler
-          </div>
-          {latestActivity.length === 0 ? (
-            <div style={{ color: 'var(--muted)', fontSize: '0.82rem' }}>Henüz aktivite yok.</div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              {latestActivity.map((a, i) => (
-                <div
-                  key={i}
-                  onClick={() => openModal(a.id)}
-                  style={{
-                    display: 'flex',
-                    gap: 10,
-                    padding: '7px 0',
-                    borderBottom: i < latestActivity.length - 1 ? '1px solid var(--border)' : 'none',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <div style={{
-                    fontSize: '0.68rem',
-                    fontFamily: "'IBM Plex Mono', monospace",
-                    color: 'var(--muted)',
-                    minWidth: 80,
-                    whiteSpace: 'nowrap',
-                  }}>{a.time.substring(0, 10)}</div>
-                  <div>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--accent)', marginRight: 5 }}>{a.customer}</span>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--text)' }}>{a.text}</span>
+        <div className="chart-card" style={{ gridColumn: 'span 4', display: 'flex', flexDirection: 'column' }}>
+          <div className="chart-title">Son Aktiviteler</div>
+          <div className="chart-subtitle">Müşteri işlem geçmişi</div>
+          <div style={{ flex: 1, overflowY: 'auto' }}>
+            {latestActivity.length === 0 ? (
+              <div style={{ color: 'var(--text-muted)', fontSize: '14px', padding: '16px 0' }}>Henüz aktivite yok.</div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {latestActivity.map((a, i) => (
+                  <div
+                    key={i}
+                    onClick={() => openModal(a.id)}
+                    style={{
+                      display: 'flex',
+                      gap: 12,
+                      paddingBottom: 12,
+                      borderBottom: i < latestActivity.length - 1 ? '1px solid var(--border-subtle)' : 'none',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <div style={{
+                      fontSize: '11px',
+                      fontFamily: "'Syne', sans-serif",
+                      fontWeight: 600,
+                      color: 'var(--text-secondary)',
+                      paddingTop: 2,
+                    }}>
+                      {a.time.substring(5, 10).replace('-', '.')}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--accent-cyan)', marginBottom: 2 }}>{a.customer}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--text-primary)', lineHeight: 1.4 }}>{a.text}</div>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-
-      {/* Visa type chart */}
-      {vizePieData.length > 0 && (
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '18px 20px', marginTop: 16 }}>
-          <div style={{ fontSize: '0.72rem', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--muted)', marginBottom: 14 }}>
-            Vize Türü Dağılımı
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-            {vizePieData.map(d => (
-              <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ width: 10, height: 10, borderRadius: '50%', background: d.color, flexShrink: 0 }} />
-                <span style={{ fontSize: '0.78rem', color: 'var(--text)' }}>{d.name}</span>
-                <span style={{ fontSize: '0.78rem', fontFamily: "'IBM Plex Mono', monospace", color: d.color, fontWeight: 600 }}>
-                  {d.value}
-                </span>
-              </div>
-            ))}
-            <div style={{ marginLeft: 'auto', height: 8, flex: 1, maxWidth: 300, borderRadius: 4, overflow: 'hidden', display: 'flex' }}>
-              {vizePieData.map(d => (
-                <div key={d.name} style={{
-                  height: '100%',
-                  width: `${(d.value / customers.length) * 100}%`,
-                  background: d.color,
-                }} />
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
