@@ -211,13 +211,13 @@ export default function Revenue() {
         <div className="chart-card" style={{ padding: '24px', position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', right: -20, top: -20, width: 100, height: 100, background: 'radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%)', borderRadius: '50%' }} />
           <div style={{ fontSize: '11px', fontFamily: "'Syne', sans-serif", color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12, fontWeight: 700 }}>Toplam Gelir</div>
-          <div style={{ fontSize: '36px', fontWeight: 800, fontFamily: "'Syne', sans-serif", color: GOLD, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{fmt(toplam)}</div>
+          <div style={{ fontSize: '32px', fontWeight: 700, fontFamily: "'DM Sans', sans-serif", color: GOLD, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{fmt(toplam)}</div>
           <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: 8 }}>{revenue.length} müşteri kaydı</div>
         </div>
         <div className="chart-card" style={{ padding: '24px', position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', right: -20, top: -20, width: 100, height: 100, background: 'radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%)', borderRadius: '50%' }} />
           <div style={{ fontSize: '11px', fontFamily: "'Syne', sans-serif", color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12, fontWeight: 700 }}>Tahsil Edilen</div>
-          <div style={{ fontSize: '36px', fontWeight: 800, fontFamily: "'Syne', sans-serif", color: 'var(--accent-emerald)', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{fmt(onOdemeToplam)}</div>
+          <div style={{ fontSize: '32px', fontWeight: 700, fontFamily: "'DM Sans', sans-serif", color: 'var(--accent-emerald)', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{fmt(onOdemeToplam)}</div>
           <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: 8 }}>
             {toplam > 0 ? Math.round(onOdemeToplam / toplam * 100) : 0}% tahsil edildi
           </div>
@@ -225,7 +225,7 @@ export default function Revenue() {
         <div className="chart-card" style={{ padding: '24px', position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', right: -20, top: -20, width: 100, height: 100, background: 'radial-gradient(circle, rgba(244, 63, 94, 0.15) 0%, transparent 70%)', borderRadius: '50%' }} />
           <div style={{ fontSize: '11px', fontFamily: "'Syne', sans-serif", color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12, fontWeight: 700 }}>Kalan Tahsilat</div>
-          <div style={{ fontSize: '36px', fontWeight: 800, fontFamily: "'Syne', sans-serif", color: kalanToplam > 0 ? 'var(--accent-rose)' : 'var(--accent-emerald)', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{fmt(kalanToplam)}</div>
+          <div style={{ fontSize: '32px', fontWeight: 700, fontFamily: "'DM Sans', sans-serif", color: kalanToplam > 0 ? 'var(--accent-rose)' : 'var(--accent-emerald)', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{fmt(kalanToplam)}</div>
           <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: 8 }}>
             {kalanToplam === 0 ? '✓ Tüm ödemeler tahsil edildi' : 'Bekleyen ödemeler var'}
           </div>
@@ -421,16 +421,16 @@ export default function Revenue() {
                     </td>
                     <td>{r.odemeYontemi}</td>
                     <td style={{ color: 'var(--text-secondary)' }}>{r.onOdemeTarihi.split('-').reverse().join('.')}</td>
-                    <td style={{ textAlign: 'right', fontFamily: "'Syne', sans-serif", color: 'var(--accent-emerald)', fontWeight: 600 }}>
+                    <td style={{ textAlign: 'right', fontFamily: "'DM Sans', sans-serif", color: 'var(--accent-emerald)', fontWeight: 600 }}>
                       {r.onOdeme > 0 ? fmt(r.onOdeme) : '—'}
                     </td>
                     <td style={{ color: 'var(--text-secondary)' }}>
                       {r.kalanTarih && r.kalanTarih !== '-' ? r.kalanTarih.split('-').reverse().join('.') : '—'}
                     </td>
-                    <td style={{ textAlign: 'right', fontFamily: "'Syne', sans-serif", color: r.kalanOdeme > 0 ? 'var(--accent-rose)' : 'var(--text-muted)', fontWeight: r.kalanOdeme > 0 ? 700 : 400 }}>
+                    <td style={{ textAlign: 'right', fontFamily: "'DM Sans', sans-serif", color: r.kalanOdeme > 0 ? 'var(--accent-rose)' : 'var(--text-muted)', fontWeight: r.kalanOdeme > 0 ? 700 : 400 }}>
                       {r.kalanOdeme > 0 ? fmt(r.kalanOdeme) : '—'}
                     </td>
-                    <td style={{ textAlign: 'right', fontFamily: "'Syne', sans-serif", color: GOLD, fontWeight: 700 }}>
+                    <td style={{ textAlign: 'right', fontFamily: "'DM Sans', sans-serif", color: GOLD, fontWeight: 700 }}>
                       {fmt(r.toplam)}
                     </td>
                     <td style={{ textAlign: 'center' }}>
@@ -474,16 +474,16 @@ export default function Revenue() {
                   <td colSpan={5} style={{ padding: '16px', fontSize: '13px', fontFamily: "'Syne', sans-serif", color: 'var(--text-primary)', fontWeight: 700 }}>
                     KARŞILAŞTIRILAN TOPLAM YEKÜN ({filtered.length} işlem)
                   </td>
-                  <td style={{ padding: '16px', textAlign: 'right', fontSize: '14px', fontFamily: "'Syne', sans-serif", color: 'var(--accent-emerald)', fontWeight: 800 }}>
+                  <td style={{ padding: '16px', textAlign: 'right', fontSize: '14px', fontFamily: "'DM Sans', sans-serif", color: 'var(--accent-emerald)', fontWeight: 700 }}>
                     {fmt(filtered.reduce((a, r) => a + r.onOdeme, 0))}
                   </td>
                   <td />
-                  <td style={{ padding: '16px', textAlign: 'right', fontSize: '14px', fontFamily: "'Syne', sans-serif", color: 'var(--accent-rose)', fontWeight: 800 }}>
+                  <td style={{ padding: '16px', textAlign: 'right', fontSize: '14px', fontFamily: "'DM Sans', sans-serif", color: 'var(--accent-rose)', fontWeight: 700 }}>
                     {filtered.reduce((a, r) => a + r.kalanOdeme, 0) > 0
                       ? fmt(filtered.reduce((a, r) => a + r.kalanOdeme, 0))
                       : '—'}
                   </td>
-                  <td style={{ padding: '16px', textAlign: 'right', fontSize: '16px', fontFamily: "'Syne', sans-serif", color: GOLD, fontWeight: 800 }}>
+                  <td style={{ padding: '16px', textAlign: 'right', fontSize: '16px', fontFamily: "'DM Sans', sans-serif", color: GOLD, fontWeight: 700 }}>
                     {fmt(filtered.reduce((a, r) => a + r.toplam, 0))}
                   </td>
                   <td />

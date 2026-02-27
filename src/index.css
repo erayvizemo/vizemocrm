@@ -274,9 +274,9 @@ h6 {
 }
 
 .kpi-number {
-  font-family: 'Syne', sans-serif;
-  font-size: 36px;
-  font-weight: 800;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--text-primary);
   line-height: 1;

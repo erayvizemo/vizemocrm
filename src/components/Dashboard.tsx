@@ -154,19 +154,19 @@ export default function Dashboard() {
           <div style={{ marginTop: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
               <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>Toplam Lead</span>
-              <span style={{ fontSize: 13, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontWeight: 700 }}>{totalLeads}</span>
+              <span style={{ fontSize: 14, color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontWeight: 700 }}>{totalLeads}</span>
             </div>
             <div className="funnel-bar total" style={{ width: '100%' }}>{totalLeads}</div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, marginTop: 12 }}>
               <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>Aktif Görülen (Yeni + Beklemede)</span>
-              <span style={{ fontSize: 13, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontWeight: 700 }}>{activeLeads}</span>
+              <span style={{ fontSize: 14, color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontWeight: 700 }}>{activeLeads}</span>
             </div>
             <div className="funnel-bar active" style={{ width: `${totalLeads > 0 ? (activeLeads / totalLeads) * 100 : 0}%`, minWidth: 40 }}>{activeLeads}</div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, marginTop: 12 }}>
               <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>Dönüşen (Tamamlandı)</span>
-              <span style={{ fontSize: 13, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontWeight: 700 }}>{completedLeads}</span>
+              <span style={{ fontSize: 14, color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontWeight: 700 }}>{completedLeads}</span>
             </div>
             <div className="funnel-bar converted" style={{ width: `${totalLeads > 0 ? (completedLeads / totalLeads) * 100 : 0}%`, minWidth: 40 }}>{completedLeads}</div>
           </div>
@@ -176,7 +176,7 @@ export default function Dashboard() {
           <div className="chart-card" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <div className="chart-title">Dönüşüm Oranı</div>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, marginTop: 16 }}>
-              <span style={{ fontSize: 48, fontFamily: "'Syne', sans-serif", fontWeight: 800, color: 'var(--accent-emerald)', lineHeight: 1 }}>
+              <span style={{ fontSize: 40, fontFamily: "'DM Sans', sans-serif", fontWeight: 700, color: 'var(--accent-emerald)', lineHeight: 1 }}>
                 %{conversionRate}
               </span>
             </div>
@@ -185,7 +185,7 @@ export default function Dashboard() {
           <div className="chart-card" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <div className="chart-title">Bu Hafta Takip</div>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, marginTop: 16 }}>
-              <span style={{ fontSize: 48, fontFamily: "'Syne', sans-serif", fontWeight: 800, color: 'var(--accent-primary)', lineHeight: 1 }}>
+              <span style={{ fontSize: 40, fontFamily: "'DM Sans', sans-serif", fontWeight: 700, color: 'var(--accent-primary)', lineHeight: 1 }}>
                 {upcoming.length}
               </span>
             </div>
