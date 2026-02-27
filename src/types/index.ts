@@ -73,6 +73,9 @@ export interface Customer {
   callLogs?: CallLog[];
   nextFollowupDate?: string;
 
+  // Task 5: Last Activity
+  lastActivityDate?: string;
+
   // Task 1 Fields: Lead Source & SDR Assignment
   leadSource?: LeadSourceType | string;
   adName?: string;

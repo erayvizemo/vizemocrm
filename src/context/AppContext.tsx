@@ -126,7 +126,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const addCustomer = useCallback((data: Omit<Customer, 'id' | 'createdAt' | 'updatedAt'>) => {
     const now = new Date().toISOString().substring(0, 10);
-    const customer: Customer = { ...data, id: generateId(), createdAt: now, updatedAt: now };
+    const customer: Customer = {
+      ...data,
+      id: generateId(),
+      createdAt: now,
+      updatedAt: now,
+      lastActivityDate: new Date().toISOString()
+    };
     setCustomers(prev => [customer, ...prev]);
     showToast(`${data.firstName + ' ' + data.lastName} başarıyla eklendi.`);
 

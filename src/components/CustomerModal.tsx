@@ -140,13 +140,18 @@ export default function CustomerModal() {
       });
     } else if (customer) {
       const log = [...customer.log];
+      let didInteract = false;
+
       if (finalNote && finalNote !== customer.not) {
         log.push({ timestamp: nowStr, text: finalNote });
+        didInteract = true;
       }
       if (form.durum !== customer.durum) {
         log.push({ timestamp: nowStr, text: `Durum değişti: ${customer.durum} → ${form.durum}` });
+        didInteract = true;
       }
-      updateCustomer(customer.id, {
+
+      const updatePayload: any = {
         ...form,
         sehir: finalSehir,
         leadSource: finalLeadSource,
@@ -154,7 +159,13 @@ export default function CustomerModal() {
         doNotContact: form.doNotContact,
         doNotContactReason: form.doNotContact ? form.doNotContactReason : '',
         log
-      });
+      };
+
+      if (didInteract) {
+        updatePayload.lastActivityDate = new Date().toISOString();
+      }
+
+      updateCustomer(customer.id, updatePayload);
     }
     closeModal();
   }
@@ -185,7 +196,8 @@ export default function CustomerModal() {
       ...customer,
       log: newLog,
       callLogs: newCallLogs,
-      nextFollowupDate: callOutcome === 'Kapandı' ? '' : nextFollowup
+      nextFollowupDate: callOutcome === 'Kapandı' ? '' : nextFollowup,
+      lastActivityDate: new Date().toISOString()
     });
 
     setShowCallForm(false);

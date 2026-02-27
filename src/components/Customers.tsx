@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
 import { StatusType, VISA_TYPES, STATUS_TYPES } from '../types';
-import { exportToCSV, getVizeClass, getStatusClass } from '../utils/helpers';
+import { exportToCSV, getVizeClass, getStatusClass, formatLastActivity } from '../utils/helpers';
 
-type SortKey = 'ad' | 'durum' | 'vize' | 'danisman' | 'statu' | 'createdAt';
+type SortKey = 'ad' | 'durum' | 'vize' | 'danisman' | 'statu' | 'createdAt' | 'lastActivityDate';
 
 export default function Customers() {
   const { customers, openModal, deleteCustomer } = useApp();
@@ -36,6 +36,7 @@ export default function Customers() {
       else if (sortKey === 'danisman') { va = a.danisman ?? ''; vb = b.danisman ?? ''; }
       else if (sortKey === 'statu') { va = a.statu ?? ''; vb = b.statu ?? ''; }
       else if (sortKey === 'createdAt') { va = a.createdAt; vb = b.createdAt; }
+      else if (sortKey === 'lastActivityDate') { va = a.lastActivityDate || ''; vb = b.lastActivityDate || ''; }
       return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
     });
 
@@ -126,15 +127,15 @@ export default function Customers() {
                 <th onClick={() => handleSort('vize')} style={{ cursor: 'pointer' }}>Vize Türü <SortIcon col="vize" /></th>
                 <th onClick={() => handleSort('danisman')} style={{ cursor: 'pointer' }}>Danışman <SortIcon col="danisman" /></th>
                 <th onClick={() => handleSort('durum')} style={{ cursor: 'pointer' }}>Durum <SortIcon col="durum" /></th>
-                <th onClick={() => handleSort('statu')} style={{ cursor: 'pointer' }}>Statü <SortIcon col="statu" /></th>
                 <th onClick={() => handleSort('createdAt')} style={{ cursor: 'pointer' }}>Kayıt <SortIcon col="createdAt" /></th>
+                <th onClick={() => handleSort('lastActivityDate')} style={{ cursor: 'pointer' }}>Son İşlem <SortIcon col="lastActivityDate" /></th>
                 <th>İşlem</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={8} style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
+                  <td colSpan={9} style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
                     Kayıt bulunamadı.
                   </td>
                 </tr>
@@ -164,8 +165,11 @@ export default function Customers() {
                       </div>
                     </td>
                     <td style={{ color: 'var(--text-secondary)' }}>{c.statu || '—'}</td>
-                    <td style={{ fontFamily: "'Syne', sans-serif", fontSize: 13 }}>
+                    <td style={{ fontFamily: "'Syne', sans-serif", fontSize: 13, color: 'var(--text-muted)' }}>
                       {c.createdAt ? new Date(c.createdAt).toLocaleDateString('tr-TR') : '—'}
+                    </td>
+                    <td style={{ fontFamily: "'Syne', sans-serif", fontSize: 12, fontWeight: 600, color: 'var(--accent-secondary)' }}>
+                      {formatLastActivity(c.lastActivityDate)}
                     </td>
                     <td onClick={e => e.stopPropagation()}>
                       <div style={{ display: 'flex', gap: 6 }}>

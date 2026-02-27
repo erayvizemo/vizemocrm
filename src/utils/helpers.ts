@@ -25,6 +25,21 @@ export function formatDateTime(dt: string): string {
   return d.toLocaleDateString('tr-TR') + ' ' + d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
 }
 
+export function formatLastActivity(dateStr: string | undefined): string {
+  if (!dateStr) return 'İşlem yok';
+  const dt = new Date(dateStr);
+  const diffSec = Math.floor((Date.now() - dt.getTime()) / 1000);
+
+  if (diffSec < 60) return 'Az önce';
+  if (diffSec < 3600) return `${Math.floor(diffSec / 60)} dakika önce`;
+  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)} saat önce`;
+  const days = Math.floor(diffSec / 86400);
+  if (days === 1) return 'Dün';
+  if (days < 30) return `${days} gün önce`;
+  if (days < 365) return `${Math.floor(days / 30)} ay önce`;
+  return `${Math.floor(days / 365)} yıl önce`;
+}
+
 export function getDaysUntil(dateStr: string): number {
   if (!dateStr) return Infinity;
   const today = new Date();
