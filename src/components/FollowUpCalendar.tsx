@@ -125,7 +125,7 @@ export default function FollowUpCalendar() {
                             background: getStatusColor(c.durum)
                           }}></span>
                           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {c.ad.split(' ')[0]}
+                            {c.firstName + ' ' + c.lastName.split(' ')[0]}
                           </span>
                         </div>
                       ))}
@@ -177,7 +177,7 @@ export default function FollowUpCalendar() {
                         e.currentTarget.style.borderColor = 'var(--border-subtle)';
                       }}
                     >
-                      <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)', marginBottom: 4 }}>{c.ad}</div>
+                      <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)', marginBottom: 4 }}>{c.firstName + ' ' + c.lastName}</div>
                       {c.telefon && <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontFamily: "'Syne', sans-serif", marginBottom: 8 }}>{c.telefon}</div>}
 
                       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -242,7 +242,7 @@ export default function FollowUpCalendar() {
                       }}>{dateLabel}</div>
 
                       <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {c.ad}
+                        {c.firstName + ' ' + c.lastName}
                       </div>
 
                       <div className={`status-indicator ${getStatusClass(c.durum).replace('-', '_')}`} style={{ margin: 0 }}>

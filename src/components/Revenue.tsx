@@ -19,14 +19,14 @@ export default function Revenue() {
   const { revenue, addRevenue, updateRevenue, deleteRevenue } = useApp();
   const [filterDanisman, setFilterDanisman] = useState('');
   const [filterSehir, setFilterSehir] = useState('');
-  const [sortCol, setSortCol] = useState<'ad' | 'danisman' | 'sehir' | 'toplam' | 'onOdemeTarihi'>('onOdemeTarihi');
+  const [sortCol, setSortCol] = useState<'firstName' | 'danisman' | 'sehir' | 'toplam' | 'onOdemeTarihi'>('onOdemeTarihi');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editEntryId, setEditEntryId] = useState<string | null>(null);
 
   // Form state
   const emptyForm = {
-    ad: '', danisman: '', sehir: '', odemeYontemi: '💵 Elden',
+    firstName: '', lastName: '', danisman: '', sehir: '', odemeYontemi: '💵 Elden',
     onOdemeTarihi: new Date().toISOString().substring(0, 10),
     onOdeme: '', kalanTarih: '', kalanOdeme: '',
   };
@@ -130,11 +130,12 @@ export default function Revenue() {
   }
 
   const handleSubmit = useCallback(() => {
-    if (!form.ad.trim()) return;
+    if (!form.firstName.trim() || !form.lastName.trim()) return;
     const onOdeme = parseFloat(form.onOdeme) || 0;
     const kalanOdeme = parseFloat(form.kalanOdeme) || 0;
     const data = {
-      ad: form.ad.trim(),
+      firstName: form.firstName.trim(),
+      lastName: form.lastName.trim(),
       danisman: form.danisman || 'Belirsiz',
       sehir: form.sehir || 'Belirsiz',
       odemeYontemi: form.odemeYontemi,
@@ -159,7 +160,8 @@ export default function Revenue() {
   const handleEdit = (entry: any) => {
     setEditEntryId(entry.id);
     setForm({
-      ad: entry.ad,
+      firstName: entry.firstName,
+      lastName: entry.lastName,
       danisman: entry.danisman,
       sehir: entry.sehir,
       odemeYontemi: entry.odemeYontemi || '💵 Elden',
@@ -380,7 +382,7 @@ export default function Revenue() {
           <table className="data-table">
             <thead>
               <tr>
-                <TH col="ad" label="Müşteri" />
+                <TH col="firstName" label="Müşteri İsim / Ad" />
                 <TH col="danisman" label="Danışman" />
                 <TH col="sehir" label="Şehir" />
                 <th style={{ padding: '12px 16px', textAlign: 'left', fontFamily: "'Syne', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>Ödeme Yöntemi</th>
@@ -402,7 +404,7 @@ export default function Revenue() {
                 const cityColor = CITY_COLORS[r.sehir] ?? 'var(--accent-primary)';
                 return (
                   <tr key={r.id}>
-                    <td className="td-name">{r.ad}</td>
+                    <td className="td-name">{r.firstName + ' ' + r.lastName}</td>
                     <td>{r.danisman}</td>
                     <td>
                       <span style={{
@@ -510,7 +512,7 @@ export default function Revenue() {
                 <input
                   className="form-input"
                   placeholder="Örn: Ahmet Yılmaz"
-                  value={form.ad}
+                  value={form.firstName + ' ' + form.lastName}
                   onChange={e => setForm(f => ({ ...f, ad: e.target.value }))}
                   autoFocus
                 />
@@ -626,11 +628,11 @@ export default function Revenue() {
               <button
                 className="btn-primary"
                 onClick={handleSubmit}
-                disabled={!form.ad.trim()}
+                disabled={!form.firstName.trim() || !form.lastName.trim()}
                 style={{
-                  background: form.ad.trim() ? `linear-gradient(135deg, ${GOLD}, #d97706)` : '#333',
-                  boxShadow: form.ad.trim() ? `0 4px 16px rgba(245, 158, 11, 0.3)` : 'none',
-                  color: form.ad.trim() ? '#111' : '#666'
+                  background: form.firstName + ' ' + form.lastName.trim() ? `linear-gradient(135deg, ${GOLD}, #d97706)` : '#333',
+                  boxShadow: form.firstName + ' ' + form.lastName.trim() ? `0 4px 16px rgba(245, 158, 11, 0.3)` : 'none',
+                  color: form.firstName.trim() && form.lastName.trim() ? '#111' : '#666'
                 }}
               >
                 {editEntryId ? 'Değişiklikleri Kaydet' : 'Gelir Kaydı Ekle'}

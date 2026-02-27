@@ -20,7 +20,7 @@ export default function CityView({ city }: Props) {
   const [search, setSearch] = useState('');
   const [filterDurum, setFilterDurum] = useState<StatusType | ''>('');
   const [filterDanisman, setFilterDanisman] = useState('');
-  const [sortCol, setSortCol] = useState<'ad' | 'durum' | 'vize' | 'danisman'>('ad');
+  const [sortCol, setSortCol] = useState<'firstName' | 'durum' | 'vize' | 'danisman'>('firstName');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
 
   const cityColor = cityColors[city] ?? '#4f8ef7';
@@ -71,7 +71,7 @@ export default function CityView({ city }: Props) {
     if (search) {
       const q = search.toLowerCase();
       list = list.filter(c =>
-        c.ad.toLowerCase().includes(q) ||
+        c.firstName + ' ' + c.lastName.toLowerCase().includes(q) ||
         c.telefon.toLowerCase().includes(q) ||
         c.vize.toLowerCase().includes(q) ||
         (c.not ?? '').toLowerCase().includes(q)
@@ -216,7 +216,7 @@ export default function CityView({ city }: Props) {
           <table className="data-table">
             <thead>
               <tr>
-                {col('ad', 'Müşteri')}
+                {col('firstName', 'Müşteri')}
                 <th>İletişim</th>
                 {col('vize', 'Vize Türü')}
                 {col('danisman', 'Danışman')}
@@ -239,7 +239,7 @@ export default function CityView({ city }: Props) {
                   onClick={() => openModal(c.id)}
                   style={{ cursor: 'pointer' }}
                 >
-                  <td className="td-name">{c.ad}</td>
+                  <td className="td-name">{c.firstName + ' ' + c.lastName}</td>
                   <td style={{ fontFamily: "'Syne', sans-serif", fontSize: 13, color: 'var(--text-secondary)' }}>
                     {c.telefon || '—'}
                   </td>

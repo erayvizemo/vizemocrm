@@ -73,7 +73,7 @@ export default function Pipeline() {
                     >
                       {/* Name + visa */}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <span className="kanban-card-name">{c.ad}</span>
+                        <span className="kanban-card-name">{c.firstName + ' ' + c.lastName}</span>
                         {c.vize && (
                           <span className={`vize-badge ${getVizeClass(c.vize)}`} style={{ transform: 'scale(0.85)', transformOrigin: 'top right' }}>
                             {c.vize}

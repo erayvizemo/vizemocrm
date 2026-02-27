@@ -83,7 +83,7 @@ export default function Dashboard() {
   const recentActivity: { time: string; text: string; customer: string; id: string }[] = [];
   customers.forEach(c => {
     c.log.forEach(entry => {
-      recentActivity.push({ time: entry.timestamp, text: entry.text, customer: c.ad, id: c.id });
+      recentActivity.push({ time: entry.timestamp, text: entry.text, customer: c.firstName + ' ' + c.lastName, id: c.id });
     });
   });
   recentActivity.sort((a, b) => b.time.localeCompare(a.time));
@@ -126,7 +126,7 @@ export default function Dashboard() {
               Bugün {todayFollowUps.length} müşteri takip edilmeli:
             </span>
             <span style={{ color: 'var(--text-primary)', fontSize: '14px', marginLeft: 8, fontFamily: "'DM Sans', sans-serif" }}>
-              {todayFollowUps.map(m => m.ad).join(', ')}
+              {todayFollowUps.map(m => m.firstName + ' ' + m.lastName).join(', ')}
             </span>
           </div>
         </div>
@@ -313,7 +313,7 @@ export default function Dashboard() {
                       }}
                     >
                       <div>
-                        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>{c.ad}</div>
+                        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>{c.firstName + ' ' + c.lastName}</div>
                         <div style={{
                           fontSize: '11px',
                           fontFamily: "'Syne', sans-serif",

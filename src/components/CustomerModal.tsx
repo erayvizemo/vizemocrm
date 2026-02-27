@@ -4,7 +4,7 @@ import { Customer, VISA_TYPES, STATUS_TYPES, PROCESS_TYPES, DECISION_TYPES, QUIC
 import { getStatusColor, getStatusBg, getStatusClass } from '../utils/helpers';
 
 const DANISMAN_LIST = ['Eray', 'Dilara', 'Selin', 'Merve', 'Ali', 'Diğer'];
-const SEHIR_LIST = ['Eskişehir', 'Gaziantep', 'İstanbul', 'Ankara', 'Diğer'];
+const SEHIR_LIST = ["Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Amasya", "Ankara", "Antalya", "Artvin", "Aydın", "Balıkesir", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa", "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Isparta", "Mersin", "İstanbul", "İzmir", "Kars", "Kastamonu", "Kayseri", "Kırklareli", "Kırşehir", "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Kahramanmaraş", "Mardin", "Muğla", "Muş", "Nevşehir", "Niğde", "Ordu", "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas", "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Şanlıurfa", "Uşak", "Van", "Yozgat", "Zonguldak", "Aksaray", "Bayburt", "Karaman", "Kırıkkale", "Batman", "Şırnak", "Bartın", "Ardahan", "Iğdır", "Yalova", "Karabük", "Kilis", "Osmaniye", "Düzce", "Diğer"];
 const KAYNAK_LIST = ['Instagram', 'Referans', 'Web Site', 'Yüz Yüze', 'WhatsApp', 'Reklam', 'Diğer'];
 const ULKE_LIST = [
   'Almanya', 'Avusturya', 'Belçika', 'Çekya', 'Danimarka', 'Estonya',
@@ -38,11 +38,12 @@ export default function CustomerModal() {
   const customer = isNew ? null : customers.find(c => c.id === customerId) ?? null;
 
   const [form, setForm] = useState({
-    ad: '', telefon: '', email: '', vize: 'Schengen',
+    firstName: '', lastName: '', telefon: '', email: '', vize: 'Schengen',
     durum: 'Yeni Lead' as Customer['durum'],
     danisman: '', sehir: '', statu: '', kaynak: '', ulke: '', evrakPct: '',
     gorusme: '', takip: '', surec: '', karar: '', not: '',
-    leadSource: '', adName: '', assignedSdrId: ''
+    leadSource: '', adName: '', assignedSdrId: '',
+    sehirDiger: '', kaynakDiger: ''
   });
   const [activeChips, setActiveChips] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'info' | 'log'>('info');
@@ -53,15 +54,20 @@ export default function CustomerModal() {
     setActiveChips([]);
     if (customer) {
       setForm({
-        ad: customer.ad, telefon: customer.telefon, email: customer.email,
+        firstName: customer.firstName, lastName: customer.lastName, telefon: customer.telefon, email: customer.email,
         vize: customer.vize, durum: customer.durum,
-        danisman: customer.danisman ?? '', sehir: customer.sehir ?? '',
-        statu: customer.statu ?? '', kaynak: customer.kaynak ?? '',
+        statu: customer.statu ?? '',
         ulke: customer.ulke ?? '', evrakPct: customer.evrakPct ?? '',
         gorusme: customer.gorusme, takip: customer.takip,
         surec: customer.surec, karar: customer.karar, not: customer.not,
-        leadSource: customer.leadSource ?? '', adName: customer.adName ?? '',
+        leadSource: customer.leadSource?.startsWith('Diğer') ? 'Diğer' : (customer.leadSource ?? ''),
+        kaynakDiger: customer.leadSource?.startsWith('Diğer:') ? customer.leadSource.replace('Diğer: ', '') : '',
+        adName: customer.adName ?? '',
         assignedSdrId: customer.assignedSdrId ?? '',
+        sehir: (customer.sehir && !SEHIR_LIST.includes(customer.sehir)) ? 'Diğer' : (customer.sehir ?? ''),
+        kaynak: customer.kaynak ?? '',
+        sehirDiger: (customer.sehir && !SEHIR_LIST.includes(customer.sehir)) ? customer.sehir : '',
+        danisman: customer.danisman ?? '',
       });
 
       // Auto-assign logic for SDR
@@ -74,10 +80,11 @@ export default function CustomerModal() {
 
     } else {
       setForm({
-        ad: '', telefon: '', email: '', vize: 'Schengen', durum: 'Yeni Lead',
+        firstName: '', lastName: '', telefon: '', email: '', vize: 'Schengen', durum: 'Yeni Lead',
         danisman: '', sehir: '', statu: '', kaynak: '', ulke: '', evrakPct: '',
         gorusme: '', takip: '', surec: '', karar: '', not: '',
-        leadSource: '', adName: '', assignedSdrId: ''
+        leadSource: '', adName: '', assignedSdrId: '',
+        sehirDiger: '', kaynakDiger: ''
       });
     }
   }, [isOpen, customerId, currentUser]);
@@ -95,7 +102,11 @@ export default function CustomerModal() {
   }
 
   function handleSave() {
-    if (!form.ad.trim()) { alert('Ad Soyad zorunlu!'); return; }
+    if (!form.firstName.trim() || !form.lastName.trim()) { alert('Ad ve Soyad zorunlu!'); return; }
+
+    const finalSehir = form.sehir === 'Diğer' ? form.sehirDiger : form.sehir;
+    const finalLeadSource = form.leadSource === 'Diğer' ? `Diğer: ${form.kaynakDiger}` : form.leadSource;
+
     const finalNote = generatedNote() || form.not;
     const now = new Date();
     const nowStr = now.toLocaleDateString('tr-TR') + ' ' + now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
@@ -103,6 +114,8 @@ export default function CustomerModal() {
     if (isNew) {
       addCustomer({
         ...form,
+        sehir: finalSehir,
+        leadSource: finalLeadSource,
         not: finalNote,
         log: [{ timestamp: nowStr, text: 'Yeni müşteri oluşturuldu.' }],
       });
@@ -114,13 +127,13 @@ export default function CustomerModal() {
       if (form.durum !== customer.durum) {
         log.push({ timestamp: nowStr, text: `Durum değişti: ${customer.durum} → ${form.durum}` });
       }
-      updateCustomer(customer.id, { ...form, not: finalNote, log });
+      updateCustomer(customer.id, { ...form, sehir: finalSehir, leadSource: finalLeadSource, not: finalNote, log });
     }
     closeModal();
   }
 
   function handleDelete() {
-    if (customer && window.confirm(`${customer.ad} kalıcı olarak silinsin mi?`)) {
+    if (customer && window.confirm(`${customer.firstName} ${customer.lastName} kalıcı olarak silinsin mi?`)) {
       deleteCustomer(customer.id);
       closeModal();
     }
@@ -136,7 +149,7 @@ export default function CustomerModal() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid var(--border-subtle)' }}>
           <div>
             <div style={{ fontSize: '24px', fontFamily: "'Syne', sans-serif", fontWeight: 700, color: 'var(--text-primary)' }}>
-              {isNew ? '✨ Yeni Müşteri' : form.ad}
+              {isNew ? '✨ Yeni Müşteri' : `${form.firstName} ${form.lastName}`}
             </div>
             {!isNew && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
@@ -244,8 +257,11 @@ export default function CustomerModal() {
                 Kişisel Bilgiler
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
-                <FormField label="Ad Soyad *">
-                  <input className="form-input" type="text" value={form.ad} onChange={e => setForm(p => ({ ...p, ad: e.target.value }))} placeholder="Örn: Ayşe Kement" />
+                <FormField label="Ad *">
+                  <input className="form-input" type="text" value={form.firstName} onChange={e => setForm(p => ({ ...p, firstName: e.target.value }))} placeholder="Örn: Ayşe" />
+                </FormField>
+                <FormField label="Soyad *">
+                  <input className="form-input" type="text" value={form.lastName} onChange={e => setForm(p => ({ ...p, lastName: e.target.value }))} placeholder="Örn: Kement" />
                 </FormField>
                 <FormField label="Telefon">
                   <input className="form-input" type="text" value={form.telefon} onChange={e => setForm(p => ({ ...p, telefon: e.target.value }))} placeholder="+90 5xx xxx xx xx" />
@@ -256,9 +272,14 @@ export default function CustomerModal() {
                 <FormField label="Şehir">
                   <select className="form-input" value={form.sehir} onChange={e => setForm(p => ({ ...p, sehir: e.target.value }))}>
                     <option value="">Seçin...</option>
-                    {SEHIR_LIST.map(s => <option key={s}>{s}</option>)}
+                    {SEHIR_LIST.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </FormField>
+                {form.sehir === 'Diğer' && (
+                  <FormField label="Şehir Belirtin">
+                    <input className="form-input" type="text" value={form.sehirDiger} onChange={e => setForm(p => ({ ...p, sehirDiger: e.target.value }))} placeholder="Örn: Londra" />
+                  </FormField>
+                )}
                 <FormField label="Ülke">
                   <select className="form-input" value={form.ulke} onChange={e => setForm(p => ({ ...p, ulke: e.target.value }))}>
                     <option value="">Seçin...</option>
@@ -279,6 +300,11 @@ export default function CustomerModal() {
                 {(form.leadSource === 'Meta Ads' || form.leadSource === 'Google Ads') && (
                   <FormField label="Reklam Adı">
                     <input className="form-input" type="text" value={form.adName} onChange={e => setForm(p => ({ ...p, adName: e.target.value }))} placeholder="Kampanya / Reklam adı" required />
+                  </FormField>
+                )}
+                {form.leadSource === 'Diğer' && (
+                  <FormField label="Kaynak Açıklaması">
+                    <input className="form-input" type="text" value={form.kaynakDiger} onChange={e => setForm(p => ({ ...p, kaynakDiger: e.target.value }))} placeholder="Kaynak detayı" />
                   </FormField>
                 )}
 

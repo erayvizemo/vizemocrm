@@ -17,7 +17,7 @@ export default function Customers() {
     let data = customers.filter(c => {
       const q = search.toLowerCase();
       const matchSearch = !q
-        || c.ad.toLowerCase().includes(q)
+        || c.firstName + ' ' + c.lastName.toLowerCase().includes(q)
         || c.telefon.includes(q)
         || c.email.toLowerCase().includes(q)
         || c.not.toLowerCase().includes(q)
@@ -30,7 +30,7 @@ export default function Customers() {
 
     data = [...data].sort((a, b) => {
       let va = '', vb = '';
-      if (sortKey === 'ad') { va = a.ad; vb = b.ad; }
+      if (sortKey === 'ad') { va = a.firstName + ' ' + a.lastName; vb = b.firstName + ' ' + b.lastName; }
       else if (sortKey === 'durum') { va = a.durum; vb = b.durum; }
       else if (sortKey === 'vize') { va = a.vize; vb = b.vize; }
       else if (sortKey === 'danisman') { va = a.danisman ?? ''; vb = b.danisman ?? ''; }
@@ -142,7 +142,7 @@ export default function Customers() {
                 filtered.map(c => (
                   <tr key={c.id} onClick={() => openModal(c.id)} style={{ cursor: 'pointer' }}>
                     <td className="td-name">
-                      {c.ad}
+                      {c.firstName + ' ' + c.lastName}
                       {c.sehir && <span style={{ display: 'block', fontSize: 11, color: 'var(--text-muted)', marginTop: 2, fontWeight: 500 }}>{c.sehir}</span>}
                     </td>
                     <td>
@@ -177,7 +177,7 @@ export default function Customers() {
                           className="btn-secondary"
                           style={{ padding: '6px 12px', fontSize: 12, color: 'var(--accent-rose)', borderColor: 'rgba(244,63,94,0.3)' }}
                           onClick={() => {
-                            if (window.confirm(`${c.ad} kaydını silmek istediğinize emin misiniz?`)) deleteCustomer(c.id);
+                            if (window.confirm(`${c.firstName + ' ' + c.lastName} kaydını silmek istediğinize emin misiniz?`)) deleteCustomer(c.id);
                           }}
                           onMouseEnter={e => {
                             e.currentTarget.style.background = 'rgba(244,63,94,0.1)';

@@ -43,7 +43,8 @@ export default function LeodessaLeads() {
       : 'Yeni Lead';
 
     addCustomer({
-      ad: lead.ad,
+      firstName: lead.firstName,
+      lastName: lead.lastName,
       telefon: lead.telefon,
       email: lead.email || '',
       vize: lead.serviceName,
@@ -63,7 +64,7 @@ export default function LeodessaLeads() {
     });
 
     updateLeodessaLead(lead.id, { crmTransferred: true, status: 'transferred' });
-    showToast(`${lead.ad} CRM'e aktarıldı.`, 'success');
+    showToast(`${lead.firstName + ' ' + lead.lastName} CRM'e aktarıldı.`, 'success');
   }
 
   function StatCard({ label, value, color }: { label: string; value: number; color: string }) {
@@ -168,10 +169,10 @@ export default function LeodessaLeads() {
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontSize: '18px', fontWeight: 800, color: LEODESSA_COLOR, fontFamily: "'Syne', sans-serif"
                     }}>
-                      {lead.ad.charAt(0).toUpperCase()}
+                      {lead.firstName + ' ' + lead.lastName.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>{lead.ad}</div>
+                      <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>{lead.firstName + ' ' + lead.lastName}</div>
                       <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: 4 }}>{lead.telefon}</div>
                     </div>
                   </div>
@@ -244,7 +245,7 @@ export default function LeodessaLeads() {
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24, borderBottom: '1px solid var(--border-subtle)', paddingBottom: 16 }}>
               <div>
                 <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", marginBottom: 6 }}>
-                  {selectedLead.ad}
+                  {selectedLead.firstName + ' ' + selectedLead.lastName}
                 </div>
                 <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
                   {selectedLead.serviceIcon} {selectedLead.serviceName}

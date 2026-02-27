@@ -128,12 +128,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const now = new Date().toISOString().substring(0, 10);
     const customer: Customer = { ...data, id: generateId(), createdAt: now, updatedAt: now };
     setCustomers(prev => [customer, ...prev]);
-    showToast(`${data.ad} başarıyla eklendi.`);
+    showToast(`${data.firstName + ' ' + data.lastName} başarıyla eklendi.`);
 
     // Google Sheets'e otomatik gönder
     sendToGoogleSheets({
       id: customer.id,
-      ad: customer.ad,
+      ad: customer.firstName + ' ' + customer.lastName,
       telefon: customer.telefon,
       email: customer.email,
       vize: customer.vize,
@@ -167,7 +167,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const deleteCustomer = useCallback((id: string) => {
     setCustomers(prev => {
       const c = prev.find(x => x.id === id);
-      const name = c?.ad ?? 'Müşteri';
+      const name = c ? `${c.firstName} ${c.lastName}` : 'Müşteri';
       showToast(`${name} silindi.`, 'info');
       return prev.filter(x => x.id !== id);
     });
@@ -176,7 +176,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const addRevenue = useCallback((data: Omit<RevenueEntry, 'id'>) => {
     const entry: RevenueEntry = { ...data, id: generateId() };
     setRevenue(prev => [entry, ...prev]);
-    showToast(`${data.ad} için gelir kaydı eklendi.`);
+    showToast(`${data.firstName + ' ' + data.lastName} için gelir kaydı eklendi.`);
   }, [showToast]);
 
   const updateRevenue = useCallback((id: string, data: Partial<Omit<RevenueEntry, 'id'>>) => {
@@ -187,7 +187,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const deleteRevenue = useCallback((id: string) => {
     setRevenue(prev => {
       const entry = prev.find(r => r.id === id);
-      showToast(`${entry?.ad ?? 'Gelir kaydı'} silindi.`, 'info');
+      showToast(`${entry ? entry.firstName + ' ' + entry.lastName : 'Gelir kaydı'} silindi.`, 'info');
       return prev.filter(r => r.id !== id);
     });
   }, [showToast]);
@@ -196,7 +196,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const now = new Date().toISOString().substring(0, 10);
     const lead: LeodessaLead = { ...data, id: generateId(), createdAt: now };
     setLeodessaLeads(prev => [lead, ...prev]);
-    showToast(`${data.ad} Leodessa lead olarak kaydedildi.`);
+    showToast(`${data.firstName + ' ' + data.lastName} Leodessa lead olarak kaydedildi.`);
   }, [showToast]);
 
   const updateLeodessaLead = useCallback((id: string, data: Partial<LeodessaLead>) => {
@@ -206,7 +206,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const deleteLeodessaLead = useCallback((id: string) => {
     setLeodessaLeads(prev => {
       const lead = prev.find(l => l.id === id);
-      showToast(`${lead?.ad ?? 'Lead'} silindi.`, 'info');
+      showToast(`${lead ? `${lead.firstName} ${lead.lastName}` : 'Lead'} silindi.`, 'info');
       return prev.filter(l => l.id !== id);
     });
   }, [showToast]);

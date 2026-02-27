@@ -3,7 +3,7 @@ import { Customer } from '../types';
 export const initialData: Customer[] = [
   {
     id: '1',
-    ad: 'Hayrettin Tanımlı',
+    firstName: 'Hayrettin', lastName: 'Tanımlı',
     telefon: '+905359253719',
     email: '',
     vize: 'Schengen',
@@ -22,7 +22,7 @@ export const initialData: Customer[] = [
   },
   {
     id: '2',
-    ad: 'Özkan Ataman',
+    firstName: 'Özkan', lastName: 'Ataman',
     telefon: '+905071056717',
     email: '',
     vize: 'İspanya Oturum',
@@ -38,7 +38,7 @@ export const initialData: Customer[] = [
   },
   {
     id: '3',
-    ad: 'Hüseyin Güler',
+    firstName: 'Hüseyin', lastName: 'Güler',
     telefon: '+905070091804',
     email: '',
     vize: 'İspanya Oturum',
@@ -54,7 +54,7 @@ export const initialData: Customer[] = [
   },
   {
     id: '4',
-    ad: 'Ayşe Orhan Kabil',
+    firstName: 'Ayşe', lastName: 'Orhan Kabil',
     telefon: '+905388251119',
     email: '',
     vize: 'Schengen',
@@ -70,7 +70,7 @@ export const initialData: Customer[] = [
   },
   {
     id: '5',
-    ad: 'Hasan Rıza Durmuş',
+    firstName: 'Hasan', lastName: 'Rıza Durmuş',
     telefon: '',
     email: '',
     vize: 'Schengen',
@@ -89,7 +89,7 @@ export const initialData: Customer[] = [
   },
   {
     id: '6',
-    ad: 'Emre Kemal Altıntaş',
+    firstName: 'Emre', lastName: 'Kemal Altıntaş',
     telefon: '0 533 138 73 65',
     email: '',
     vize: 'Schengen',
@@ -108,7 +108,7 @@ export const initialData: Customer[] = [
   },
   {
     id: '7',
-    ad: 'Gökçem Özer',
+    firstName: 'Gökçem', lastName: 'Özer',
     telefon: '+905307601614',
     email: '',
     vize: 'Schengen',
@@ -124,7 +124,7 @@ export const initialData: Customer[] = [
   },
   {
     id: '8',
-    ad: 'Mehmet Yıldız',
+    firstName: 'Mehmet', lastName: 'Yıldız',
     telefon: '+905322044471',
     email: '',
     vize: 'İspanya Oturum',
@@ -140,7 +140,7 @@ export const initialData: Customer[] = [
   },
   {
     id: '9',
-    ad: 'Kani Turan',
+    firstName: 'Kani', lastName: 'Turan',
     telefon: '+905053383765',
     email: '',
     vize: 'İspanya Oturum',
@@ -156,7 +156,7 @@ export const initialData: Customer[] = [
   },
   {
     id: '10',
-    ad: 'Yiğit Kadıoğlu',
+    firstName: 'Yiğit', lastName: 'Kadıoğlu',
     telefon: '+905325778874',
     email: '',
     vize: 'İspanya Oturum',
@@ -172,7 +172,7 @@ export const initialData: Customer[] = [
   },
   {
     id: '11',
-    ad: 'Cevdet Yıldırım',
+    firstName: 'Cevdet', lastName: 'Yıldırım',
     telefon: '+905451287742',
     email: '',
     vize: 'Schengen',
@@ -188,7 +188,7 @@ export const initialData: Customer[] = [
   },
   {
     id: '12',
-    ad: 'Ayşe Kement',
+    firstName: 'Ayşe', lastName: 'Kement',
     telefon: '90 546 599 00 52',
     email: '',
     vize: 'Schengen',
@@ -204,7 +204,7 @@ export const initialData: Customer[] = [
   },
   {
     id: '13',
-    ad: 'Fahretnisa Yaltıbaş',
+    firstName: 'Fahretnisa', lastName: 'Yaltıbaş',
     telefon: '+905424146368',
     email: '',
     vize: '',
@@ -220,7 +220,7 @@ export const initialData: Customer[] = [
   },
   {
     id: '14',
-    ad: 'Bayram Yok Leman',
+    firstName: 'Bayram', lastName: 'Yok Leman',
     telefon: '+905453434178',
     email: '',
     vize: '',
@@ -236,7 +236,7 @@ export const initialData: Customer[] = [
   },
   {
     id: '15',
-    ad: 'Selim Doğan',
+    firstName: 'Selim', lastName: 'Doğan',
     telefon: '+905321234567',
     email: '',
     vize: 'Amerika',
@@ -252,7 +252,7 @@ export const initialData: Customer[] = [
   },
   {
     id: '16',
-    ad: 'Nilüfer Arslan',
+    firstName: 'Nilüfer', lastName: 'Arslan',
     telefon: '+905559876543',
     email: 'nilufer@example.com',
     vize: 'İngiltere',
@@ -273,7 +273,7 @@ export const initialData: Customer[] = [
   },
   {
     id: '17',
-    ad: 'Kadir Şahin',
+    firstName: 'Kadir', lastName: 'Şahin',
     telefon: '+905441122334',
     email: '',
     vize: 'Schengen',

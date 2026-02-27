@@ -194,7 +194,8 @@ export default function LeodessaTracking() {
   function handleTransferSubmit() {
     if (!tAd.trim() || !tTel.trim()) return;
     addLeodessaLead({
-      ad: tAd.trim(),
+      firstName: tAd.trim().split(' ')[0] || '',
+      lastName: tAd.trim().split(' ').slice(1).join(' ') || '',
       telefon: tTel.trim(),
       email: tEmail.trim(),
       service: curSvc,

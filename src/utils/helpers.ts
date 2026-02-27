@@ -107,7 +107,7 @@ export function getStatusClass(status: string) {
 export function exportToCSV(customers: Customer[]): void {
   const headers = ['Ad Soyad', 'Telefon', 'E-posta', 'Vize Türü', 'Durum', 'Görüşme Tarihi', 'Takip Tarihi', 'Süreç Durumu', 'Müşteri Kararı', 'Son Not', 'Kayıt Tarihi'];
   const rows = customers.map(c => [
-    c.ad,
+    c.firstName + ' ' + c.lastName,
     c.telefon,
     c.email,
     c.vize,

@@ -5,7 +5,8 @@ export type LeodessaStatus = 'new' | 'contacted' | 'transferred' | 'cancelled';
 
 export interface LeodessaLead {
   id: string;
-  ad: string;
+  firstName: string;
+  lastName: string;
   telefon: string;
   email: string;
   service: string;
@@ -35,15 +36,16 @@ export interface User {
   role: 'leodessa_admin' | 'sdr' | 'vizemo_admin' | 'vizemo_sales';
 }
 
-export type LeadSourceType = 'Meta Ads' | 'Google Ads' | 'Referans' | 'Web Site' | 'WhatsApp' | 'Instagram' | 'Yüz Yüze' | 'Manual' | 'Diğer';
+export type LeadSourceType = 'Meta Ads' | 'Google Ads' | 'Instagram' | 'Referans' | 'Web Site' | 'Yüz Yüze' | 'WhatsApp' | 'Reklam' | 'Diğer';
 
 export const LEAD_SOURCES: LeadSourceType[] = [
-  'Meta Ads', 'Google Ads', 'Referans', 'Web Site', 'WhatsApp', 'Instagram', 'Yüz Yüze', 'Manual', 'Diğer'
+  'Meta Ads', 'Google Ads', 'Instagram', 'Referans', 'Web Site', 'Yüz Yüze', 'WhatsApp', 'Reklam', 'Diğer'
 ];
 
 export interface Customer {
   id: string;
-  ad: string;
+  firstName: string;
+  lastName: string;
   telefon: string;
   email: string;
   vize: string;
