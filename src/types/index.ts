@@ -30,6 +30,16 @@ export interface LogEntry {
   text: string;
 }
 
+export type CallOutcome = 'Ulaşıldı' | 'Cevap Vermedi' | 'Meşgul' | 'Numara Kullanılmıyor' | 'Yanlış Numara' | 'Kapandı';
+
+export interface CallLog {
+  id: string;
+  timestamp: string;
+  outcome: CallOutcome;
+  note: string;
+  callerId?: string; // SDR ID referansı
+}
+
 export interface User {
   id: string;
   name: string;
@@ -58,6 +68,10 @@ export interface Customer {
   log: LogEntry[];
   createdAt: string;
   updatedAt: string;
+
+  // Task 4: Call Logs
+  callLogs?: CallLog[];
+  nextFollowupDate?: string;
 
   // Task 1 Fields: Lead Source & SDR Assignment
   leadSource?: LeadSourceType | string;

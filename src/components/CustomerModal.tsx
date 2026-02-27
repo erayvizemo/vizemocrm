@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { Customer, VISA_TYPES, STATUS_TYPES, PROCESS_TYPES, DECISION_TYPES, QUICK_CHIPS, LEAD_SOURCES } from '../types';
+import { Customer, VISA_TYPES, STATUS_TYPES, PROCESS_TYPES, DECISION_TYPES, QUICK_CHIPS, LEAD_SOURCES, CallOutcome } from '../types';
 import { getStatusColor, getStatusBg, getStatusClass } from '../utils/helpers';
 
 const DANISMAN_LIST = ['Eray', 'Dilara', 'Selin', 'Merve', 'Ali', 'Diğer'];
@@ -49,8 +49,20 @@ export default function CustomerModal() {
   const [activeChips, setActiveChips] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'info' | 'log'>('info');
 
+  // Call Log State
+  const [showCallForm, setShowCallForm] = useState(false);
+  const [callOutcome, setCallOutcome] = useState<CallOutcome>('Ulaşıldı');
+  const [callNote, setCallNote] = useState('');
+  const [nextFollowup, setNextFollowup] = useState('');
+
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      setShowCallForm(false);
+      setCallOutcome('Ulaşıldı');
+      setCallNote('');
+      setNextFollowup('');
+      return;
+    }
     setActiveTab('info');
     setActiveChips([]);
     if (customer) {
@@ -147,6 +159,41 @@ export default function CustomerModal() {
     closeModal();
   }
 
+  function handleSaveCallLog() {
+    if (!customer) return;
+    if (callOutcome !== 'Kapandı' && !nextFollowup) {
+      alert('Sonraki Arama Tarihi girilmelidir!');
+      return;
+    }
+
+    const now = new Date();
+    const nowStr = now.toLocaleDateString('tr-TR') + ' ' + now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+
+    const newLog = [...(customer.log || [])];
+    newLog.push({ timestamp: nowStr, text: `[Arama - ${callOutcome}] ${callNote}` });
+
+    const newCallLogs = [...(customer.callLogs || [])];
+    newCallLogs.push({
+      id: Math.random().toString(36).substr(2, 9),
+      timestamp: new Date().toISOString(),
+      outcome: callOutcome,
+      note: callNote,
+      callerId: currentUser?.id
+    });
+
+    updateCustomer(customer.id, {
+      ...customer,
+      log: newLog,
+      callLogs: newCallLogs,
+      nextFollowupDate: callOutcome === 'Kapandı' ? '' : nextFollowup
+    });
+
+    setShowCallForm(false);
+    setCallNote('');
+    setNextFollowup('');
+    setCallOutcome('Ulaşıldı');
+  }
+
   function handleDelete() {
     if (customer && window.confirm(`${customer.firstName} ${customer.lastName} kalıcı olarak silinsin mi?`)) {
       deleteCustomer(customer.id);
@@ -187,21 +234,36 @@ export default function CustomerModal() {
           </div>
           <div style={{ display: 'flex', gap: 12 }}>
             {!isNew && (
-              <button
-                className="btn-secondary"
-                onClick={handleDelete}
-                style={{ color: 'var(--accent-rose)', borderColor: 'rgba(244,63,94,0.3)', padding: '8px 16px' }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = 'rgba(244,63,94,0.1)';
-                  e.currentTarget.style.borderColor = 'var(--accent-rose)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.borderColor = 'rgba(244,63,94,0.3)';
-                }}
-              >
-                Sil
-              </button>
+              <>
+                <button
+                  className="btn-primary"
+                  onClick={() => { setActiveTab('log'); setShowCallForm(true); }}
+                  disabled={form.doNotContact}
+                  style={{
+                    padding: '8px 16px',
+                    opacity: form.doNotContact ? 0.5 : 1,
+                    cursor: form.doNotContact ? 'not-allowed' : 'pointer'
+                  }}
+                  title={form.doNotContact ? 'Bu müşteriyle iletişime geçilemez.' : ''}
+                >
+                  📞 Aramayı Kaydet
+                </button>
+                <button
+                  className="btn-secondary"
+                  onClick={handleDelete}
+                  style={{ color: 'var(--accent-rose)', borderColor: 'rgba(244,63,94,0.3)', padding: '8px 16px' }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = 'rgba(244,63,94,0.1)';
+                    e.currentTarget.style.borderColor = 'var(--accent-rose)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.borderColor = 'rgba(244,63,94,0.3)';
+                  }}
+                >
+                  Sil
+                </button>
+              </>
             )}
             <button className="btn-secondary" onClick={closeModal} style={{ padding: '8px 16px' }}>Kapat</button>
           </div>
@@ -239,6 +301,34 @@ export default function CustomerModal() {
         {/* Log Tab */}
         {activeTab === 'log' && customer && (
           <div style={{ minHeight: 300 }}>
+            {showCallForm && (
+              <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)', borderRadius: 12, padding: 20, marginBottom: 24 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+                  <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--accent-primary)', fontFamily: "'Syne', sans-serif" }}>📞 Arama Kaydı Ekle</div>
+                  <button onClick={() => setShowCallForm(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>✖</button>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
+                  <FormField label="Sonuç *">
+                    <select className="form-input" value={callOutcome} onChange={e => setCallOutcome(e.target.value as CallOutcome)}>
+                      {(['Ulaşıldı', 'Cevap Vermedi', 'Meşgul', 'Numara Kullanılmıyor', 'Yanlış Numara', 'Kapandı'] as CallOutcome[]).map(o => (
+                        <option key={o} value={o}>{o}</option>
+                      ))}
+                    </select>
+                  </FormField>
+                  <FormField label="Sonraki Arama Tarihi (Takip)">
+                    <input type="date" className="form-input" value={nextFollowup} onChange={e => setNextFollowup(e.target.value)} disabled={callOutcome === 'Kapandı'} />
+                  </FormField>
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <FormField label="Arama Notu">
+                      <textarea className="form-input" value={callNote} onChange={e => setCallNote(e.target.value)} placeholder="Müşteri ne söyledi? Bir sonraki aşama ne olacak?" style={{ minHeight: 80 }} />
+                    </FormField>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+                  <button className="btn-primary" onClick={handleSaveCallLog}>Kaydet</button>
+                </div>
+              </div>
+            )}
             {customer.log.length === 0 ? (
               <div style={{ color: 'var(--text-muted)', fontSize: '14px', padding: '20px 0' }}>Henüz aktivite kaydı yok.</div>
             ) : (

@@ -38,21 +38,23 @@ export function getTodayFollowUps(customers: Customer[]): Customer[] {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   return customers.filter(c => {
-    if (!c.takip) return false;
-    const dt = new Date(c.takip);
+    const followupTarget = c.nextFollowupDate || c.takip;
+    if (!followupTarget) return false;
+    const dt = new Date(followupTarget);
     dt.setHours(0, 0, 0, 0);
-    return dt.getTime() === today.getTime();
+    // Include today or overdue dates
+    return dt.getTime() <= today.getTime() && c.durum !== 'Tamamlandı' && c.durum !== 'Olumsuz';
   });
 }
-
 export function getUpcomingFollowUps(customers: Customer[], days = 7): Customer[] {
   return customers
     .filter(c => {
-      if (!c.takip) return false;
-      const d = getDaysUntil(c.takip);
-      return d >= 0 && d <= days;
+      const targetDate = c.nextFollowupDate || c.takip;
+      if (!targetDate) return false;
+      const d = getDaysUntil(targetDate);
+      return d >= 0 && d <= days && c.durum !== 'Tamamlandı' && c.durum !== 'Olumsuz';
     })
-    .sort((a, b) => new Date(a.takip).getTime() - new Date(b.takip).getTime());
+    .sort((a, b) => new Date(a.nextFollowupDate || a.takip).getTime() - new Date(b.nextFollowupDate || b.takip).getTime());
 }
 
 export function getStatusColor(status: StatusType | string): string {

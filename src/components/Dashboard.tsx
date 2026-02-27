@@ -123,7 +123,7 @@ export default function Dashboard() {
           <span style={{ fontSize: '20px', filter: 'drop-shadow(0 0 8px rgba(245,158,11,0.6))' }}>🔔</span>
           <div>
             <span style={{ color: 'var(--accent-amber)', fontWeight: 600, fontSize: '14px' }}>
-              Bugün {todayFollowUps.length} müşteri takip edilmeli:
+              SDR Takip Listesi (Bugün Aranacak & Gecikenler - {todayFollowUps.length}):
             </span>
             <span style={{ color: 'var(--text-primary)', fontSize: '14px', marginLeft: 8, fontFamily: "'DM Sans', sans-serif" }}>
               {todayFollowUps.map(m => m.firstName + ' ' + m.lastName).join(', ')}
