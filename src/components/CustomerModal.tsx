@@ -43,7 +43,8 @@ export default function CustomerModal() {
     danisman: '', sehir: '', statu: '', kaynak: '', ulke: '', evrakPct: '',
     gorusme: '', takip: '', surec: '', karar: '', not: '',
     leadSource: '', adName: '', assignedSdrId: '',
-    sehirDiger: '', kaynakDiger: ''
+    sehirDiger: '', kaynakDiger: '',
+    doNotContact: false, doNotContactReason: ''
   });
   const [activeChips, setActiveChips] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'info' | 'log'>('info');
@@ -65,9 +66,11 @@ export default function CustomerModal() {
         adName: customer.adName ?? '',
         assignedSdrId: customer.assignedSdrId ?? '',
         sehir: (customer.sehir && !SEHIR_LIST.includes(customer.sehir)) ? 'Diğer' : (customer.sehir ?? ''),
-        kaynak: customer.kaynak ?? '',
         sehirDiger: (customer.sehir && !SEHIR_LIST.includes(customer.sehir)) ? customer.sehir : '',
+        kaynak: customer.kaynak ?? '',
         danisman: customer.danisman ?? '',
+        doNotContact: customer.doNotContact ?? false,
+        doNotContactReason: customer.doNotContactReason ?? '',
       });
 
       // Auto-assign logic for SDR
@@ -84,7 +87,8 @@ export default function CustomerModal() {
         danisman: '', sehir: '', statu: '', kaynak: '', ulke: '', evrakPct: '',
         gorusme: '', takip: '', surec: '', karar: '', not: '',
         leadSource: '', adName: '', assignedSdrId: '',
-        sehirDiger: '', kaynakDiger: ''
+        sehirDiger: '', kaynakDiger: '',
+        doNotContact: false, doNotContactReason: ''
       });
     }
   }, [isOpen, customerId, currentUser]);
@@ -103,6 +107,7 @@ export default function CustomerModal() {
 
   function handleSave() {
     if (!form.firstName.trim() || !form.lastName.trim()) { alert('Ad ve Soyad zorunlu!'); return; }
+    if (form.doNotContact && !form.doNotContactReason.trim()) { alert('Lütfen iletişime geçmeme nedenini belirtin.'); return; }
 
     const finalSehir = form.sehir === 'Diğer' ? form.sehirDiger : form.sehir;
     const finalLeadSource = form.leadSource === 'Diğer' ? `Diğer: ${form.kaynakDiger}` : form.leadSource;
@@ -117,6 +122,8 @@ export default function CustomerModal() {
         sehir: finalSehir,
         leadSource: finalLeadSource,
         not: finalNote,
+        doNotContact: form.doNotContact,
+        doNotContactReason: form.doNotContact ? form.doNotContactReason : '',
         log: [{ timestamp: nowStr, text: 'Yeni müşteri oluşturuldu.' }],
       });
     } else if (customer) {
@@ -127,7 +134,15 @@ export default function CustomerModal() {
       if (form.durum !== customer.durum) {
         log.push({ timestamp: nowStr, text: `Durum değişti: ${customer.durum} → ${form.durum}` });
       }
-      updateCustomer(customer.id, { ...form, sehir: finalSehir, leadSource: finalLeadSource, not: finalNote, log });
+      updateCustomer(customer.id, {
+        ...form,
+        sehir: finalSehir,
+        leadSource: finalLeadSource,
+        not: finalNote,
+        doNotContact: form.doNotContact,
+        doNotContactReason: form.doNotContact ? form.doNotContactReason : '',
+        log
+      });
     }
     closeModal();
   }
@@ -160,6 +175,11 @@ export default function CustomerModal() {
                   <div className={`status-indicator ${getStatusClass(customer.durum)}`}>
                     <span className="status-dot"></span>
                     {customer.durum}
+                  </div>
+                )}
+                {form.doNotContact && (
+                  <div style={{ padding: '4px 8px', borderRadius: '4px', background: 'rgba(244,63,94,0.1)', color: 'var(--accent-rose)', fontSize: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    🚫 İletişime Geçmeyin
                   </div>
                 )}
               </div>
@@ -316,6 +336,34 @@ export default function CustomerModal() {
                     </select>
                   </FormField>
                 )}
+
+                <div style={{ gridColumn: '1 / -1', background: form.doNotContact ? 'rgba(244, 63, 94, 0.05)' : 'none', border: form.doNotContact ? '1px solid rgba(244, 63, 94, 0.2)' : '1px solid transparent', padding: '16px', borderRadius: '8px', marginTop: 8, transition: 'all 0.2s' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={form.doNotContact}
+                      onChange={e => setForm(p => ({ ...p, doNotContact: e.target.checked, doNotContactReason: e.target.checked ? p.doNotContactReason : '' }))}
+                      style={{ width: 18, height: 18, accentColor: 'var(--accent-rose)', cursor: 'pointer' }}
+                    />
+                    <span style={{ fontSize: '14px', fontFamily: "'Syne', sans-serif", fontWeight: 600, color: form.doNotContact ? 'var(--accent-rose)' : 'var(--text-primary)' }}>
+                      🚫 Bu Müşteriyle İletişime Geçmeyin (Do Not Contact)
+                    </span>
+                  </label>
+                  {form.doNotContact && (
+                    <div style={{ marginTop: 16 }}>
+                      <FormField label="İletişime Geçmeme Nedeni *">
+                        <textarea
+                          className="form-input"
+                          value={form.doNotContactReason}
+                          onChange={e => setForm(p => ({ ...p, doNotContactReason: e.target.value }))}
+                          placeholder="Müşteri şikayeti, ulaşılamadı vb..."
+                          style={{ minHeight: 60 }}
+                        />
+                      </FormField>
+                    </div>
+                  )}
+                </div>
+
               </div>
             </div>
 

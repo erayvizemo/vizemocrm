@@ -142,7 +142,10 @@ export default function Customers() {
                 filtered.map(c => (
                   <tr key={c.id} onClick={() => openModal(c.id)} style={{ cursor: 'pointer' }}>
                     <td className="td-name">
-                      {c.firstName + ' ' + c.lastName}
+                      <span style={{ color: c.doNotContact ? 'var(--text-muted)' : 'inherit', textDecoration: c.doNotContact ? 'line-through' : 'none' }}>
+                        {c.firstName + ' ' + c.lastName}
+                      </span>
+                      {c.doNotContact && <span style={{ marginLeft: 6, fontSize: '14px', cursor: 'help' }} title={`İletişime Geçmeyin: ${c.doNotContactReason}`}>🚫</span>}
                       {c.sehir && <span style={{ display: 'block', fontSize: 11, color: 'var(--text-muted)', marginTop: 2, fontWeight: 500 }}>{c.sehir}</span>}
                     </td>
                     <td>

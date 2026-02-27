@@ -64,6 +64,10 @@ export interface Customer {
   adName?: string;
   assignedSdrId?: string;
 
+  // Task 3 Fields: Do Not Contact
+  doNotContact?: boolean;
+  doNotContactReason?: string;
+
   // Optional fields from Excel import
   sehir?: string;
   danisman?: string;
