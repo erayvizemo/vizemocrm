@@ -26,6 +26,8 @@ interface AppContextType {
   updateCustomer: (id: string, data: Partial<Omit<Customer, 'id' | 'createdAt'>>) => void;
   deleteCustomer: (id: string) => void;
   addRevenue: (data: Omit<RevenueEntry, 'id'>) => void;
+  updateRevenue: (id: string, data: Partial<Omit<RevenueEntry, 'id'>>) => void;
+  deleteRevenue: (id: string) => void;
   toasts: Toast[];
   showToast: (message: string, type?: Toast['type']) => void;
   leodessaLeads: LeodessaLead[];
@@ -157,6 +159,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     showToast(`${data.ad} için gelir kaydı eklendi.`);
   }, [showToast]);
 
+  const updateRevenue = useCallback((id: string, data: Partial<Omit<RevenueEntry, 'id'>>) => {
+    setRevenue(prev => prev.map(r => r.id === id ? { ...r, ...data } : r));
+    showToast('Gelir kaydı güncellendi.');
+  }, [showToast]);
+
+  const deleteRevenue = useCallback((id: string) => {
+    setRevenue(prev => {
+      const entry = prev.find(r => r.id === id);
+      showToast(`${entry?.ad ?? 'Gelir kaydı'} silindi.`, 'info');
+      return prev.filter(r => r.id !== id);
+    });
+  }, [showToast]);
+
   const addLeodessaLead = useCallback((data: Omit<LeodessaLead, 'id' | 'createdAt'>) => {
     const now = new Date().toISOString().substring(0, 10);
     const lead: LeodessaLead = { ...data, id: generateId(), createdAt: now };
@@ -181,7 +196,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       customers, revenue, view, setView,
       modal, openModal, closeModal,
       addCustomer, updateCustomer, deleteCustomer,
-      addRevenue,
+      addRevenue, updateRevenue, deleteRevenue,
       toasts, showToast,
       leodessaLeads, addLeodessaLead, updateLeodessaLead, deleteLeodessaLead,
     }}>

@@ -16,12 +16,13 @@ function fmt(n: number) {
 }
 
 export default function Revenue() {
-  const { revenue, addRevenue } = useApp();
+  const { revenue, addRevenue, updateRevenue, deleteRevenue } = useApp();
   const [filterDanisman, setFilterDanisman] = useState('');
   const [filterSehir, setFilterSehir] = useState('');
   const [sortCol, setSortCol] = useState<'ad' | 'danisman' | 'sehir' | 'toplam' | 'onOdemeTarihi'>('onOdemeTarihi');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editEntryId, setEditEntryId] = useState<string | null>(null);
 
   // Form state
   const emptyForm = {
@@ -131,7 +132,7 @@ export default function Revenue() {
     if (!form.ad.trim()) return;
     const onOdeme = parseFloat(form.onOdeme) || 0;
     const kalanOdeme = parseFloat(form.kalanOdeme) || 0;
-    addRevenue({
+    const data = {
       ad: form.ad.trim(),
       danisman: form.danisman || 'Belirsiz',
       sehir: form.sehir || 'Belirsiz',
@@ -141,10 +142,39 @@ export default function Revenue() {
       kalanTarih: form.kalanTarih || '-',
       kalanOdeme,
       toplam: onOdeme + kalanOdeme,
-    });
+    };
+
+    if (editEntryId) {
+      updateRevenue(editEntryId, data);
+    } else {
+      addRevenue(data);
+    }
+
     setForm(emptyForm);
     setShowAddModal(false);
-  }, [form, addRevenue, emptyForm]);
+    setEditEntryId(null);
+  }, [form, addRevenue, updateRevenue, editEntryId, emptyForm]);
+
+  const handleEdit = (entry: any) => {
+    setEditEntryId(entry.id);
+    setForm({
+      ad: entry.ad,
+      danisman: entry.danisman,
+      sehir: entry.sehir,
+      odemeYontemi: entry.odemeYontemi || '💵 Elden',
+      onOdemeTarihi: entry.onOdemeTarihi,
+      onOdeme: entry.onOdeme.toString(),
+      kalanTarih: entry.kalanTarih === '-' ? '' : entry.kalanTarih,
+      kalanOdeme: entry.kalanOdeme.toString(),
+    });
+    setShowAddModal(true);
+  };
+
+  const handleDelete = (id: string) => {
+    if (window.confirm('Bu gelir kaydını silmek istediğinize emin misiniz?')) {
+      deleteRevenue(id);
+    }
+  };
 
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '10px 14px', background: 'var(--surface2)',
@@ -167,7 +197,11 @@ export default function Revenue() {
           <h2 style={{ fontSize: '1.1rem', fontWeight: 600, color: GOLD }}>Gelir Takibi</h2>
           <span style={{ fontSize: '0.68rem', fontFamily: "'IBM Plex Mono', monospace", color: 'var(--muted)', marginLeft: 4 }}>Şubat 2026</span>
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={() => {
+              setEditEntryId(null);
+              setForm(emptyForm);
+              setShowAddModal(true);
+            }}
             style={{
               marginLeft: 'auto', padding: '8px 18px',
               background: `linear-gradient(135deg, ${GOLD}, #e5b83a)`,
@@ -197,7 +231,10 @@ export default function Revenue() {
             background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}
-          onClick={() => setShowAddModal(false)}
+          onClick={() => {
+            setShowAddModal(false);
+            setEditEntryId(null);
+          }}
         >
           <div
             onClick={e => e.stopPropagation()}
@@ -211,9 +248,14 @@ export default function Revenue() {
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
               <div style={{ width: 8, height: 8, borderRadius: '50%', background: GOLD }} />
-              <h3 style={{ fontSize: '1rem', fontWeight: 600, color: GOLD, margin: 0 }}>Yeni Gelir Kaydı</h3>
+              <h3 style={{ fontSize: '1rem', fontWeight: 600, color: GOLD, margin: 0 }}>
+                {editEntryId ? 'Gelir Kaydını Düzenle' : 'Yeni Gelir Kaydı'}
+              </h3>
               <button
-                onClick={() => setShowAddModal(false)}
+                onClick={() => {
+                  setShowAddModal(false);
+                  setEditEntryId(null);
+                }}
                 style={{ marginLeft: 'auto', background: 'transparent', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '1.2rem' }}
               >
                 ✕
@@ -339,7 +381,10 @@ export default function Revenue() {
             {/* Buttons */}
             <div style={{ display: 'flex', gap: 10 }}>
               <button
-                onClick={() => setShowAddModal(false)}
+                onClick={() => {
+                  setShowAddModal(false);
+                  setEditEntryId(null);
+                }}
                 style={{
                   flex: 1, padding: '11px 0', background: 'var(--surface2)',
                   border: '1px solid var(--border)', borderRadius: 10,
@@ -364,7 +409,7 @@ export default function Revenue() {
                   transition: 'all 0.2s',
                 }}
               >
-                ✓ Gelir Kaydı Ekle
+                ✓ {editEntryId ? 'Güncelle' : 'Gelir Kaydı Ekle'}
               </button>
             </div>
           </div>
@@ -536,12 +581,13 @@ export default function Revenue() {
                 <th style={{ padding: '10px 14px', textAlign: 'left', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--muted)', borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>Kalan Tarih</th>
                 <th style={{ padding: '10px 14px', textAlign: 'right', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--muted)', borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>Kalan</th>
                 <TH col="toplam" label="Toplam" />
+                <th style={{ padding: '10px 14px', textAlign: 'center', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--muted)', borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>İşlem</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={9} style={{ padding: 32, textAlign: 'center', color: 'var(--muted)', fontSize: '0.82rem' }}>Kayıt bulunamadı.</td>
+                  <td colSpan={10} style={{ padding: 32, textAlign: 'center', color: 'var(--muted)', fontSize: '0.82rem' }}>Kayıt bulunamadı.</td>
                 </tr>
               )}
               {filtered.map((r, i) => {
@@ -583,6 +629,34 @@ export default function Revenue() {
                     </td>
                     <td style={{ padding: '10px 14px', textAlign: 'right', fontSize: '0.85rem', fontFamily: "'IBM Plex Mono', monospace", color: GOLD, fontWeight: 700 }}>
                       {fmt(r.toplam)}
+                    </td>
+                    <td style={{ padding: '10px 14px', textAlign: 'center' }}>
+                      <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
+                        <button
+                          onClick={() => handleEdit(r)}
+                          style={{
+                            background: 'rgba(79, 142, 247, 0.1)', border: '1px solid rgba(79, 142, 247, 0.3)',
+                            borderRadius: 6, color: '#4f8ef7', cursor: 'pointer', padding: '4px 8px', fontSize: '0.75rem',
+                            transition: 'all 0.15s'
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(79, 142, 247, 0.2)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(79, 142, 247, 0.1)'; }}
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          onClick={() => handleDelete(r.id)}
+                          style={{
+                            background: 'rgba(224, 92, 92, 0.1)', border: '1px solid rgba(224, 92, 92, 0.3)',
+                            borderRadius: 6, color: '#e05c5c', cursor: 'pointer', padding: '4px 8px', fontSize: '0.75rem',
+                            transition: 'all 0.15s'
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(224, 92, 92, 0.2)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(224, 92, 92, 0.1)'; }}
+                        >
+                          🗑️
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
