@@ -220,3 +220,33 @@ export interface ModalState {
   isOpen: boolean;
   customerId: string | null; // null = new customer
 }
+
+export interface BulkRow {
+  id: string; // uuid
+  firstName: string;
+  lastName: string;
+  telefon: string;
+  email: string;
+  sehir: string;
+  kaynak: string;
+  isValid: boolean;
+}
+
+export interface ColMap {
+  adSoyad: number | null;
+  ad: number | null;
+  soyad: number | null;
+  telefon: number | null;
+  email: number | null;
+  sehir: number | null;
+  kaynak: number | null;
+}
+
+export interface UploadBatch {
+  id: string; // uuid
+  fileName: string;
+  uploadDate: string; // ISO string
+  headers: string[];
+  colMap: ColMap;
+  rows: BulkRow[];
+}

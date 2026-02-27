@@ -1,6 +1,8 @@
 import { useState, useRef, useCallback } from 'react';
 import { useApp } from '../context/AppContext';
 import { services, ServiceKey } from '../data/leodessaServices';
+import { ColMap, BulkRow, UploadBatch } from '../types';
+import { generateId } from '../utils/helpers';
 import * as XLSX from 'xlsx';
 
 const LEODESSA_COLOR = 'var(--accent-secondary)';
@@ -9,16 +11,6 @@ const KAYNAK_LIST = [
   'Meta Ads', 'Google Ads', 'Instagram', 'WhatsApp',
   'Referans', 'Web Site', 'Yüz Yüze', 'Diğer',
 ];
-
-interface ColMap {
-  adSoyad: number | null;
-  ad: number | null;
-  soyad: number | null;
-  telefon: number | null;
-  email: number | null;
-  sehir: number | null;
-  kaynak: number | null;
-}
 
 function detectColMap(headers: string[]): ColMap {
   const map: ColMap = {
@@ -52,17 +44,6 @@ function detectColMap(headers: string[]): ColMap {
   return map;
 }
 
-interface BulkRow {
-  id: number;
-  firstName: string;
-  lastName: string;
-  telefon: string;
-  email: string;
-  sehir: string;
-  kaynak: string;
-  isValid: boolean;
-}
-
 function parseRawRows(data: unknown[][], colMap: ColMap): BulkRow[] {
   const rows: BulkRow[] = [];
   for (let i = 1; i < data.length; i++) {
@@ -88,7 +69,7 @@ function parseRawRows(data: unknown[][], colMap: ColMap): BulkRow[] {
     if (!firstName && !lastName && !telefon && !email) continue;
 
     rows.push({
-      id: i - 1,
+      id: generateId(),
       firstName, lastName, telefon, email, sehir, kaynak,
       isValid: !!(firstName || telefon),
     });
@@ -109,20 +90,18 @@ function downloadTemplate() {
 }
 
 export default function LeodessaUpload() {
-  const { setView, setTrackingTransfer } = useApp();
+  const { setView, setTrackingTransfer, uploadBatches, addUploadBatch, deleteUploadBatch, removeRowFromBatch } = useApp();
 
-  const [bulkRows, setBulkRows] = useState<BulkRow[]>([]);
-  const [bulkHeaders, setBulkHeaders] = useState<string[]>([]);
-  const [bulkColMap, setBulkColMap] = useState<ColMap | null>(null);
-  const [bulkFileName, setBulkFileName] = useState('');
+  const [activeBatchId, setActiveBatchId] = useState<string | null>(null);
   const [bulkService, setBulkService] = useState<ServiceKey>('schengen');
   const [bulkKaynak, setBulkKaynak] = useState('Reklam');
 
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const activeBatch = uploadBatches.find(b => b.id === activeBatchId);
+
   const processFile = useCallback((file: File) => {
-    setBulkFileName(file.name);
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
@@ -135,15 +114,25 @@ export default function LeodessaUpload() {
         }
         const headers = (raw[0] as string[]).map(h => String(h ?? ''));
         const colMap = detectColMap(headers);
-        setBulkHeaders(headers);
-        setBulkColMap(colMap);
-        setBulkRows(parseRawRows(raw as unknown[][], colMap));
+        const rows = parseRawRows(raw as unknown[][], colMap);
+
+        const newBatch: UploadBatch = {
+          id: generateId(),
+          fileName: file.name,
+          uploadDate: new Date().toISOString(),
+          headers,
+          colMap,
+          rows
+        };
+
+        addUploadBatch(newBatch);
+        setActiveBatchId(newBatch.id);
       } catch (err) {
         alert('Dosya okunamadı. Lütfen geçerli bir Excel (.xlsx, .xls) veya CSV dosyası yükleyin.');
       }
     };
     reader.readAsArrayBuffer(file);
-  }, []);
+  }, [addUploadBatch]);
 
   function handleFileDrop(e: React.DragEvent) {
     e.preventDefault();
@@ -158,14 +147,7 @@ export default function LeodessaUpload() {
     e.target.value = '';
   }
 
-  function resetBulk() {
-    setBulkRows([]);
-    setBulkFileName('');
-    setBulkHeaders([]);
-    setBulkColMap(null);
-  }
-
-  function handleTransfer(row: BulkRow) {
+  function handleTransfer(batchId: string, row: BulkRow) {
     const finalKaynak = row.kaynak || bulkKaynak;
     setTrackingTransfer({
       firstName: row.firstName,
@@ -176,184 +158,250 @@ export default function LeodessaUpload() {
       kaynak: finalKaynak,
     });
 
-    // Remove the row from the local view so they don't do it over and over (optional, but requested behavior implied it's a workflow)
-    setBulkRows(prev => prev.filter(r => r.id !== row.id));
-
-    // Jump to tracking wizard
+    // Yükleme sırasında Lead Kalifikasyon sayfasına aktar
+    removeRowFromBatch(batchId, row.id);
     setView('leodessaTracking');
   }
 
   return (
     <div style={{ padding: '32px 32px 64px', minHeight: '100vh', background: 'var(--bg-void)' }}>
-      {/* Header */}
-      <div style={{ marginBottom: 28 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-          <div style={{ width: 12, height: 12, borderRadius: '50%', background: LEODESSA_COLOR, boxShadow: `0 0 12px ${LEODESSA_COLOR}` }} />
-          <h1 style={{ fontSize: '28px', color: LEODESSA_COLOR, margin: 0 }}>Toplu Excel Müşteri Yükleme</h1>
+      <div style={{ marginBottom: 28, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+            <div style={{ width: 12, height: 12, borderRadius: '50%', background: LEODESSA_COLOR, boxShadow: `0 0 12px ${LEODESSA_COLOR}` }} />
+            <h1 style={{ fontSize: '28px', color: LEODESSA_COLOR, margin: 0 }}>Toplu Müşteri Portföyü</h1>
+          </div>
+          <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontFamily: "'DM Sans', sans-serif", maxWidth: 640 }}>
+            Excel dosyası yükleyerek müşterileri havuza atın. İstediğiniz zaman ilgili dosyadan müşteriyi kalifikasyona yönlendirebilirsiniz.
+          </div>
         </div>
-        <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontFamily: "'DM Sans', sans-serif", maxWidth: 640 }}>
-          Leodessa havuzunda kalifikasyona girmesi gereken Excel listelerini yükleyebilir ve sırayla kalifikasyon işlemlerini yapabilirsiniz.
-        </div>
+        {activeBatchId && (
+          <button
+            onClick={() => setActiveBatchId(null)}
+            style={{ padding: '10px 20px', borderRadius: 10, background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', cursor: 'pointer', fontWeight: 600, fontSize: '14px' }}>
+            ← Klasörlere Geri Dön
+          </button>
+        )}
       </div>
 
       <div style={{ maxWidth: 1200 }}>
-        {bulkRows.length === 0 && (
-          <div
-            onDragOver={e => { e.preventDefault(); setIsDragOver(true); }}
-            onDragLeave={() => setIsDragOver(false)}
-            onDrop={handleFileDrop}
-            onClick={() => fileInputRef.current?.click()}
-            style={{
-              border: `2px dashed ${isDragOver ? LEODESSA_COLOR : 'rgba(139,92,246,0.3)'}`,
-              borderRadius: 20,
-              padding: '64px 40px',
-              textAlign: 'center',
-              cursor: 'pointer',
-              background: isDragOver ? 'rgba(139,92,246,0.06)' : 'var(--bg-card)',
-              transition: 'all 0.2s ease',
-              marginBottom: 24,
-            }}
-          >
-            <div style={{ fontSize: '60px', marginBottom: 16, lineHeight: 1 }}>📊</div>
-            <div style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8, fontFamily: "'Syne', sans-serif" }}>
-              Excel veya CSV dosyasını buraya sürükleyin
-            </div>
-            <div style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: 28 }}>
-              Tavsiye edilen sütunlar: Ad, Soyad, Telefon, E-posta, Şehir, Kaynak
-            </div>
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <button
-                onClick={e => { e.stopPropagation(); fileInputRef.current?.click(); }}
-                style={{ padding: '13px 32px', borderRadius: 12, background: `linear-gradient(135deg, ${LEODESSA_COLOR}, #6366F1)`, border: 'none', color: '#fff', cursor: 'pointer', fontWeight: 700, fontSize: '15px', boxShadow: '0 4px 20px rgba(168,85,247,0.3)' }}>
-                📁 Dosya Seç
-              </button>
-              <button
-                onClick={e => { e.stopPropagation(); downloadTemplate(); }}
-                style={{ padding: '13px 32px', borderRadius: 12, background: 'transparent', border: `1px solid ${LEODESSA_COLOR}40`, color: LEODESSA_COLOR, cursor: 'pointer', fontWeight: 600, fontSize: '15px' }}>
-                ⬇️ Excel Şablonu İndir
-              </button>
-            </div>
-            <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" onChange={handleFileInput} style={{ display: 'none' }} />
-          </div>
-        )}
-
-        {bulkRows.length > 0 && (
+        {!activeBatchId ? (
           <>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20, padding: '12px 20px', background: 'rgba(139,92,246,0.06)', borderRadius: 14, border: '1px solid rgba(139,92,246,0.15)' }}>
-              <span style={{ fontSize: '22px' }}>📄</span>
-              <div>
-                <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>{bulkFileName}</div>
-                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                  {bulkRows.length} satır eklendi
-                </div>
+            <div
+              onDragOver={e => { e.preventDefault(); setIsDragOver(true); }}
+              onDragLeave={() => setIsDragOver(false)}
+              onDrop={handleFileDrop}
+              onClick={() => fileInputRef.current?.click()}
+              style={{
+                border: `2px dashed ${isDragOver ? LEODESSA_COLOR : 'rgba(139,92,246,0.3)'}`,
+                borderRadius: 20,
+                padding: '48px 40px',
+                textAlign: 'center',
+                cursor: 'pointer',
+                background: isDragOver ? 'rgba(139,92,246,0.06)' : 'var(--bg-card)',
+                transition: 'all 0.2s ease',
+                marginBottom: 32,
+              }}
+            >
+              <div style={{ fontSize: '48px', marginBottom: 16, lineHeight: 1 }}>�</div>
+              <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8, fontFamily: "'Syne', sans-serif" }}>
+                Yeni Excel/CSV Yükle
               </div>
-              <button
-                onClick={() => { resetBulk(); setTimeout(() => fileInputRef.current?.click(), 50); }}
-                style={{ marginLeft: 'auto', padding: '6px 16px', borderRadius: 8, background: 'transparent', border: '1px solid var(--border-subtle)', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '12px', fontWeight: 600 }}>
-                🔄 Dosyayı Değiştir
-              </button>
+              <div style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: 24 }}>
+                Dosya sistemi otomatik olarak algılayıp yeni klasör oluşturacaktır
+              </div>
+              <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+                <button
+                  onClick={e => { e.stopPropagation(); fileInputRef.current?.click(); }}
+                  style={{ padding: '12px 28px', borderRadius: 12, background: `linear-gradient(135deg, ${LEODESSA_COLOR}, #6366F1)`, border: 'none', color: '#fff', cursor: 'pointer', fontWeight: 700, fontSize: '14px', boxShadow: '0 4px 20px rgba(168,85,247,0.3)' }}>
+                  Yükle
+                </button>
+                <button
+                  onClick={e => { e.stopPropagation(); downloadTemplate(); }}
+                  style={{ padding: '12px 28px', borderRadius: 12, background: 'transparent', border: `1px solid ${LEODESSA_COLOR}40`, color: LEODESSA_COLOR, cursor: 'pointer', fontWeight: 600, fontSize: '14px' }}>
+                  Şablon İndir
+                </button>
+              </div>
               <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" onChange={handleFileInput} style={{ display: 'none' }} />
             </div>
 
-            {bulkColMap && (
-              <div style={{ marginBottom: 20, padding: '16px 20px', background: 'var(--bg-card)', borderRadius: 14, border: '1px solid var(--border-subtle)' }}>
-                <div style={{ fontSize: '11px', color: LEODESSA_COLOR, fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', fontWeight: 700, marginBottom: 12, letterSpacing: '0.06em' }}>
-                  Algılanan Sütunlar
-                </div>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  {([
-                    { key: 'adSoyad', label: 'Ad Soyad', col: bulkColMap.adSoyad },
-                    { key: 'ad', label: 'Ad', col: bulkColMap.ad },
-                    { key: 'soyad', label: 'Soyad', col: bulkColMap.soyad },
-                    { key: 'telefon', label: 'Telefon', col: bulkColMap.telefon },
-                    { key: 'email', label: 'E-posta', col: bulkColMap.email },
-                    { key: 'sehir', label: 'Şehir', col: bulkColMap.sehir },
-                    { key: 'kaynak', label: 'Kaynak', col: bulkColMap.kaynak },
-                  ] as { key: string; label: string; col: number | null }[]).map(item => (
-                    <div key={item.key} style={{
-                      padding: '4px 12px', borderRadius: 20, fontSize: '12px', fontWeight: 600,
-                      background: item.col !== null ? 'rgba(16,185,129,0.08)' : 'rgba(100,116,139,0.08)',
-                      color: item.col !== null ? 'var(--accent-emerald)' : 'var(--text-muted)',
-                      border: `1px solid ${item.col !== null ? 'rgba(16,185,129,0.2)' : 'rgba(100,116,139,0.15)'}`,
+            {uploadBatches.length > 0 ? (
+              <div>
+                <h3 style={{ fontSize: '18px', color: 'var(--text-primary)', marginBottom: 16, fontFamily: "'Syne', sans-serif" }}>Yüklü Müşteri Klasörleri</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
+                  {uploadBatches.map(batch => (
+                    <div key={batch.id} style={{
+                      background: 'var(--bg-card)',
+                      border: '1px solid var(--border-subtle)',
+                      borderRadius: 16,
+                      padding: '20px',
+                      display: 'flex', flexDirection: 'column', gap: 16,
+                      transition: 'transform 0.2s',
                     }}>
-                      {item.col !== null ? '✓' : '—'} {item.label}
-                      {item.col !== null && bulkHeaders[item.col] && (
-                        <span style={{ opacity: 0.7, fontWeight: 400, marginLeft: 4 }}>({bulkHeaders[item.col]})</span>
-                      )}
+                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <div style={{ fontSize: '28px' }}>�</div>
+                          <div>
+                            <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>{batch.fileName}</div>
+                            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                              {new Date(batch.uploadDate).toLocaleString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={e => { e.stopPropagation(); deleteUploadBatch(batch.id); }}
+                          style={{ padding: '4px', background: 'transparent', border: 'none', color: 'var(--accent-rose)', cursor: 'pointer', fontSize: '16px' }}
+                          title="Klasörü Sil"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: 16, borderTop: '1px solid var(--border-subtle)' }}>
+                        <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                          <span style={{ color: LEODESSA_COLOR }}>{batch.rows.length}</span> Bekleyen Lead
+                        </div>
+                        <button
+                          onClick={() => setActiveBatchId(batch.id)}
+                          style={{
+                            padding: '8px 16px', borderRadius: 8, background: 'rgba(139,92,246,0.1)', color: LEODESSA_COLOR,
+                            border: '1px solid rgba(139,92,246,0.2)', fontSize: '13px', fontWeight: 700, cursor: 'pointer'
+                          }}
+                        >
+                          İncele →
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
+                Henüz yüklenmiş bir dosya bulunmuyor.
+              </div>
             )}
-
-            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 16, padding: '20px 24px', marginBottom: 24, display: 'flex', gap: 16 }}>
-              <div style={{ flex: 1 }}>
-                <label style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', marginBottom: 4, textTransform: 'uppercase' }}>Hizmet Türü (Kalifikasyon Menüsü İçin)</label>
-                <select className="form-input" value={bulkService} onChange={e => setBulkService(e.target.value as ServiceKey)}>
-                  {(Object.keys(services) as ServiceKey[]).map(key => (
-                    <option key={key} value={key}>{services[key].icon} {services[key].name}</option>
-                  ))}
-                </select>
+          </>
+        ) : (
+          activeBatch && (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20, padding: '12px 20px', background: 'rgba(139,92,246,0.06)', borderRadius: 14, border: '1px solid rgba(139,92,246,0.15)' }}>
+                <span style={{ fontSize: '22px' }}>📂</span>
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>{activeBatch.fileName}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                    {new Date(activeBatch.uploadDate).toLocaleString('tr-TR')} • {activeBatch.rows.length} satır
+                  </div>
+                </div>
               </div>
-              <div style={{ flex: 1 }}>
-                <label style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', marginBottom: 4, textTransform: 'uppercase' }}>Varsayılan Kaynak (Excel'de bulunamazsa)</label>
-                <select className="form-input" value={bulkKaynak} onChange={e => setBulkKaynak(e.target.value)}>
-                  {KAYNAK_LIST.map(k => <option key={k}>{k}</option>)}
-                </select>
+
+              {activeBatch.colMap && (
+                <div style={{ marginBottom: 20, padding: '16px 20px', background: 'var(--bg-card)', borderRadius: 14, border: '1px solid var(--border-subtle)' }}>
+                  <div style={{ fontSize: '11px', color: LEODESSA_COLOR, fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', fontWeight: 700, marginBottom: 12, letterSpacing: '0.06em' }}>
+                    Sütun Eşleşmeleri
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    {([
+                      { key: 'adSoyad', label: 'Ad Soyad', col: activeBatch.colMap.adSoyad },
+                      { key: 'ad', label: 'Ad', col: activeBatch.colMap.ad },
+                      { key: 'soyad', label: 'Soyad', col: activeBatch.colMap.soyad },
+                      { key: 'telefon', label: 'Telefon', col: activeBatch.colMap.telefon },
+                      { key: 'email', label: 'E-posta', col: activeBatch.colMap.email },
+                      { key: 'sehir', label: 'Şehir', col: activeBatch.colMap.sehir },
+                      { key: 'kaynak', label: 'Kaynak', col: activeBatch.colMap.kaynak },
+                    ] as { key: string; label: string; col: number | null }[]).map(item => (
+                      <div key={item.key} style={{
+                        padding: '4px 12px', borderRadius: 20, fontSize: '12px', fontWeight: 600,
+                        background: item.col !== null ? 'rgba(16,185,129,0.08)' : 'rgba(100,116,139,0.08)',
+                        color: item.col !== null ? 'var(--accent-emerald)' : 'var(--text-muted)',
+                        border: `1px solid ${item.col !== null ? 'rgba(16,185,129,0.2)' : 'rgba(100,116,139,0.15)'}`,
+                      }}>
+                        {item.col !== null ? '✓' : '—'} {item.label}
+                        {item.col !== null && activeBatch.headers[item.col] && (
+                          <span style={{ opacity: 0.7, fontWeight: 400, marginLeft: 4 }}>({activeBatch.headers[item.col]})</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 16, padding: '20px 24px', marginBottom: 24, display: 'flex', gap: 16 }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', marginBottom: 4, textTransform: 'uppercase' }}>Hizmet Türü (Kalifikasyon Menüsü İçin)</label>
+                  <select className="form-input" value={bulkService} onChange={e => setBulkService(e.target.value as ServiceKey)}>
+                    {(Object.keys(services) as ServiceKey[]).map(key => (
+                      <option key={key} value={key}>{services[key].icon} {services[key].name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', marginBottom: 4, textTransform: 'uppercase' }}>Varsayılan Kaynak (Excel'de bulunamazsa)</label>
+                  <select className="form-input" value={bulkKaynak} onChange={e => setBulkKaynak(e.target.value)}>
+                    {KAYNAK_LIST.map(k => <option key={k}>{k}</option>)}
+                  </select>
+                </div>
               </div>
-            </div>
 
-            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 16, overflow: 'hidden', marginBottom: 24 }}>
-              <div style={{ overflowX: 'auto', maxHeight: 800, overflowY: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                  <thead>
-                    <tr style={{ background: 'var(--bg-elevated)' }}>
-                      <th style={{ padding: '10px 14px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, position: 'sticky', top: 0, background: 'var(--bg-elevated)' }}>#</th>
-                      <th style={{ padding: '10px 14px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, position: 'sticky', top: 0, background: 'var(--bg-elevated)' }}>Müşteri</th>
-                      <th style={{ padding: '10px 14px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, position: 'sticky', top: 0, background: 'var(--bg-elevated)' }}>İletişim</th>
-                      <th style={{ padding: '10px 14px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, position: 'sticky', top: 0, background: 'var(--bg-elevated)' }}>Şehir</th>
-                      <th style={{ padding: '10px 14px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, position: 'sticky', top: 0, background: 'var(--bg-elevated)' }}>Kaynak</th>
-                      <th style={{ padding: '10px 14px', textAlign: 'right', color: 'var(--text-muted)', fontWeight: 600, position: 'sticky', top: 0, background: 'var(--bg-elevated)' }}>İşlem</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {bulkRows.map((row, i) => {
-                      const effectiveKaynak = row.kaynak || bulkKaynak;
-
-                      return (
-                        <tr key={row.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                          <td style={{ padding: '12px 14px', color: 'var(--text-muted)' }}>{i + 1}</td>
-                          <td style={{ padding: '12px 14px', fontWeight: 600 }}>{row.firstName} {row.lastName}</td>
-                          <td style={{ padding: '12px 14px' }}>
-                            <div style={{ color: 'var(--text-primary)' }}>{row.telefon || '—'}</div>
-                            {row.email && <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{row.email}</div>}
-                          </td>
-                          <td style={{ padding: '12px 14px', color: 'var(--text-secondary)' }}>{row.sehir || '—'}</td>
-                          <td style={{ padding: '12px 14px' }}>
-                            <span style={{ padding: '2px 8px', borderRadius: 10, background: 'rgba(139,92,246,0.08)', color: LEODESSA_COLOR, fontSize: '11px' }}>
-                              {effectiveKaynak}
-                            </span>
-                          </td>
-                          <td style={{ padding: '12px 14px', textAlign: 'right' }}>
-                            <button
-                              onClick={() => handleTransfer(row)}
-                              style={{
-                                padding: '8px 16px', borderRadius: 8, background: `linear-gradient(135deg, ${LEODESSA_COLOR}, #8B5CF6)`,
-                                color: '#fff', fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer',
-                                boxShadow: '0 2px 8px rgba(139,92,246,0.3)',
-                              }}
-                            >
-                              🚀 Kalifikasyona Aktar
-                            </button>
+              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 16, overflow: 'hidden', marginBottom: 24 }}>
+                <div style={{ overflowX: 'auto', maxHeight: 800, overflowY: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                    <thead>
+                      <tr style={{ background: 'var(--bg-elevated)' }}>
+                        <th style={{ padding: '10px 14px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, position: 'sticky', top: 0, background: 'var(--bg-elevated)' }}>#</th>
+                        <th style={{ padding: '10px 14px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, position: 'sticky', top: 0, background: 'var(--bg-elevated)' }}>Müşteri</th>
+                        <th style={{ padding: '10px 14px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, position: 'sticky', top: 0, background: 'var(--bg-elevated)' }}>İletişim</th>
+                        <th style={{ padding: '10px 14px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, position: 'sticky', top: 0, background: 'var(--bg-elevated)' }}>Şehir</th>
+                        <th style={{ padding: '10px 14px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, position: 'sticky', top: 0, background: 'var(--bg-elevated)' }}>Kaynak</th>
+                        <th style={{ padding: '10px 14px', textAlign: 'right', color: 'var(--text-muted)', fontWeight: 600, position: 'sticky', top: 0, background: 'var(--bg-elevated)' }}>İşlem</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {activeBatch.rows.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                            Bu klasörde işlem yapılacak müşteri kalmadı.
                           </td>
                         </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                      ) : (
+                        activeBatch.rows.map((row, i) => {
+                          const effectiveKaynak = row.kaynak || bulkKaynak;
+
+                          return (
+                            <tr key={row.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                              <td style={{ padding: '12px 14px', color: 'var(--text-muted)' }}>{i + 1}</td>
+                              <td style={{ padding: '12px 14px', fontWeight: 600 }}>{row.firstName} {row.lastName}</td>
+                              <td style={{ padding: '12px 14px' }}>
+                                <div style={{ color: 'var(--text-primary)' }}>{row.telefon || '—'}</div>
+                                {row.email && <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{row.email}</div>}
+                              </td>
+                              <td style={{ padding: '12px 14px', color: 'var(--text-secondary)' }}>{row.sehir || '—'}</td>
+                              <td style={{ padding: '12px 14px' }}>
+                                <span style={{ padding: '2px 8px', borderRadius: 10, background: 'rgba(139,92,246,0.08)', color: LEODESSA_COLOR, fontSize: '11px' }}>
+                                  {effectiveKaynak}
+                                </span>
+                              </td>
+                              <td style={{ padding: '12px 14px', textAlign: 'right' }}>
+                                <button
+                                  onClick={() => handleTransfer(activeBatch.id, row)}
+                                  style={{
+                                    padding: '8px 16px', borderRadius: 8, background: `linear-gradient(135deg, ${LEODESSA_COLOR}, #8B5CF6)`,
+                                    color: '#fff', fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer',
+                                    boxShadow: '0 2px 8px rgba(139,92,246,0.3)',
+                                  }}
+                                >
+                                  🚀 Kalifikasyona Aktar
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
-          </>
+            </>
+          )
         )}
       </div>
     </div>

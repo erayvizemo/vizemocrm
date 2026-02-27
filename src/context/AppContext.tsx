@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { Customer, ModalState, ViewType, LeodessaLead, User, LeadTask } from '../types';
+import { Customer, ModalState, ViewType, LeodessaLead, User, LeadTask, UploadBatch } from '../types';
 import { allImportedCustomers, revenueData as importedRevenue, RevenueEntry } from '../data/importedData';
 import { generateId } from '../utils/helpers';
 import { sendToGoogleSheets } from '../services/googleSheets';
@@ -43,6 +43,10 @@ interface AppContextType {
   addTask: (customerId: string, task: LeadTask) => void;
   updateTask: (customerId: string, taskId: string, data: Partial<LeadTask>) => void;
   deleteTask: (customerId: string, taskId: string) => void;
+  uploadBatches: UploadBatch[];
+  addUploadBatch: (batch: UploadBatch) => void;
+  deleteUploadBatch: (batchId: string) => void;
+  removeRowFromBatch: (batchId: string, rowId: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -103,6 +107,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return [];
   });
 
+  const [uploadBatches, setUploadBatches] = useState<UploadBatch[]>(() => {
+    try {
+      const saved = localStorage.getItem('vizemo_upload_batches');
+      if (saved) return JSON.parse(saved) as UploadBatch[];
+    } catch { /* ignore */ }
+    return [];
+  });
+
   useEffect(() => {
     localStorage.setItem('vizemo_customers', JSON.stringify(customers));
   }, [customers]);
@@ -114,6 +126,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     localStorage.setItem('vizemo_leodessa_leads', JSON.stringify(leodessaLeads));
   }, [leodessaLeads]);
+
+  useEffect(() => {
+    localStorage.setItem('vizemo_upload_batches', JSON.stringify(uploadBatches));
+  }, [uploadBatches]);
 
   const openModal = useCallback((customerId?: string) => {
     setModal({ isOpen: true, customerId: customerId ?? null });
@@ -258,6 +274,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     showToast('Task silindi.', 'info');
   }, [showToast]);
 
+  const addUploadBatch = useCallback((batch: UploadBatch) => {
+    setUploadBatches(prev => [batch, ...prev]);
+    showToast(`${batch.fileName} yüklendi.`);
+  }, [showToast]);
+
+  const deleteUploadBatch = useCallback((batchId: string) => {
+    setUploadBatches(prev => prev.filter(b => b.id !== batchId));
+    showToast('Yükleme silindi.', 'info');
+  }, [showToast]);
+
+  const removeRowFromBatch = useCallback((batchId: string, rowId: string) => {
+    setUploadBatches(prev => prev.map(b => b.id === batchId ? { ...b, rows: b.rows.filter(r => r.id !== rowId) } : b));
+  }, []);
+
   return (
     <AppContext.Provider value={{
       customers, revenue, view, setView,
@@ -269,6 +299,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       leodessaLeads, addLeodessaLead, updateLeodessaLead, deleteLeodessaLead,
       users, currentUser, setCurrentUser, assignSdrToCustomer,
       addTask, updateTask, deleteTask,
+      uploadBatches, addUploadBatch, deleteUploadBatch, removeRowFromBatch,
     }}>
       {children}
     </AppContext.Provider>
