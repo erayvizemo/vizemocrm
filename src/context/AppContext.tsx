@@ -21,6 +21,8 @@ interface AppContextType {
   modal: ModalState;
   openModal: (customerId?: string) => void;
   closeModal: () => void;
+  trackingTransfer: any;
+  setTrackingTransfer: (data: any) => void;
   addCustomer: (data: Omit<Customer, 'id' | 'createdAt' | 'updatedAt'>) => void;
   updateCustomer: (id: string, data: Partial<Omit<Customer, 'id' | 'createdAt'>>) => void;
   deleteCustomer: (id: string) => void;
@@ -88,6 +90,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [view, setView] = useState<ViewType>('dashboard');
   const [modal, setModal] = useState<ModalState>({ isOpen: false, customerId: null });
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [trackingTransfer, setTrackingTransfer] = useState<any>(null);
 
   const [users] = useState<User[]>(FAKE_USERS);
   const [currentUser, setCurrentUser] = useState<User | null>(FAKE_USERS[1]); // Default to 'Eray' (sdr)
@@ -259,6 +262,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     <AppContext.Provider value={{
       customers, revenue, view, setView,
       modal, openModal, closeModal,
+      trackingTransfer, setTrackingTransfer,
       addCustomer, updateCustomer, deleteCustomer, bulkDeleteCustomers,
       addRevenue, updateRevenue, deleteRevenue,
       toasts, showToast,

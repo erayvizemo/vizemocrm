@@ -1,20 +1,20 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { services, ServiceKey } from '../data/leodessaServices';
 
 const LEODESSA_COLOR = 'var(--accent-secondary)';
 
 const SEHIR_LIST = [
-  "Adana","Adıyaman","Afyonkarahisar","Ağrı","Amasya","Ankara","Antalya","Artvin",
-  "Aydın","Balıkesir","Bilecik","Bingöl","Bitlis","Bolu","Burdur","Bursa",
-  "Çanakkale","Çankırı","Çorum","Denizli","Diyarbakır","Edirne","Elazığ","Erzincan",
-  "Erzurum","Eskişehir","Gaziantep","Giresun","Gümüşhane","Hakkari","Hatay","Isparta",
-  "Mersin","İstanbul","İzmir","Kars","Kastamonu","Kayseri","Kırklareli","Kırşehir",
-  "Kocaeli","Konya","Kütahya","Malatya","Manisa","Kahramanmaraş","Mardin","Muğla",
-  "Muş","Nevşehir","Niğde","Ordu","Rize","Sakarya","Samsun","Siirt","Sinop","Sivas",
-  "Tekirdağ","Tokat","Trabzon","Tunceli","Şanlıurfa","Uşak","Van","Yozgat","Zonguldak",
-  "Aksaray","Bayburt","Karaman","Kırıkkale","Batman","Şırnak","Bartın","Ardahan",
-  "Iğdır","Yalova","Karabük","Kilis","Osmaniye","Düzce","Yurt Dışı","Diğer",
+  "Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Amasya", "Ankara", "Antalya", "Artvin",
+  "Aydın", "Balıkesir", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa",
+  "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Edirne", "Elazığ", "Erzincan",
+  "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Isparta",
+  "Mersin", "İstanbul", "İzmir", "Kars", "Kastamonu", "Kayseri", "Kırklareli", "Kırşehir",
+  "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Kahramanmaraş", "Mardin", "Muğla",
+  "Muş", "Nevşehir", "Niğde", "Ordu", "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas",
+  "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Şanlıurfa", "Uşak", "Van", "Yozgat", "Zonguldak",
+  "Aksaray", "Bayburt", "Karaman", "Kırıkkale", "Batman", "Şırnak", "Bartın", "Ardahan",
+  "Iğdır", "Yalova", "Karabük", "Kilis", "Osmaniye", "Düzce", "Yurt Dışı", "Diğer",
 ];
 
 function getTemperatureInfo(score: number, disq: boolean) {
@@ -67,7 +67,7 @@ const alertColors: Record<string, { bg: string; border: string; color: string }>
 };
 
 export default function LeodessaTracking() {
-  const { addLeodessaLead, setView } = useApp();
+  const { addLeodessaLead, setView, trackingTransfer, setTrackingTransfer } = useApp();
 
   // ── Lead identity (persistent across service changes) ──
   const [leadFirstName, setLeadFirstName] = useState('');
@@ -75,6 +75,20 @@ export default function LeodessaTracking() {
   const [leadSehir, setLeadSehir] = useState('');
   const [leadTel, setLeadTel] = useState('');
   const [leadEmail, setLeadEmail] = useState('');
+  const [leadKaynak, setLeadKaynak] = useState('Reklam');
+
+  useEffect(() => {
+    if (trackingTransfer) {
+      setLeadFirstName(trackingTransfer.firstName || '');
+      setLeadLastName(trackingTransfer.lastName || '');
+      setLeadTel(trackingTransfer.telefon || '');
+      setLeadEmail(trackingTransfer.email || '');
+      setLeadSehir(trackingTransfer.sehir || '');
+      setLeadKaynak(trackingTransfer.kaynak || 'Reklam');
+      setTrackingTransfer(null);
+    }
+  }, [trackingTransfer, setTrackingTransfer]);
+
   // Computed full name for display
   const leadAd = [leadFirstName, leadLastName].filter(Boolean).join(' ');
 
@@ -230,6 +244,8 @@ export default function LeodessaTracking() {
       summaryText: buildSummaryText(),
       status: 'new',
       crmTransferred: false,
+      kaynak: leadKaynak,
+      sehir: leadSehir,
     });
     setShowTransfer(false);
     setView('sdrDashboard');
