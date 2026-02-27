@@ -4,6 +4,19 @@ import { services, ServiceKey } from '../data/leodessaServices';
 
 const LEODESSA_COLOR = 'var(--accent-secondary)';
 
+const SEHIR_LIST = [
+  "Adana","Adıyaman","Afyonkarahisar","Ağrı","Amasya","Ankara","Antalya","Artvin",
+  "Aydın","Balıkesir","Bilecik","Bingöl","Bitlis","Bolu","Burdur","Bursa",
+  "Çanakkale","Çankırı","Çorum","Denizli","Diyarbakır","Edirne","Elazığ","Erzincan",
+  "Erzurum","Eskişehir","Gaziantep","Giresun","Gümüşhane","Hakkari","Hatay","Isparta",
+  "Mersin","İstanbul","İzmir","Kars","Kastamonu","Kayseri","Kırklareli","Kırşehir",
+  "Kocaeli","Konya","Kütahya","Malatya","Manisa","Kahramanmaraş","Mardin","Muğla",
+  "Muş","Nevşehir","Niğde","Ordu","Rize","Sakarya","Samsun","Siirt","Sinop","Sivas",
+  "Tekirdağ","Tokat","Trabzon","Tunceli","Şanlıurfa","Uşak","Van","Yozgat","Zonguldak",
+  "Aksaray","Bayburt","Karaman","Kırıkkale","Batman","Şırnak","Bartın","Ardahan",
+  "Iğdır","Yalova","Karabük","Kilis","Osmaniye","Düzce","Yurt Dışı","Diğer",
+];
+
 function getTemperatureInfo(score: number, disq: boolean) {
   if (disq) return { label: '❌ Diskalifiye', color: 'var(--accent-rose)', scoreDisplay: '✗' };
   if (score >= 70) return { label: '🔥 Çok Sıcak Lead', color: 'var(--accent-emerald)', scoreDisplay: String(score) };
@@ -57,9 +70,13 @@ export default function LeodessaTracking() {
   const { addLeodessaLead, setView } = useApp();
 
   // ── Lead identity (persistent across service changes) ──
-  const [leadAd, setLeadAd] = useState('');
+  const [leadFirstName, setLeadFirstName] = useState('');
+  const [leadLastName, setLeadLastName] = useState('');
+  const [leadSehir, setLeadSehir] = useState('');
   const [leadTel, setLeadTel] = useState('');
   const [leadEmail, setLeadEmail] = useState('');
+  // Computed full name for display
+  const leadAd = [leadFirstName, leadLastName].filter(Boolean).join(' ');
 
   // ── Wizard state ──
   const [curSvc, setCurSvc] = useState<ServiceKey>('schengen');
@@ -130,7 +147,7 @@ export default function LeodessaTracking() {
 
   function handleNext() {
     if (isIntro) {
-      if (!leadAd.trim() || !leadTel.trim()) return;
+      if (!leadFirstName.trim() || !leadTel.trim()) return;
       setCurStep(0);
       return;
     }
@@ -150,7 +167,9 @@ export default function LeodessaTracking() {
     setNotes({});
     setTextAns({});
     setOpenNotes({});
-    setLeadAd('');
+    setLeadFirstName('');
+    setLeadLastName('');
+    setLeadSehir('');
     setLeadTel('');
     setLeadEmail('');
   }
@@ -164,7 +183,7 @@ export default function LeodessaTracking() {
     let text = `=== VİZEMO LEAD ÖZET — ${svc.name} ===\n`;
     text += `Tarih: ${new Date().toLocaleDateString('tr-TR')} ${new Date().toLocaleTimeString('tr-TR')}\n`;
     text += `Lead Skoru: ${score} — ${tempInfo.label}\n`;
-    text += `Müşteri: ${leadAd} | ${leadTel}${leadEmail ? ` | ${leadEmail}` : ''}\n\n`;
+    text += `Müşteri: ${leadAd} | ${leadTel}${leadEmail ? ` | ${leadEmail}` : ''}${leadSehir ? ` | ${leadSehir}` : ''}\n\n`;
     svc.steps.forEach(st => st.questions.forEach(q => {
       if (q.type === 'textarea') {
         const t = textAns[q.id];
@@ -185,7 +204,7 @@ export default function LeodessaTracking() {
   }
 
   function openTransferModal() {
-    setTAd(leadAd);
+    setTAd(leadAd); // combined first + last name
     setTTel(leadTel);
     setTEmail(leadEmail);
     setShowTransfer(true);
@@ -193,9 +212,10 @@ export default function LeodessaTracking() {
 
   function handleTransferSubmit() {
     if (!tAd.trim() || !tTel.trim()) return;
+    const nameParts = tAd.trim().split(' ');
     addLeodessaLead({
-      firstName: tAd.trim().split(' ')[0] || '',
-      lastName: tAd.trim().split(' ').slice(1).join(' ') || '',
+      firstName: nameParts[0] || '',
+      lastName: nameParts.slice(1).join(' ') || '',
       telefon: tTel.trim(),
       email: tEmail.trim(),
       service: curSvc,
@@ -228,7 +248,7 @@ export default function LeodessaTracking() {
         {/* Branding */}
         <div style={{ marginBottom: 32, paddingBottom: 24, borderBottom: '1px solid var(--border-subtle)' }}>
           <div style={{ fontSize: '12px', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.12em', color: LEODESSA_COLOR, fontWeight: 800, marginBottom: 6 }}>
-            ✈ LEODESSA ASİSTAN
+            ✈ AYŞE & ORTAKLARI ASİSTAN
           </div>
           <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Müşteri Kalifikasyon Akışı</div>
         </div>
@@ -260,12 +280,13 @@ export default function LeodessaTracking() {
         </div>
 
         {/* Customer info summary (shown once filled) */}
-        {(leadAd || leadTel) && (
+        {(leadFirstName || leadTel) && (
           <div style={{ padding: '16px', background: 'rgba(139, 92, 246, 0.05)', borderRadius: 12, border: `1px solid rgba(139, 92, 246, 0.2)`, marginBottom: 16 }}>
             <div style={{ fontSize: '10px', color: LEODESSA_COLOR, fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, fontWeight: 700 }}>
               👤 Müşteri Kimliği
             </div>
-            {leadAd && <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>{leadAd}</div>}
+            {leadAd && <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>{leadAd}</div>}
+            {leadSehir && <div style={{ fontSize: '12px', color: LEODESSA_COLOR, fontFamily: "'Syne', sans-serif", marginBottom: 2 }}>📍 {leadSehir}</div>}
             {leadTel && <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: "'Syne', sans-serif" }}>{leadTel}</div>}
           </div>
         )}
@@ -297,9 +318,9 @@ export default function LeodessaTracking() {
     );
   }
 
-  // ─── Intro step (step -1): collect Ad Soyad + Telefon ───
+  // ─── Intro step (step -1): collect Ad + Soyad + Şehir + Telefon ───
   function renderIntroStep() {
-    const canProceed = leadAd.trim().length > 0 && leadTel.trim().length > 0;
+    const canProceed = leadFirstName.trim().length > 0 && leadTel.trim().length > 0;
     return (
       <div style={{ maxWidth: 640, margin: '0 auto', paddingTop: 32 }}>
         {/* Header */}
@@ -329,19 +350,57 @@ export default function LeodessaTracking() {
             Müşteri Kimlik Detayları
           </div>
 
+          {/* Datalist for şehir autocomplete */}
+          <datalist id="sehir-datalist">
+            {SEHIR_LIST.map(s => <option key={s} value={s} />)}
+          </datalist>
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            {/* Ad Soyad */}
+            {/* Ad + Soyad yan yana */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div>
+                <label className="form-label">
+                  Ad <span style={{ color: 'var(--accent-rose)' }}>*</span>
+                </label>
+                <input
+                  className="form-input"
+                  value={leadFirstName}
+                  onChange={e => setLeadFirstName(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter' && leadFirstName.trim()) (document.getElementById('intro-lastname') as HTMLInputElement)?.focus(); }}
+                  placeholder="Örn: Ayşe"
+                  autoFocus
+                  style={{ fontSize: '16px', padding: '12px 16px' }}
+                />
+              </div>
+              <div>
+                <label className="form-label">
+                  Soyad <span style={{ color: 'var(--text-muted)' }}>(isteğe bağlı)</span>
+                </label>
+                <input
+                  id="intro-lastname"
+                  className="form-input"
+                  value={leadLastName}
+                  onChange={e => setLeadLastName(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') (document.getElementById('intro-sehir') as HTMLInputElement)?.focus(); }}
+                  placeholder="Örn: Yılmaz"
+                  style={{ fontSize: '16px', padding: '12px 16px' }}
+                />
+              </div>
+            </div>
+
+            {/* Şehir (autocomplete) */}
             <div>
               <label className="form-label">
-                Ad Soyad <span style={{ color: 'var(--accent-rose)' }}>*</span>
+                Şehir <span style={{ color: 'var(--text-muted)' }}>(isteğe bağlı)</span>
               </label>
               <input
+                id="intro-sehir"
                 className="form-input"
-                value={leadAd}
-                onChange={e => setLeadAd(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter' && leadAd.trim()) (document.getElementById('intro-tel') as HTMLInputElement)?.focus(); }}
-                placeholder="Örn: Ayşe Yılmaz"
-                autoFocus
+                list="sehir-datalist"
+                value={leadSehir}
+                onChange={e => setLeadSehir(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') (document.getElementById('intro-tel') as HTMLInputElement)?.focus(); }}
+                placeholder="Şehir seçin veya yazın..."
                 style={{ fontSize: '16px', padding: '12px 16px' }}
               />
             </div>
@@ -398,7 +457,7 @@ export default function LeodessaTracking() {
           </button>
           {!canProceed && (
             <span style={{ fontSize: '13px', color: 'var(--accent-rose)', fontWeight: 500 }}>
-              * Ad Soyad ve Telefon girmelisiniz
+              * Ad ve Telefon girmelisiniz
             </span>
           )}
           <button

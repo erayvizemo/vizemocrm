@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { Customer, VISA_TYPES, LEODESSA_STAGES, VIZEMO_STAGES, LEGACY_STAGES, PROCESS_TYPES, DECISION_TYPES, QUICK_CHIPS, LEAD_SOURCES, CallOutcome, CALL_OUTCOMES } from '../types';
 import { getStatusColor, getStatusBg, getStatusClass } from '../utils/helpers';
 
-const DANISMAN_LIST = ['Eray', 'Dilara', 'Elanur', 'Diğer'];
+const DANISMAN_LIST = ['Eray', 'Dilara', 'Elanur'];
 const SEHIR_LIST = ["Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Amasya", "Ankara", "Antalya", "Artvin", "Aydın", "Balıkesir", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa", "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Isparta", "Mersin", "İstanbul", "İzmir", "Kars", "Kastamonu", "Kayseri", "Kırklareli", "Kırşehir", "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Kahramanmaraş", "Mardin", "Muğla", "Muş", "Nevşehir", "Niğde", "Ordu", "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas", "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Şanlıurfa", "Uşak", "Van", "Yozgat", "Zonguldak", "Aksaray", "Bayburt", "Karaman", "Kırıkkale", "Batman", "Şırnak", "Bartın", "Ardahan", "Iğdır", "Yalova", "Karabük", "Kilis", "Osmaniye", "Düzce", "Diğer"];
 const KAYNAK_LIST = ['Instagram', 'Referans', 'Web Site', 'Yüz Yüze', 'WhatsApp', 'Reklam', 'Diğer'];
 const ULKE_LIST = [
