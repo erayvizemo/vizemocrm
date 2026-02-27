@@ -10,6 +10,7 @@ import CityView from './components/CityView';
 import Revenue from './components/Revenue';
 import LeodessaTracking from './components/LeodessaTracking';
 import LeodessaLeads from './components/LeodessaLeads';
+import SDRDashboard from './components/SDRDashboard';
 
 function AppShell() {
   const { view, toasts } = useApp();
@@ -30,6 +31,7 @@ function AppShell() {
           {view === 'gelir' && <Revenue />}
           {view === 'leodessaTracking' && <LeodessaTracking />}
           {view === 'leodessaLeads' && <LeodessaLeads />}
+          {view === 'sdrDashboard' && <SDRDashboard />}
         </div>
       </main>
       <CustomerModal />

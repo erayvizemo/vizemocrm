@@ -1,5 +1,34 @@
-export type StatusType = 'Yeni Lead' | 'Beklemede' | 'Tamamlandı' | 'Olumsuz';
-export type ViewType = 'dashboard' | 'customers' | 'pipeline' | 'calendar' | 'reports' | 'eskisehir' | 'gaziantep' | 'istanbul' | 'gelir' | 'leodessaTracking' | 'leodessaLeads';
+// ── Pipeline aşamaları (Görev 7) ──
+// LeoDessa aşamaları (1-6) + Vizemo aşamaları (7-11) + Legacy (geriye uyum)
+export type StatusType =
+  // LeoDessa Aşamaları
+  | 'Yeni Lead'
+  | 'Ulaşıldı'
+  | 'Ulaşılamadı'
+  | 'Unqualify Lead'
+  | 'Müşteriden Geri Dönüş Bekleniyor'
+  | 'Vizemo Ekibine Devredildi'
+  // Vizemo Aşamaları
+  | 'Belgeler İstendi'
+  | 'Başvurular Yapıldı'
+  | 'Randevu Alındı'
+  | 'Ödeme Alındı'
+  | 'Vize Alındı ✓'
+  // Legacy (geriye dönük uyumluluk için)
+  | 'Beklemede'
+  | 'Tamamlandı'
+  | 'Olumsuz';
+
+export const LEODESSA_STAGES: StatusType[] = [
+  'Yeni Lead', 'Ulaşıldı', 'Ulaşılamadı', 'Unqualify Lead',
+  'Müşteriden Geri Dönüş Bekleniyor', 'Vizemo Ekibine Devredildi',
+];
+export const VIZEMO_STAGES: StatusType[] = [
+  'Belgeler İstendi', 'Başvurular Yapıldı', 'Randevu Alındı', 'Ödeme Alındı', 'Vize Alındı ✓',
+];
+export const LEGACY_STAGES: StatusType[] = ['Beklemede', 'Tamamlandı', 'Olumsuz'];
+
+export type ViewType = 'dashboard' | 'customers' | 'pipeline' | 'calendar' | 'reports' | 'eskisehir' | 'gaziantep' | 'istanbul' | 'gelir' | 'leodessaTracking' | 'leodessaLeads' | 'sdrDashboard';
 
 export type LeodessaStatus = 'new' | 'contacted' | 'transferred' | 'cancelled';
 
@@ -30,20 +59,65 @@ export interface LogEntry {
   text: string;
 }
 
-export type CallOutcome = 'Ulaşıldı' | 'Cevap Vermedi' | 'Meşgul' | 'Numara Kullanılmıyor' | 'Yanlış Numara' | 'Kapandı';
+// Görev 4: Arama sonuç tipleri (genişletildi)
+export type CallOutcome =
+  | 'Ulaşıldı - İlgilendi'
+  | 'Ulaşıldı - İlgilenmedi'
+  | 'Ulaşılamadı - Kapalı'
+  | 'Ulaşılamadı - Meşgul'
+  | 'Numara Yanlış'
+  | 'Daha Sonra Ara'
+  | 'İleri Tarihte Arayın'
+  // Legacy (geriye uyumluluk)
+  | 'Ulaşıldı' | 'Cevap Vermedi' | 'Meşgul' | 'Numara Kullanılmıyor' | 'Yanlış Numara' | 'Kapandı';
+
+export const CALL_OUTCOMES: CallOutcome[] = [
+  'Ulaşıldı - İlgilendi',
+  'Ulaşıldı - İlgilenmedi',
+  'Ulaşılamadı - Kapalı',
+  'Ulaşılamadı - Meşgul',
+  'Numara Yanlış',
+  'Daha Sonra Ara',
+  'İleri Tarihte Arayın',
+];
 
 export interface CallLog {
   id: string;
   timestamp: string;
   outcome: CallOutcome;
   note: string;
+  nextFollowupDate?: string;
   callerId?: string; // SDR ID referansı
+}
+
+// Görev 7c: Aşama geçiş tarihi
+export interface StageHistoryEntry {
+  id: string;
+  fromStage: string;
+  toStage: StatusType;
+  changedBy: string; // user ID
+  changedAt: string; // ISO timestamp
 }
 
 export interface User {
   id: string;
   name: string;
   role: 'leodessa_admin' | 'sdr' | 'vizemo_admin' | 'vizemo_sales';
+}
+
+// Task 6: Task Yönetimi
+export type TaskStatus = 'open' | 'in_progress' | 'done';
+
+export interface LeadTask {
+  id: string;
+  leadId: string;
+  createdBy: string;
+  assignedTo: string;
+  title: string;
+  description: string;
+  dueDate: string;
+  completedAt?: string;
+  status: TaskStatus;
 }
 
 export type LeadSourceType = 'Meta Ads' | 'Google Ads' | 'Instagram' | 'Referans' | 'Web Site' | 'Yüz Yüze' | 'WhatsApp' | 'Reklam' | 'Diğer';
@@ -85,6 +159,12 @@ export interface Customer {
   doNotContact?: boolean;
   doNotContactReason?: string;
 
+  // Task 6 Fields: Tasks
+  tasks?: LeadTask[];
+
+  // Task 7c: Stage history
+  stageHistory?: StageHistoryEntry[];
+
   // Optional fields from Excel import
   sehir?: string;
   danisman?: string;
@@ -97,7 +177,9 @@ export interface Customer {
 
 export const VISA_TYPES = ['Schengen', 'İspanya Oturum', 'Amerika', 'İngiltere', 'Diğer'] as const;
 
-export const STATUS_TYPES: StatusType[] = ['Yeni Lead', 'Beklemede', 'Tamamlandı', 'Olumsuz'];
+export const STATUS_TYPES: StatusType[] = [
+  ...LEODESSA_STAGES, ...VIZEMO_STAGES, ...LEGACY_STAGES
+];
 
 export const PROCESS_TYPES = [
   'İlk Görüşme Yapıldı',

@@ -51,8 +51,8 @@ export default function CityView({ city }: Props) {
   }, [cityCustomers]);
 
   const statusCounts = useMemo(() => {
-    const m: Record<StatusType, number> = { 'Yeni Lead': 0, 'Beklemede': 0, 'Tamamlandı': 0, 'Olumsuz': 0 };
-    cityCustomers.forEach(c => { if (m[c.durum] !== undefined) m[c.durum]++; });
+    const m: Partial<Record<StatusType, number>> = {};
+    cityCustomers.forEach(c => { m[c.durum] = (m[c.durum] ?? 0) + 1; });
     return m;
   }, [cityCustomers]);
 
@@ -150,7 +150,7 @@ export default function CityView({ city }: Props) {
                 }}
               >
                 <div className="kpi-number" style={{ color: getStatusColor(s) }}>
-                  {statusCounts[s]}
+                  {statusCounts[s] ?? 0}
                 </div>
                 <div className="kpi-label">{s}</div>
               </div>

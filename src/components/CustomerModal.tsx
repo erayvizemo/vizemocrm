@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { Customer, VISA_TYPES, STATUS_TYPES, PROCESS_TYPES, DECISION_TYPES, QUICK_CHIPS, LEAD_SOURCES, CallOutcome } from '../types';
+import { Customer, VISA_TYPES, LEODESSA_STAGES, VIZEMO_STAGES, LEGACY_STAGES, PROCESS_TYPES, DECISION_TYPES, QUICK_CHIPS, LEAD_SOURCES, CallOutcome, CALL_OUTCOMES } from '../types';
 import { getStatusColor, getStatusBg, getStatusClass } from '../utils/helpers';
 
-const DANISMAN_LIST = ['Eray', 'Dilara', 'Selin', 'Merve', 'Ali', 'Diğer'];
+const DANISMAN_LIST = ['Eray', 'Dilara', 'Elanur', 'Diğer'];
 const SEHIR_LIST = ["Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Amasya", "Ankara", "Antalya", "Artvin", "Aydın", "Balıkesir", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa", "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Isparta", "Mersin", "İstanbul", "İzmir", "Kars", "Kastamonu", "Kayseri", "Kırklareli", "Kırşehir", "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Kahramanmaraş", "Mardin", "Muğla", "Muş", "Nevşehir", "Niğde", "Ordu", "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas", "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Şanlıurfa", "Uşak", "Van", "Yozgat", "Zonguldak", "Aksaray", "Bayburt", "Karaman", "Kırıkkale", "Batman", "Şırnak", "Bartın", "Ardahan", "Iğdır", "Yalova", "Karabük", "Kilis", "Osmaniye", "Düzce", "Diğer"];
 const KAYNAK_LIST = ['Instagram', 'Referans', 'Web Site', 'Yüz Yüze', 'WhatsApp', 'Reklam', 'Diğer'];
 const ULKE_LIST = [
@@ -51,14 +51,14 @@ export default function CustomerModal() {
 
   // Call Log State
   const [showCallForm, setShowCallForm] = useState(false);
-  const [callOutcome, setCallOutcome] = useState<CallOutcome>('Ulaşıldı');
+  const [callOutcome, setCallOutcome] = useState<CallOutcome>('Ulaşıldı - İlgilendi');
   const [callNote, setCallNote] = useState('');
   const [nextFollowup, setNextFollowup] = useState('');
 
   useEffect(() => {
     if (!isOpen) {
       setShowCallForm(false);
-      setCallOutcome('Ulaşıldı');
+      setCallOutcome('Ulaşıldı - İlgilendi');
       setCallNote('');
       setNextFollowup('');
       return;
@@ -172,8 +172,9 @@ export default function CustomerModal() {
 
   function handleSaveCallLog() {
     if (!customer) return;
-    if (callOutcome !== 'Kapandı' && !nextFollowup) {
-      alert('Sonraki Arama Tarihi girilmelidir!');
+    const requiresFollowup = ['Ulaşıldı - İlgilendi', 'Ulaşılamadı - Meşgul', 'Ulaşılamadı - Kapalı', 'Daha Sonra Ara', 'İleri Tarihte Arayın'].includes(callOutcome);
+    if (requiresFollowup && !nextFollowup) {
+      alert('Sonraki Arama / Takip Tarihi girilmelidir!');
       return;
     }
 
@@ -196,14 +197,14 @@ export default function CustomerModal() {
       ...customer,
       log: newLog,
       callLogs: newCallLogs,
-      nextFollowupDate: callOutcome === 'Kapandı' ? '' : nextFollowup,
+      nextFollowupDate: nextFollowup || '',
       lastActivityDate: new Date().toISOString()
     });
 
     setShowCallForm(false);
     setCallNote('');
     setNextFollowup('');
-    setCallOutcome('Ulaşıldı');
+    setCallOutcome('Ulaşıldı - İlgilendi');
   }
 
   function handleDelete() {
@@ -320,15 +321,15 @@ export default function CustomerModal() {
                   <button onClick={() => setShowCallForm(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>✖</button>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
-                  <FormField label="Sonuç *">
+                  <FormField label="Arama Sonucu *">
                     <select className="form-input" value={callOutcome} onChange={e => setCallOutcome(e.target.value as CallOutcome)}>
-                      {(['Ulaşıldı', 'Cevap Vermedi', 'Meşgul', 'Numara Kullanılmıyor', 'Yanlış Numara', 'Kapandı'] as CallOutcome[]).map(o => (
+                      {CALL_OUTCOMES.map(o => (
                         <option key={o} value={o}>{o}</option>
                       ))}
                     </select>
                   </FormField>
-                  <FormField label="Sonraki Arama Tarihi (Takip)">
-                    <input type="date" className="form-input" value={nextFollowup} onChange={e => setNextFollowup(e.target.value)} disabled={callOutcome === 'Kapandı'} />
+                  <FormField label="Takip / Tekrar Arama Tarihi">
+                    <input type="date" className="form-input" value={nextFollowup} onChange={e => setNextFollowup(e.target.value)} />
                   </FormField>
                   <div style={{ gridColumn: '1 / -1' }}>
                     <FormField label="Arama Notu">
@@ -486,9 +487,17 @@ export default function CustomerModal() {
                     {DANISMAN_LIST.map(d => <option key={d}>{d}</option>)}
                   </select>
                 </FormField>
-                <FormField label="Durum">
+                <FormField label="Pipeline Aşaması">
                   <select className="form-input" value={form.durum} onChange={e => setForm(p => ({ ...p, durum: e.target.value as Customer['durum'] }))}>
-                    {STATUS_TYPES.map(s => <option key={s}>{s}</option>)}
+                    <optgroup label="✈ LeoDessa Aşamaları">
+                      {LEODESSA_STAGES.map(s => <option key={s} value={s}>{s}</option>)}
+                    </optgroup>
+                    <optgroup label="🏢 Vizemo Aşamaları">
+                      {VIZEMO_STAGES.map(s => <option key={s} value={s}>{s}</option>)}
+                    </optgroup>
+                    <optgroup label="📁 Arşiv / Legacy">
+                      {LEGACY_STAGES.map(s => <option key={s} value={s}>{s}</option>)}
+                    </optgroup>
                   </select>
                 </FormField>
                 <FormField label="Müşteri Statüsü">

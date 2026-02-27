@@ -45,8 +45,8 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export default function Dashboard() {
   const { customers, openModal } = useApp();
 
-  const counts: Record<StatusType, number> = { 'Yeni Lead': 0, 'Beklemede': 0, 'Tamamlandı': 0, 'Olumsuz': 0 };
-  customers.forEach(c => { if (counts[c.durum] !== undefined) counts[c.durum]++; });
+  const counts: Partial<Record<StatusType, number>> = { 'Yeni Lead': 0, 'Beklemede': 0, 'Tamamlandı': 0, 'Olumsuz': 0 };
+  customers.forEach(c => { counts[c.durum] = (counts[c.durum] ?? 0) + 1; });
 
   const todayFollowUps = getTodayFollowUps(customers);
   const upcoming = getUpcomingFollowUps(customers, 7);
@@ -54,7 +54,7 @@ export default function Dashboard() {
 
   // Pie chart data for status
   const pieData = STATUS_TYPES
-    .map(s => ({ name: s, value: counts[s], color: getStatusColor(s) }))
+    .map(s => ({ name: s, value: counts[s] ?? 0, color: getStatusColor(s) }))
     .filter(d => d.value > 0);
 
   // Visa type distribution
@@ -73,7 +73,7 @@ export default function Dashboard() {
   // Conversion rate calculation
   const totalLeads = customers.length;
   const activeLeads = customers.filter(c => c.durum === 'Yeni Lead' || c.durum === 'Beklemede').length;
-  const completedLeads = counts['Tamamlandı'];
+  const completedLeads = counts['Tamamlandı'] ?? 0;
 
   const conversionRate = totalLeads > 0
     ? ((completedLeads / totalLeads) * 100).toFixed(1)

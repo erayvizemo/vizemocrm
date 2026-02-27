@@ -43,10 +43,10 @@ const renderLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: an
 export default function Reports() {
   const { customers } = useApp();
 
-  // Status counts
-  const STATUS_TYPES: StatusType[] = ['Yeni Lead', 'Beklemede', 'Tamamlandı', 'Olumsuz'];
-  const statusCounts: Record<StatusType, number> = { 'Yeni Lead': 0, 'Beklemede': 0, 'Tamamlandı': 0, 'Olumsuz': 0 };
-  customers.forEach(c => { if (statusCounts[c.durum] !== undefined) statusCounts[c.durum]++; });
+  // Status counts (show all stages that have any customers)
+  const statusCounts: Partial<Record<StatusType, number>> = {};
+  customers.forEach(c => { statusCounts[c.durum] = (statusCounts[c.durum] ?? 0) + 1; });
+  const STATUS_TYPES = Object.keys(statusCounts) as StatusType[];
 
   // Visa counts
   const vizeCounts: Record<string, number> = {};
@@ -63,19 +63,19 @@ export default function Reports() {
 
   const monthly = getMonthlyData(customers);
   const total = customers.length;
-  const convRate = total > 0 ? ((statusCounts['Tamamlandı'] / total) * 100).toFixed(1) : '0.0';
-  const lostRate = total > 0 ? ((statusCounts['Olumsuz'] / total) * 100).toFixed(1) : '0.0';
-  const activeCount = statusCounts['Beklemede'] + statusCounts['Yeni Lead'];
+  const convRate = total > 0 ? (((statusCounts['Tamamlandı'] ?? 0) / total) * 100).toFixed(1) : '0.0';
+  const lostRate = total > 0 ? (((statusCounts['Olumsuz'] ?? 0) / total) * 100).toFixed(1) : '0.0';
+  const activeCount = (statusCounts['Beklemede'] ?? 0) + (statusCounts['Yeni Lead'] ?? 0);
 
   // Funnel data
-  const funnelData = [
+  const funnelData: { name: string; value: number; fill: string }[] = [
     { name: 'Toplam Lead', value: total, fill: 'var(--accent-primary)' },
     { name: 'Aktif Müşteri', value: activeCount, fill: 'var(--accent-amber)' },
-    { name: 'Tamamlandı', value: statusCounts['Tamamlandı'], fill: 'var(--accent-emerald)' },
+    { name: 'Tamamlandı', value: statusCounts['Tamamlandı'] ?? 0, fill: 'var(--accent-emerald)' },
   ];
 
   const statusPie = STATUS_TYPES
-    .map(s => ({ name: s, value: statusCounts[s], color: getStatusColor(s) }))
+    .map(s => ({ name: s, value: statusCounts[s] ?? 0, color: getStatusColor(s) }))
     .filter(d => d.value > 0);
 
   const vizePie = Object.entries(vizeCounts).map(([name, value], i) => ({

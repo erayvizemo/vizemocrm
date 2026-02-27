@@ -1,5 +1,5 @@
 import { useApp } from '../context/AppContext';
-import { ViewType, StatusType } from '../types';
+import { ViewType, StatusType, LEODESSA_STAGES, VIZEMO_STAGES } from '../types';
 import { getStatusColor } from '../utils/helpers';
 
 const LEODESSA_COLOR = 'var(--accent-secondary)';
@@ -18,20 +18,24 @@ const cityNav: { view: ViewType; icon: string; label: string; color: string }[] 
   { view: 'istanbul', icon: '🌉', label: 'İstanbul', color: 'var(--accent-emerald)' },
 ];
 
+// Show key stages in the sidebar summary
 const statusDots: { status: StatusType; label: string }[] = [
   { status: 'Yeni Lead', label: 'Yeni Lead' },
-  { status: 'Beklemede', label: 'Beklemede' },
-  { status: 'Tamamlandı', label: 'Tamamlandı' },
+  { status: 'Ulaşıldı', label: 'Ulaşıldı' },
+  { status: 'Müşteriden Geri Dönüş Bekleniyor', label: 'Geri Dönüş Bekleniyor' },
+  { status: 'Vizemo Ekibine Devredildi', label: 'Vizemo\'ya Devredildi' },
+  { status: 'Vize Alındı ✓', label: 'Vize Alındı ✓' },
   { status: 'Olumsuz', label: 'Olumsuz' },
 ];
 
 export default function Sidebar() {
   const { view, setView, customers, openModal, leodessaLeads } = useApp();
 
-  const counts: Record<StatusType, number> = {
-    'Yeni Lead': 0, 'Beklemede': 0, 'Tamamlandı': 0, 'Olumsuz': 0,
-  };
-  customers.forEach(c => { if (counts[c.durum] !== undefined) counts[c.durum]++; });
+  // Count across all stages
+  const counts: Partial<Record<StatusType, number>> = {};
+  [...LEODESSA_STAGES, ...VIZEMO_STAGES].forEach(s => { counts[s] = 0; });
+  counts['Beklemede'] = 0; counts['Tamamlandı'] = 0; counts['Olumsuz'] = 0;
+  customers.forEach(c => { if (counts[c.durum] !== undefined) counts[c.durum] = (counts[c.durum] ?? 0) + 1; });
 
   const cityCounts: Record<string, number> = { Eskişehir: 0, Gaziantep: 0, İstanbul: 0 };
   customers.forEach(c => {
@@ -103,7 +107,7 @@ export default function Sidebar() {
         </button>
 
         {/* Leodessa */}
-        <div className="sidebar-section-title" style={{ color: LEODESSA_COLOR }}>✈ Leodessa</div>
+        <div className="sidebar-section-title" style={{ color: LEODESSA_COLOR }}>✈ Ayşe & Ortakları Mülk Danışmanlık</div>
         <button
           className={`nav-item ${view === 'leodessaTracking' ? 'active' : ''}`}
           onClick={() => setView('leodessaTracking')}
@@ -129,6 +133,14 @@ export default function Sidebar() {
             </span>
           )}
         </button>
+        <button
+          className={`nav-item ${view === 'sdrDashboard' ? 'active' : ''}`}
+          onClick={() => setView('sdrDashboard')}
+          style={{ width: '100%', textAlign: 'left', background: 'transparent' }}
+        >
+          <span style={{ fontSize: '15px' }}>📊</span>
+          <span style={{ flex: 1 }}>SDR Dashboard</span>
+        </button>
 
         {/* Durum Özeti */}
         <div className="sidebar-section-title">Durum Özeti</div>
@@ -146,7 +158,7 @@ export default function Sidebar() {
               <span style={{
                 fontSize: '13px', fontFamily: "'Syne', sans-serif",
                 color: getStatusColor(s.status), fontWeight: 700,
-              }}>{counts[s.status]}</span>
+              }}>{counts[s.status] ?? 0}</span>
             </div>
           ))}
         </div>
