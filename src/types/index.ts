@@ -29,6 +29,18 @@ export interface LogEntry {
   text: string;
 }
 
+export interface User {
+  id: string;
+  name: string;
+  role: 'leodessa_admin' | 'sdr' | 'vizemo_admin' | 'vizemo_sales';
+}
+
+export type LeadSourceType = 'Meta Ads' | 'Google Ads' | 'Referans' | 'Web Site' | 'WhatsApp' | 'Instagram' | 'Yüz Yüze' | 'Manual' | 'Diğer';
+
+export const LEAD_SOURCES: LeadSourceType[] = [
+  'Meta Ads', 'Google Ads', 'Referans', 'Web Site', 'WhatsApp', 'Instagram', 'Yüz Yüze', 'Manual', 'Diğer'
+];
+
 export interface Customer {
   id: string;
   ad: string;
@@ -44,10 +56,16 @@ export interface Customer {
   log: LogEntry[];
   createdAt: string;
   updatedAt: string;
+
+  // Task 1 Fields: Lead Source & SDR Assignment
+  leadSource?: LeadSourceType | string;
+  adName?: string;
+  assignedSdrId?: string;
+
   // Optional fields from Excel import
   sehir?: string;
   danisman?: string;
-  kaynak?: string;
+  kaynak?: string; // Legacy
   statu?: string;
   evrakPct?: string;
   ulke?: string;

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { Customer, VISA_TYPES, STATUS_TYPES, PROCESS_TYPES, DECISION_TYPES, QUICK_CHIPS } from '../types';
+import { Customer, VISA_TYPES, STATUS_TYPES, PROCESS_TYPES, DECISION_TYPES, QUICK_CHIPS, LEAD_SOURCES } from '../types';
 import { getStatusColor, getStatusBg, getStatusClass } from '../utils/helpers';
 
 const DANISMAN_LIST = ['Eray', 'Dilara', 'Selin', 'Merve', 'Ali', 'Diğer'];
@@ -31,7 +31,7 @@ function FormField({ label, children }: { label: string; children: React.ReactNo
 }
 
 export default function CustomerModal() {
-  const { modal, closeModal, customers, addCustomer, updateCustomer, deleteCustomer } = useApp();
+  const { modal, closeModal, customers, addCustomer, updateCustomer, deleteCustomer, currentUser, users, assignSdrToCustomer } = useApp();
   const { isOpen, customerId } = modal;
 
   const isNew = customerId === null;
@@ -42,6 +42,7 @@ export default function CustomerModal() {
     durum: 'Yeni Lead' as Customer['durum'],
     danisman: '', sehir: '', statu: '', kaynak: '', ulke: '', evrakPct: '',
     gorusme: '', takip: '', surec: '', karar: '', not: '',
+    leadSource: '', adName: '', assignedSdrId: ''
   });
   const [activeChips, setActiveChips] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'info' | 'log'>('info');
@@ -59,15 +60,27 @@ export default function CustomerModal() {
         ulke: customer.ulke ?? '', evrakPct: customer.evrakPct ?? '',
         gorusme: customer.gorusme, takip: customer.takip,
         surec: customer.surec, karar: customer.karar, not: customer.not,
+        leadSource: customer.leadSource ?? '', adName: customer.adName ?? '',
+        assignedSdrId: customer.assignedSdrId ?? '',
       });
+
+      // Auto-assign logic for SDR
+      if (!customer.assignedSdrId && currentUser?.role === 'sdr') {
+        setTimeout(() => {
+          assignSdrToCustomer(customer.id, currentUser.id);
+          setForm(p => ({ ...p, assignedSdrId: currentUser.id }));
+        }, 100);
+      }
+
     } else {
       setForm({
         ad: '', telefon: '', email: '', vize: 'Schengen', durum: 'Yeni Lead',
         danisman: '', sehir: '', statu: '', kaynak: '', ulke: '', evrakPct: '',
         gorusme: '', takip: '', surec: '', karar: '', not: '',
+        leadSource: '', adName: '', assignedSdrId: ''
       });
     }
-  }, [isOpen, customerId]);
+  }, [isOpen, customerId, currentUser]);
 
   const generatedNote = (): string => {
     const parts = [...activeChips];
@@ -257,12 +270,26 @@ export default function CustomerModal() {
                     </optgroup>
                   </select>
                 </FormField>
-                <FormField label="Kaynak">
-                  <select className="form-input" value={form.kaynak} onChange={e => setForm(p => ({ ...p, kaynak: e.target.value }))}>
+                <FormField label="Lead Kaynağı">
+                  <select className="form-input" value={form.leadSource} onChange={e => setForm(p => ({ ...p, leadSource: e.target.value }))}>
                     <option value="">Seçin...</option>
-                    {KAYNAK_LIST.map(k => <option key={k}>{k}</option>)}
+                    {LEAD_SOURCES.map(k => <option key={k} value={k}>{k}</option>)}
                   </select>
                 </FormField>
+                {(form.leadSource === 'Meta Ads' || form.leadSource === 'Google Ads') && (
+                  <FormField label="Reklam Adı">
+                    <input className="form-input" type="text" value={form.adName} onChange={e => setForm(p => ({ ...p, adName: e.target.value }))} placeholder="Kampanya / Reklam adı" required />
+                  </FormField>
+                )}
+
+                {(currentUser?.role === 'leodessa_admin' || currentUser?.role === 'vizemo_admin') && (
+                  <FormField label="SDR Ataması Yapan (Admin)">
+                    <select className="form-input" value={form.assignedSdrId} onChange={e => setForm(p => ({ ...p, assignedSdrId: e.target.value }))}>
+                      <option value="">SDR Atanmadı</option>
+                      {users.filter(u => u.role === 'sdr').map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+                    </select>
+                  </FormField>
+                )}
               </div>
             </div>
 

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { Customer, ModalState, ViewType, LeodessaLead } from '../types';
+import { Customer, ModalState, ViewType, LeodessaLead, User } from '../types';
 import { allImportedCustomers, revenueData as importedRevenue, RevenueEntry } from '../data/importedData';
 import { generateId } from '../utils/helpers';
 import { sendToGoogleSheets } from '../services/googleSheets';
@@ -34,9 +34,21 @@ interface AppContextType {
   addLeodessaLead: (data: Omit<LeodessaLead, 'id' | 'createdAt'>) => void;
   updateLeodessaLead: (id: string, data: Partial<LeodessaLead>) => void;
   deleteLeodessaLead: (id: string) => void;
+  users: User[];
+  currentUser: User | null;
+  setCurrentUser: (u: User | null) => void;
+  assignSdrToCustomer: (customerId: string, sdrId: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
+
+export const FAKE_USERS: User[] = [
+  { id: 'u1', name: 'Dilara', role: 'leodessa_admin' },
+  { id: 'u2', name: 'Eray', role: 'sdr' },
+  { id: 'u3', name: 'Elanur', role: 'sdr' },
+  { id: 'u4', name: 'Selin', role: 'vizemo_sales' },
+  { id: 'u5', name: 'Merve', role: 'vizemo_sales' }
+];
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [customers, setCustomers] = useState<Customer[]>(() => {
@@ -74,6 +86,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [view, setView] = useState<ViewType>('dashboard');
   const [modal, setModal] = useState<ModalState>({ isOpen: false, customerId: null });
   const [toasts, setToasts] = useState<Toast[]>([]);
+
+  const [users] = useState<User[]>(FAKE_USERS);
+  const [currentUser, setCurrentUser] = useState<User | null>(FAKE_USERS[1]); // Default to 'Eray' (sdr)
 
   const [leodessaLeads, setLeodessaLeads] = useState<LeodessaLead[]>(() => {
     try {
@@ -144,6 +159,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     showToast('Müşteri bilgileri güncellendi.');
   }, [showToast]);
 
+  const assignSdrToCustomer = useCallback((customerId: string, sdrId: string) => {
+    updateCustomer(customerId, { assignedSdrId: sdrId });
+    showToast(`Lead temsilciye atandı.`, 'success');
+  }, [updateCustomer, showToast]);
+
   const deleteCustomer = useCallback((id: string) => {
     setCustomers(prev => {
       const c = prev.find(x => x.id === id);
@@ -199,6 +219,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       addRevenue, updateRevenue, deleteRevenue,
       toasts, showToast,
       leodessaLeads, addLeodessaLead, updateLeodessaLead, deleteLeodessaLead,
+      users, currentUser, setCurrentUser, assignSdrToCustomer,
     }}>
       {children}
     </AppContext.Provider>
