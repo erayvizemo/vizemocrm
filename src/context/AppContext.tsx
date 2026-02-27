@@ -5,8 +5,7 @@ import { generateId } from '../utils/helpers';
 import { sendToGoogleSheets } from '../services/googleSheets';
 
 // Bump this version whenever the imported dataset changes.
-// On version mismatch the stored data is replaced with fresh Excel data.
-const DATA_VERSION = '2';
+const DATA_VERSION = '4';
 
 interface Toast {
   id: string;
@@ -25,6 +24,7 @@ interface AppContextType {
   addCustomer: (data: Omit<Customer, 'id' | 'createdAt' | 'updatedAt'>) => void;
   updateCustomer: (id: string, data: Partial<Omit<Customer, 'id' | 'createdAt'>>) => void;
   deleteCustomer: (id: string) => void;
+  bulkDeleteCustomers: (ids: string[]) => void;
   addRevenue: (data: Omit<RevenueEntry, 'id'>) => void;
   updateRevenue: (id: string, data: Partial<Omit<RevenueEntry, 'id'>>) => void;
   deleteRevenue: (id: string) => void;
@@ -181,6 +181,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, [showToast]);
 
+  const bulkDeleteCustomers = useCallback((ids: string[]) => {
+    setCustomers(prev => {
+      showToast(`${ids.length} müşteri silindi.`, 'info');
+      return prev.filter(x => !ids.includes(x.id));
+    });
+  }, [showToast]);
+
   const addRevenue = useCallback((data: Omit<RevenueEntry, 'id'>) => {
     const entry: RevenueEntry = { ...data, id: generateId() };
     setRevenue(prev => [entry, ...prev]);
@@ -252,7 +259,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     <AppContext.Provider value={{
       customers, revenue, view, setView,
       modal, openModal, closeModal,
-      addCustomer, updateCustomer, deleteCustomer,
+      addCustomer, updateCustomer, deleteCustomer, bulkDeleteCustomers,
       addRevenue, updateRevenue, deleteRevenue,
       toasts, showToast,
       leodessaLeads, addLeodessaLead, updateLeodessaLead, deleteLeodessaLead,

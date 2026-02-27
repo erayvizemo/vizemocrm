@@ -6,12 +6,13 @@ import { exportToCSV, getVizeClass, getStatusClass, formatLastActivity } from '.
 type SortKey = 'ad' | 'durum' | 'vize' | 'danisman' | 'statu' | 'createdAt' | 'lastActivityDate';
 
 export default function Customers() {
-  const { customers, openModal, deleteCustomer } = useApp();
+  const { customers, openModal, deleteCustomer, bulkDeleteCustomers } = useApp();
   const [search, setSearch] = useState('');
   const [filterDurum, setFilterDurum] = useState('');
   const [filterVize, setFilterVize] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('createdAt');
   const [sortAsc, setSortAsc] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const filtered = useMemo(() => {
     let data = customers.filter(c => {
@@ -53,6 +54,29 @@ export default function Customers() {
     return <span style={{ color: 'var(--accent-primary)', marginLeft: 4 }}>{sortAsc ? '↑' : '↓'}</span>;
   }
 
+  function handleSelectAll() {
+    if (selectedIds.length === filtered.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filtered.map(c => c.id));
+    }
+  }
+
+  function handleSelectRow(id: string) {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(prev => prev.filter(x => x !== id));
+    } else {
+      setSelectedIds(prev => [...prev, id]);
+    }
+  }
+
+  function handleBulkDelete() {
+    if (window.confirm(`${selectedIds.length} adet müşteriyi silmek istediğinize emin misiniz?`)) {
+      bulkDeleteCustomers(selectedIds);
+      setSelectedIds([]);
+    }
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--bg-void)' }}>
       {/* Header & Toolbar */}
@@ -74,6 +98,11 @@ export default function Customers() {
             </div>
           </div>
           <div style={{ display: 'flex', gap: 12 }}>
+            {selectedIds.length > 0 && (
+              <button className="btn-secondary" style={{ color: 'var(--accent-rose)', borderColor: 'rgba(244,63,94,0.3)', background: 'rgba(244,63,94,0.1)' }} onClick={handleBulkDelete}>
+                🗑 Seçilileri Sil ({selectedIds.length})
+              </button>
+            )}
             <button className="btn-secondary" onClick={() => exportToCSV(filtered)}>
               ⬇ CSV İndir
             </button>
@@ -122,6 +151,14 @@ export default function Customers() {
           <table className="data-table">
             <thead>
               <tr>
+                <th style={{ width: 40, textAlign: 'center' }}>
+                  <input
+                    type="checkbox"
+                    checked={filtered.length > 0 && selectedIds.length === filtered.length}
+                    onChange={handleSelectAll}
+                    style={{ cursor: 'pointer', accentColor: 'var(--accent-primary)' }}
+                  />
+                </th>
                 <th onClick={() => handleSort('ad')} style={{ cursor: 'pointer' }}>Müşteri <SortIcon col="ad" /></th>
                 <th>İletişim</th>
                 <th onClick={() => handleSort('vize')} style={{ cursor: 'pointer' }}>Vize Türü <SortIcon col="vize" /></th>
@@ -142,6 +179,14 @@ export default function Customers() {
               ) : (
                 filtered.map(c => (
                   <tr key={c.id} onClick={() => openModal(c.id)} style={{ cursor: 'pointer' }}>
+                    <td onClick={e => e.stopPropagation()} style={{ textAlign: 'center' }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(c.id)}
+                        onChange={() => handleSelectRow(c.id)}
+                        style={{ cursor: 'pointer', accentColor: 'var(--accent-primary)' }}
+                      />
+                    </td>
                     <td className="td-name">
                       <span style={{ color: c.doNotContact ? 'var(--text-muted)' : 'inherit', textDecoration: c.doNotContact ? 'line-through' : 'none' }}>
                         {c.firstName + ' ' + c.lastName}
