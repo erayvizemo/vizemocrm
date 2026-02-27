@@ -232,7 +232,7 @@ export default function LeodessaTracking() {
       crmTransferred: false,
     });
     setShowTransfer(false);
-    setView('leodessaLeads');
+    setView('sdrDashboard');
   }
 
   // ────────── Render helpers ──────────
@@ -248,7 +248,7 @@ export default function LeodessaTracking() {
         {/* Branding */}
         <div style={{ marginBottom: 32, paddingBottom: 24, borderBottom: '1px solid var(--border-subtle)' }}>
           <div style={{ fontSize: '12px', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.12em', color: LEODESSA_COLOR, fontWeight: 800, marginBottom: 6 }}>
-            ✈ AYŞE & ORTAKLARI ASİSTAN
+            ✈ LEODESSA ASİSTAN
           </div>
           <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Müşteri Kalifikasyon Akışı</div>
         </div>

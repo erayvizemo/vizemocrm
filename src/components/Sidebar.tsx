@@ -107,7 +107,7 @@ export default function Sidebar() {
         </button>
 
         {/* Leodessa */}
-        <div className="sidebar-section-title" style={{ color: LEODESSA_COLOR }}>✈ Ayşe & Ortakları Mülk Danışmanlık</div>
+        <div className="sidebar-section-title" style={{ color: LEODESSA_COLOR }}>✈ Leodessa</div>
         <button
           className={`nav-item ${view === 'leodessaTracking' ? 'active' : ''}`}
           onClick={() => setView('leodessaTracking')}

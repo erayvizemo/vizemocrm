@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { Customer, ModalState, ViewType, LeodessaLead, User } from '../types';
+import { Customer, ModalState, ViewType, LeodessaLead, User, LeadTask } from '../types';
 import { allImportedCustomers, revenueData as importedRevenue, RevenueEntry } from '../data/importedData';
 import { generateId } from '../utils/helpers';
 import { sendToGoogleSheets } from '../services/googleSheets';
@@ -38,6 +38,9 @@ interface AppContextType {
   currentUser: User | null;
   setCurrentUser: (u: User | null) => void;
   assignSdrToCustomer: (customerId: string, sdrId: string) => void;
+  addTask: (customerId: string, task: LeadTask) => void;
+  updateTask: (customerId: string, taskId: string, data: Partial<LeadTask>) => void;
+  deleteTask: (customerId: string, taskId: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -216,6 +219,35 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, [showToast]);
 
+  const addTask = useCallback((customerId: string, task: LeadTask) => {
+    const now = new Date().toISOString().substring(0, 10);
+    setCustomers(prev => prev.map(c => c.id === customerId ? {
+      ...c,
+      tasks: [...(c.tasks || []), task],
+      updatedAt: now,
+    } : c));
+    showToast('Task eklendi.', 'success');
+  }, [showToast]);
+
+  const updateTask = useCallback((customerId: string, taskId: string, data: Partial<LeadTask>) => {
+    const now = new Date().toISOString().substring(0, 10);
+    setCustomers(prev => prev.map(c => c.id === customerId ? {
+      ...c,
+      tasks: (c.tasks || []).map(t => t.id === taskId ? { ...t, ...data } : t),
+      updatedAt: now,
+    } : c));
+  }, []);
+
+  const deleteTask = useCallback((customerId: string, taskId: string) => {
+    const now = new Date().toISOString().substring(0, 10);
+    setCustomers(prev => prev.map(c => c.id === customerId ? {
+      ...c,
+      tasks: (c.tasks || []).filter(t => t.id !== taskId),
+      updatedAt: now,
+    } : c));
+    showToast('Task silindi.', 'info');
+  }, [showToast]);
+
   return (
     <AppContext.Provider value={{
       customers, revenue, view, setView,
@@ -225,6 +257,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       toasts, showToast,
       leodessaLeads, addLeodessaLead, updateLeodessaLead, deleteLeodessaLead,
       users, currentUser, setCurrentUser, assignSdrToCustomer,
+      addTask, updateTask, deleteTask,
     }}>
       {children}
     </AppContext.Provider>
