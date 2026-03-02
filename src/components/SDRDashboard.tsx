@@ -113,8 +113,9 @@ export default function SDRDashboard() {
   const todayFollowups = visibleCustomers.filter(c => isDueToday(c.nextFollowupDate));
   const soonFollowups = visibleCustomers.filter(c => isDueSoon(c.nextFollowupDate) && !isDueToday(c.nextFollowupDate));
 
-  // 48h no activity
+  // 48h no activity (exclude unassigned to prevent clutter)
   const inactive48h = visibleCustomers.filter(c => {
+    if (!c.assignedSdrId) return false;
     if (!c.lastActivityDate) return true;
     return daysAgo(c.lastActivityDate) >= 2;
   });
@@ -173,6 +174,32 @@ export default function SDRDashboard() {
         <StatCard icon="💤" label="48 Saat İnaktif" value={inactive48h.length} color="#a855f7" />
         <StatCard icon="📞" label="Toplam Arama" value={totalCalls} color="var(--accent-emerald)" />
       </div>
+
+      {/* ── Unassigned Leads (Admin only) ─────────────────────────────────────── */}
+      {isAdmin && unassigned.length > 0 && (
+        <div style={{ marginBottom: 40, padding: '24px', background: 'rgba(245,158,11,0.05)', borderRadius: 16, border: '1px solid rgba(245,158,11,0.15)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+            <span style={{ fontSize: 24 }}>⚠️</span>
+            <div>
+              <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--accent-amber)', fontFamily: "'DM Sans', sans-serif" }}>
+                Atanmayı Bekleyen Yeni Leadler ({unassigned.length})
+              </div>
+              <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                Leetdessa havuzundan CRM'e aktarılan ve henüz bir SDR'a atanmamış leadler.
+              </div>
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 8 }}>
+            {unassigned.map(c => (
+              <LeadRow key={c.id} c={c} badge={
+                <div style={{ fontSize: '11px', background: 'rgba(245,158,11,0.12)', color: 'var(--accent-amber)', borderRadius: 6, padding: '3px 8px', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                  Atanmadı
+                </div>
+              } />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── Two-column layout ─────────────────────────────────────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, marginBottom: 40 }}>

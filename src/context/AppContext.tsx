@@ -5,7 +5,7 @@ import { generateId } from '../utils/helpers';
 import { sendToGoogleSheets } from '../services/googleSheets';
 
 // Bump this version whenever the imported dataset changes.
-const DATA_VERSION = '4';
+const DATA_VERSION = '5';
 
 interface Toast {
   id: string;
