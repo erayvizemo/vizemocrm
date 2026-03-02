@@ -6,25 +6,25 @@ import { generateId } from '../utils/helpers';
 
 // ── Renk haritası: her aşama için ayrı renk ──
 const STAGE_META: Record<string, { color: string; bg: string; border: string; icon: string }> = {
-  'Yeni Lead':                      { color: '#64748b', bg: 'rgba(100,116,139,0.08)', border: 'rgba(100,116,139,0.25)', icon: '🔵' },
-  'Ulaşıldı':                       { color: '#22c55e', bg: 'rgba(34,197,94,0.08)',   border: 'rgba(34,197,94,0.25)',   icon: '✅' },
-  'Ulaşılamadı':                    { color: '#f59e0b', bg: 'rgba(245,158,11,0.08)',  border: 'rgba(245,158,11,0.25)',  icon: '📵' },
-  'Unqualify Lead':                 { color: '#ef4444', bg: 'rgba(239,68,68,0.08)',   border: 'rgba(239,68,68,0.25)',   icon: '❌' },
+  'Yeni Lead': { color: '#64748b', bg: 'rgba(100,116,139,0.08)', border: 'rgba(100,116,139,0.25)', icon: '🔵' },
+  'Ulaşıldı': { color: '#22c55e', bg: 'rgba(34,197,94,0.08)', border: 'rgba(34,197,94,0.25)', icon: '✅' },
+  'Ulaşılamadı': { color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.25)', icon: '📵' },
+  'Unqualify Lead': { color: '#ef4444', bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.25)', icon: '❌' },
   'Müşteriden Geri Dönüş Bekleniyor': { color: '#a855f7', bg: 'rgba(168,85,247,0.08)', border: 'rgba(168,85,247,0.25)', icon: '⏳' },
-  'Vizemo Ekibine Devredildi':       { color: '#3b82f6', bg: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.25)',  icon: '🤝' },
-  'Belgeler İstendi':               { color: '#06b6d4', bg: 'rgba(6,182,212,0.08)',  border: 'rgba(6,182,212,0.25)',  icon: '📄' },
-  'Başvurular Yapıldı':             { color: '#8b5cf6', bg: 'rgba(139,92,246,0.08)', border: 'rgba(139,92,246,0.25)', icon: '📋' },
-  'Randevu Alındı':                 { color: '#ec4899', bg: 'rgba(236,72,153,0.08)', border: 'rgba(236,72,153,0.25)', icon: '📅' },
-  'Ödeme Alındı':                   { color: '#f97316', bg: 'rgba(249,115,22,0.08)', border: 'rgba(249,115,22,0.25)', icon: '💰' },
-  'Vize Alındı ✓':                  { color: '#10b981', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.25)', icon: '🎉' },
+  'Vizemo Ekibine Devredildi': { color: '#3b82f6', bg: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.25)', icon: '🤝' },
+  'Belgeler İstendi': { color: '#06b6d4', bg: 'rgba(6,182,212,0.08)', border: 'rgba(6,182,212,0.25)', icon: '📄' },
+  'Başvurular Yapıldı': { color: '#8b5cf6', bg: 'rgba(139,92,246,0.08)', border: 'rgba(139,92,246,0.25)', icon: '📋' },
+  'Randevu Alındı': { color: '#ec4899', bg: 'rgba(236,72,153,0.08)', border: 'rgba(236,72,153,0.25)', icon: '📅' },
+  'Ödeme Alındı': { color: '#f97316', bg: 'rgba(249,115,22,0.08)', border: 'rgba(249,115,22,0.25)', icon: '💰' },
+  'Vize Alındı ✓': { color: '#10b981', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.25)', icon: '🎉' },
   // Legacy
-  'Beklemede':  { color: '#f59e0b', bg: 'rgba(245,158,11,0.06)', border: 'rgba(245,158,11,0.2)',  icon: '🟡' },
-  'Tamamlandı': { color: '#10b981', bg: 'rgba(16,185,129,0.06)', border: 'rgba(16,185,129,0.2)',  icon: '🟢' },
-  'Olumsuz':    { color: '#ef4444', bg: 'rgba(239,68,68,0.06)',  border: 'rgba(239,68,68,0.2)',   icon: '🔴' },
+  'Beklemede': { color: '#f59e0b', bg: 'rgba(245,158,11,0.06)', border: 'rgba(245,158,11,0.2)', icon: '🟡' },
+  'Tamamlandı': { color: '#10b981', bg: 'rgba(16,185,129,0.06)', border: 'rgba(16,185,129,0.2)', icon: '🟢' },
+  'Olumsuz': { color: '#ef4444', bg: 'rgba(239,68,68,0.06)', border: 'rgba(239,68,68,0.2)', icon: '🔴' },
 };
 
 const LEODESSA_COLOR = '#a855f7';
-const VIZEMO_COLOR   = '#3b82f6';
+const VIZEMO_COLOR = '#3b82f6';
 
 export default function Pipeline() {
   const { customers, openModal, updateCustomer, currentUser } = useApp();
@@ -33,8 +33,11 @@ export default function Pipeline() {
   const [filterSdr, setFilterSdr] = useState('');
   const [filterVize, setFilterVize] = useState('');
 
-  // Tüm aktif aşamalar (legacy dahil sadece müşterisi olanlar)
-  const hasLegacy = LEGACY_STAGES.some(s => customers.some(c => c.durum === s));
+  // Sadece yeni data'lar Pipeline'da gözüksün (legacy dataları hariç tut)
+  const activeCustomers = customers.filter(c => c.id.length > 4);
+
+  // Tüm aktif aşamalar (legacy dahil sadece aktif müşterisi olanlar)
+  const hasLegacy = LEGACY_STAGES.some(s => activeCustomers.some(c => c.durum === s));
   const allStages: StatusType[] = [
     ...LEODESSA_STAGES,
     ...VIZEMO_STAGES,
@@ -42,7 +45,7 @@ export default function Pipeline() {
   ];
 
   // Filtreleme
-  const filteredCustomers = customers.filter(c => {
+  const filteredCustomers = activeCustomers.filter(c => {
     if (filterSdr && c.danisman !== filterSdr && c.assignedSdrId !== filterSdr) return false;
     if (filterVize && c.vize !== filterVize) return false;
     return true;
@@ -94,8 +97,8 @@ export default function Pipeline() {
   }
 
   // Filtreleme seçenekleri
-  const danismanList = [...new Set(customers.map(c => c.danisman).filter(Boolean))] as string[];
-  const vizeList = [...new Set(customers.map(c => c.vize).filter(Boolean))] as string[];
+  const danismanList = [...new Set(activeCustomers.map(c => c.danisman).filter(Boolean))] as string[];
+  const vizeList = [...new Set(activeCustomers.map(c => c.vize).filter(Boolean))] as string[];
 
   const totalCustomers = filteredCustomers.length;
 
