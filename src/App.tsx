@@ -29,6 +29,7 @@ function AppShell() {
           {view === 'eskisehir' && <CityView city="Eskişehir" />}
           {view === 'gaziantep' && <CityView city="Gaziantep" />}
           {view === 'istanbul' && <CityView city="İstanbul" />}
+          {view === 'konya' && <CityView city="Konya" />}
           {view === 'gelir' && <Revenue />}
           {view === 'leodessaUpload' && <LeodessaUpload />}
           {view === 'leodessaTracking' && <LeodessaTracking />}

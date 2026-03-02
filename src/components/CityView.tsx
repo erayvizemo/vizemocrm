@@ -27,20 +27,7 @@ export default function CityView({ city }: Props) {
   const ESKISEHIR_DANISMANLAR = ['Eray', 'Dilara'];
 
   const cityCustomers = useMemo(
-    () => customers.filter(c => {
-      // Gaziantep müşterileri her zaman Gaziantep'te kalır
-      if (c.sehir === 'Gaziantep') {
-        return city === 'Gaziantep';
-      }
-      const danismanIsEsk = ESKISEHIR_DANISMANLAR.includes(c.danisman ?? '');
-      if (city === 'Eskişehir') {
-        // Eskişehir: sehir=Eskişehir VEYA danışman Eray/Dilara (Gaziantep hariç)
-        return c.sehir === 'Eskişehir' || danismanIsEsk;
-      } else {
-        // Diğer şehirler: sehir eşleşmeli VE danışman Eray/Dilara olmamalı
-        return c.sehir === city && !danismanIsEsk;
-      }
-    }),
+    () => customers.filter(c => c.sehir === city),
     [customers, city]
   );
 
@@ -71,9 +58,9 @@ export default function CityView({ city }: Props) {
     if (search) {
       const q = search.toLowerCase();
       list = list.filter(c =>
-        c.firstName + ' ' + c.lastName.toLowerCase().includes(q) ||
+        (c.firstName + ' ' + c.lastName).toLowerCase().includes(q) ||
         c.telefon.toLowerCase().includes(q) ||
-        c.vize.toLowerCase().includes(q) ||
+        (c.vize || '').toLowerCase().includes(q) ||
         (c.not ?? '').toLowerCase().includes(q)
       );
     }

@@ -16,6 +16,7 @@ const cityNav: { view: ViewType; icon: string; label: string; color: string }[] 
   { view: 'eskisehir', icon: '🏙️', label: 'Eskişehir', color: 'var(--accent-primary)' },
   { view: 'gaziantep', icon: '🌆', label: 'Gaziantep', color: 'var(--accent-amber)' },
   { view: 'istanbul', icon: '🌉', label: 'İstanbul', color: 'var(--accent-emerald)' },
+  { view: 'konya', icon: '⛰️', label: 'Konya', color: 'var(--accent-info)' },
 ];
 
 // Show key stages in the sidebar summary
@@ -37,7 +38,7 @@ export default function Sidebar() {
   counts['Beklemede'] = 0; counts['Tamamlandı'] = 0; counts['Olumsuz'] = 0;
   customers.forEach(c => { if (counts[c.durum] !== undefined) counts[c.durum] = (counts[c.durum] ?? 0) + 1; });
 
-  const cityCounts: Record<string, number> = { Eskişehir: 0, Gaziantep: 0, İstanbul: 0 };
+  const cityCounts: Record<string, number> = { Eskişehir: 0, Gaziantep: 0, İstanbul: 0, Konya: 0 };
   customers.forEach(c => {
     if (c.sehir && cityCounts[c.sehir] !== undefined) cityCounts[c.sehir]++;
   });

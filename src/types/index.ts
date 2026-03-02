@@ -28,7 +28,7 @@ export const VIZEMO_STAGES: StatusType[] = [
 ];
 export const LEGACY_STAGES: StatusType[] = ['Beklemede', 'Tamamlandı', 'Olumsuz'];
 
-export type ViewType = 'dashboard' | 'customers' | 'pipeline' | 'calendar' | 'reports' | 'eskisehir' | 'gaziantep' | 'istanbul' | 'gelir' | 'leodessaTracking' | 'leodessaLeads' | 'sdrDashboard' | 'leodessaUpload';
+export type ViewType = 'dashboard' | 'customers' | 'pipeline' | 'calendar' | 'reports' | 'eskisehir' | 'gaziantep' | 'istanbul' | 'konya' | 'gelir' | 'leodessaTracking' | 'leodessaLeads' | 'sdrDashboard' | 'leodessaUpload';
 
 export type LeodessaStatus = 'new' | 'contacted' | 'transferred' | 'cancelled';
 
