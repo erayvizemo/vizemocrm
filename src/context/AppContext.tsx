@@ -5,7 +5,7 @@ import { generateId } from '../utils/helpers';
 import { sendToGoogleSheets } from '../services/googleSheets';
 
 // Bump this version whenever the imported dataset changes.
-const DATA_VERSION = '5';
+const DATA_VERSION = '6';
 
 interface Toast {
   id: string;
@@ -83,10 +83,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const [revenue, setRevenue] = useState<RevenueEntry[]>(() => {
     try {
+      const storedVersion = localStorage.getItem('vizemo_data_version');
+      if (storedVersion !== DATA_VERSION) {
+        localStorage.removeItem('vizemo_revenue');
+        return importedRevenue;
+      }
+
       const saved = localStorage.getItem('vizemo_revenue');
       if (saved) {
         const parsed = JSON.parse(saved) as RevenueEntry[];
-        if (parsed.length > 0) return parsed;
+        if (parsed.length > 0 && parsed.some(r => r.firstName)) return parsed;
       }
     } catch { /* ignore */ }
     return importedRevenue;

@@ -160,15 +160,15 @@ export default function Revenue() {
   const handleEdit = (entry: any) => {
     setEditEntryId(entry.id);
     setForm({
-      firstName: entry.firstName,
-      lastName: entry.lastName,
-      danisman: entry.danisman,
-      sehir: entry.sehir,
+      firstName: entry.firstName || '',
+      lastName: entry.lastName || '',
+      danisman: entry.danisman || '',
+      sehir: entry.sehir || '',
       odemeYontemi: entry.odemeYontemi || '💵 Elden',
-      onOdemeTarihi: entry.onOdemeTarihi,
-      onOdeme: entry.onOdeme.toString(),
-      kalanTarih: entry.kalanTarih === '-' ? '' : entry.kalanTarih,
-      kalanOdeme: entry.kalanOdeme.toString(),
+      onOdemeTarihi: entry.onOdemeTarihi || new Date().toISOString().substring(0, 10),
+      onOdeme: (entry.onOdeme || 0).toString(),
+      kalanTarih: entry.kalanTarih && entry.kalanTarih !== '-' ? entry.kalanTarih : '',
+      kalanOdeme: (entry.kalanOdeme || 0).toString(),
     });
     setShowAddModal(true);
   };
@@ -512,8 +512,13 @@ export default function Revenue() {
                 <input
                   className="form-input"
                   placeholder="Örn: Ahmet Yılmaz"
-                  value={form.firstName + ' ' + form.lastName}
-                  onChange={e => setForm(f => ({ ...f, ad: e.target.value }))}
+                  value={`${form.firstName} ${form.lastName}`.trim()}
+                  onChange={e => {
+                    const parts = e.target.value.split(' ');
+                    const lastName = parts.length > 1 ? parts.pop() || '' : '';
+                    const firstName = parts.join(' ');
+                    setForm(f => ({ ...f, firstName, lastName }));
+                  }}
                   autoFocus
                 />
               </div>
