@@ -1,12 +1,16 @@
-import { useApp } from '../context/AppContext';
-import { StatusType } from '../types';
+
 import { getTodayFollowUps, getUpcomingFollowUps, getStatusColor, getStatusBg, getMonthlyData } from '../utils/helpers';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
 } from 'recharts';
+import { useApp } from '../context/AppContext';
+import { StatusType, LEODESSA_STAGES, VIZEMO_STAGES, LEGACY_STAGES } from '../types';
 
-const STATUS_TYPES: StatusType[] = ['Yeni Lead', 'Beklemede', 'Tamamlandı', 'Olumsuz'];
+const ALL_STAGES: StatusType[] = [...LEODESSA_STAGES, ...VIZEMO_STAGES, ...LEGACY_STAGES];
+
+const COMPLETED_STAGES: StatusType[] = ['Tamamlandı', 'Vize Alındı ✓'];
+const LOST_STAGES: StatusType[] = ['Olumsuz', 'Unqualify Lead', 'Ulaşılamadı', 'Vizemo Ekibine Devredildi'];
 
 const RADIAN = Math.PI / 180;
 const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
@@ -53,7 +57,7 @@ export default function Dashboard() {
   const monthlyData = getMonthlyData(customers);
 
   // Pie chart data for status
-  const pieData = STATUS_TYPES
+  const pieData = ALL_STAGES
     .map(s => ({ name: s, value: counts[s] ?? 0, color: getStatusColor(s) }))
     .filter(d => d.value > 0);
 
@@ -72,8 +76,9 @@ export default function Dashboard() {
 
   // Conversion rate calculation
   const totalLeads = customers.length;
-  const activeLeads = customers.filter(c => c.durum === 'Yeni Lead' || c.durum === 'Beklemede').length;
-  const completedLeads = counts['Tamamlandı'] ?? 0;
+  const completedLeads = COMPLETED_STAGES.reduce((sum, stage) => sum + (counts[stage] || 0), 0);
+  const lostLeads = LOST_STAGES.reduce((sum, stage) => sum + (counts[stage] || 0), 0);
+  const activeLeads = totalLeads - completedLeads - lostLeads;
 
   const conversionRate = totalLeads > 0
     ? ((completedLeads / totalLeads) * 100).toFixed(1)
@@ -90,10 +95,10 @@ export default function Dashboard() {
   const latestActivity = recentActivity.slice(0, 8);
 
   const statCards = [
-    { label: 'Yeni Lead', value: counts['Yeni Lead'], class: 'lead', icon: '📩' },
-    { label: 'Beklemede', value: counts['Beklemede'], class: 'beklemede', icon: '⏳' },
-    { label: 'Tamamlandı', value: counts['Tamamlandı'], class: 'tamamlandi', icon: '✓' },
-    { label: 'Olumsuz', value: counts['Olumsuz'], class: 'olumsuz', icon: '✕' },
+    { label: 'Yeni Giriş (Lead)', value: counts['Yeni Lead'] || 0, class: 'lead', icon: '📩' },
+    { label: 'Aktif Süreç', value: activeLeads, class: 'beklemede', icon: '⏳' },
+    { label: 'Başarılı', value: completedLeads, class: 'tamamlandi', icon: '✓' },
+    { label: 'Olumsuz', value: lostLeads, class: 'olumsuz', icon: '✕' },
   ];
 
   return (

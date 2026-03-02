@@ -7,9 +7,9 @@ const LEODESSA_COLOR = 'var(--accent-secondary)';
 const mainNav: { view: ViewType; icon: string; label: string }[] = [
   { view: 'dashboard', icon: '⬛', label: 'Dashboard' },
   { view: 'customers', icon: '👥', label: 'Tüm Müşteriler' },
-  { view: 'pipeline', icon: '📊', label: 'Pipeline' },
+  { view: 'vizemoPipeline', icon: '📈', label: 'Vizemo Pipeline' },
   { view: 'calendar', icon: '📅', label: 'Takvim' },
-  { view: 'reports', icon: '📈', label: 'Raporlar' },
+  { view: 'reports', icon: '📊', label: 'Raporlar' },
 ];
 
 const cityNav: { view: ViewType; icon: string; label: string; color: string }[] = [
@@ -141,6 +141,14 @@ export default function Sidebar() {
               {leodessaLeads.length}
             </span>
           )}
+        </button>
+        <button
+          className={`nav-item ${view === 'leodessaPipeline' ? 'active' : ''}`}
+          onClick={() => setView('leodessaPipeline')}
+          style={{ width: '100%', textAlign: 'left', background: 'transparent' }}
+        >
+          <span style={{ fontSize: '15px' }}>📈</span>
+          <span style={{ flex: 1 }}>Leodessa Pipeline</span>
         </button>
         <button
           className={`nav-item ${view === 'sdrDashboard' ? 'active' : ''}`}

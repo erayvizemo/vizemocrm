@@ -24,11 +24,12 @@ export const LEODESSA_STAGES: StatusType[] = [
   'Müşteriden Geri Dönüş Bekleniyor', 'Vizemo Ekibine Devredildi',
 ];
 export const VIZEMO_STAGES: StatusType[] = [
+  'Yeni Lead', 'Ulaşıldı', 'Ulaşılamadı', 'Unqualify Lead',
   'Belgeler İstendi', 'Başvurular Yapıldı', 'Randevu Alındı', 'Ödeme Alındı', 'Vize Alındı ✓',
 ];
 export const LEGACY_STAGES: StatusType[] = ['Beklemede', 'Tamamlandı', 'Olumsuz'];
 
-export type ViewType = 'dashboard' | 'customers' | 'pipeline' | 'calendar' | 'reports' | 'eskisehir' | 'gaziantep' | 'istanbul' | 'konya' | 'gelir' | 'leodessaTracking' | 'leodessaLeads' | 'sdrDashboard' | 'leodessaUpload';
+export type ViewType = 'dashboard' | 'customers' | 'leodessaPipeline' | 'vizemoPipeline' | 'calendar' | 'reports' | 'eskisehir' | 'gaziantep' | 'istanbul' | 'konya' | 'gelir' | 'leodessaTracking' | 'leodessaLeads' | 'sdrDashboard' | 'leodessaUpload';
 
 export type LeodessaStatus = 'new' | 'contacted' | 'transferred' | 'cancelled';
 
@@ -55,6 +56,8 @@ export interface LeodessaLead {
   salesConsultant?: string;   // Satış danışmanı adı soyadı (manuel giriş)
   kaynak?: string;            // Lead kaynağı (Meta Ads, Google Ads, vb.)
   sehir?: string;             // Müşteri şehri
+  arayanDanisman?: string;    // Danışman: Hanife / Zeynep
+  arananTarih?: string;       // Tarih
 }
 
 export interface LogEntry {
@@ -176,6 +179,12 @@ export interface Customer {
   evrakPct?: string;
   ulke?: string;
   durum_raw?: string;
+
+  // New field to separate pipelines
+  pipelineType?: 'leodessa' | 'vizemo';
+
+  arayanDanisman?: string;
+  arananTarih?: string;
 }
 
 export const VISA_TYPES = ['Schengen', 'İspanya Oturum', 'Amerika', 'İngiltere', 'Diğer'] as const;

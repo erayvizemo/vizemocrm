@@ -105,6 +105,8 @@ export default function LeodessaTracking() {
   const [tAd, setTAd] = useState('');
   const [tTel, setTTel] = useState('');
   const [tEmail, setTEmail] = useState('');
+  const [tDanisman, setTDanisman] = useState('Hanife');
+  const [tTarih, setTTarih] = useState(new Date().toISOString().substring(0, 10));
 
   const svc = services[curSvc];
   const totalSteps = svc.steps.length;
@@ -246,6 +248,8 @@ export default function LeodessaTracking() {
       crmTransferred: false,
       kaynak: leadKaynak,
       sehir: leadSehir,
+      arayanDanisman: tDanisman, // New field mapping
+      arananTarih: tTarih,       // New field mapping
     });
     setShowTransfer(false);
     setView('sdrDashboard');
@@ -763,6 +767,17 @@ export default function LeodessaTracking() {
             <div>
               <label className="form-label">E-posta <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(isteğe bağlı)</span></label>
               <input className="form-input" value={tEmail} onChange={e => setTEmail(e.target.value)} placeholder="ornek@mail.com" />
+            </div>
+            <div>
+              <label className="form-label">Arayan Danışman <span style={{ color: 'var(--accent-rose)' }}>*</span></label>
+              <select className="form-input" value={tDanisman} onChange={e => setTDanisman(e.target.value)}>
+                <option value="Hanife">Hanife</option>
+                <option value="Zeynep">Zeynep</option>
+              </select>
+            </div>
+            <div>
+              <label className="form-label">Aranan Tarih <span style={{ color: 'var(--accent-rose)' }}>*</span></label>
+              <input type="date" className="form-input" value={tTarih} onChange={e => setTTarih(e.target.value)} />
             </div>
           </div>
 

@@ -3,7 +3,8 @@ import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import Customers from './components/Customers';
 import CustomerModal from './components/CustomerModal';
-import Pipeline from './components/Pipeline';
+import VizemoPipeline from './components/VizemoPipeline';
+import LeodessaPipeline from './components/LeodessaPipeline';
 import FollowUpCalendar from './components/FollowUpCalendar';
 import Reports from './components/Reports';
 import CityView from './components/CityView';
@@ -23,7 +24,8 @@ function AppShell() {
         <div style={{ paddingLeft: 240, width: '100%', height: '100%' }}>
           {view === 'dashboard' && <Dashboard />}
           {view === 'customers' && <Customers />}
-          {view === 'pipeline' && <Pipeline />}
+          {view === 'vizemoPipeline' && <VizemoPipeline />}
+          {view === 'leodessaPipeline' && <LeodessaPipeline />}
           {view === 'calendar' && <FollowUpCalendar />}
           {view === 'reports' && <Reports />}
           {view === 'eskisehir' && <CityView city="Eskişehir" />}

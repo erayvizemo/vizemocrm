@@ -59,6 +59,9 @@ export default function LeodessaLeads() {
       ulke: '',
       leadSource: lead.kaynak || 'Diğer',
       assignedSdrId: currentUser?.role === 'sdr' ? currentUser.id : undefined,
+      pipelineType: 'leodessa',
+      arayanDanisman: lead.arayanDanisman || '',
+      arananTarih: lead.arananTarih || '',
     });
 
     updateLeodessaLead(lead.id, { crmTransferred: true, status: 'transferred' });

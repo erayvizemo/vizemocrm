@@ -63,15 +63,19 @@ export default function Reports() {
 
   const monthly = getMonthlyData(customers);
   const total = customers.length;
-  const convRate = total > 0 ? (((statusCounts['Tamamlandı'] ?? 0) / total) * 100).toFixed(1) : '0.0';
-  const lostRate = total > 0 ? (((statusCounts['Olumsuz'] ?? 0) / total) * 100).toFixed(1) : '0.0';
-  const activeCount = (statusCounts['Beklemede'] ?? 0) + (statusCounts['Yeni Lead'] ?? 0);
+
+  const completedCount = ['Tamamlandı', 'Vize Alındı ✓'].reduce((acc, s) => acc + (statusCounts[s as StatusType] ?? 0), 0);
+  const lostCount = ['Olumsuz', 'Unqualify Lead', 'Ulaşılamadı', 'Vizemo Ekibine Devredildi'].reduce((acc, s) => acc + (statusCounts[s as StatusType] ?? 0), 0);
+  const activeCount = total - completedCount - lostCount;
+
+  const convRate = total > 0 ? ((completedCount / total) * 100).toFixed(1) : '0.0';
+  const lostRate = total > 0 ? ((lostCount / total) * 100).toFixed(1) : '0.0';
 
   // Funnel data
   const funnelData: { name: string; value: number; fill: string }[] = [
     { name: 'Toplam Lead', value: total, fill: 'var(--accent-primary)' },
     { name: 'Aktif Müşteri', value: activeCount, fill: 'var(--accent-amber)' },
-    { name: 'Tamamlandı', value: statusCounts['Tamamlandı'] ?? 0, fill: 'var(--accent-emerald)' },
+    { name: 'Tamamlandı', value: completedCount, fill: 'var(--accent-emerald)' },
   ];
 
   const statusPie = STATUS_TYPES

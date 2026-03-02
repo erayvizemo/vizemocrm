@@ -44,7 +44,8 @@ export default function CustomerModal() {
     gorusme: '', takip: '', surec: '', karar: '', not: '',
     leadSource: '', adName: '', assignedSdrId: '',
     sehirDiger: '', kaynakDiger: '',
-    doNotContact: false, doNotContactReason: ''
+    doNotContact: false, doNotContactReason: '',
+    arayanDanisman: '', arananTarih: '',
   });
   const [activeChips, setActiveChips] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'info' | 'log' | 'tasks'>('info');
@@ -95,6 +96,8 @@ export default function CustomerModal() {
         danisman: customer.danisman ?? '',
         doNotContact: customer.doNotContact ?? false,
         doNotContactReason: customer.doNotContactReason ?? '',
+        arayanDanisman: customer.arayanDanisman ?? '',
+        arananTarih: customer.arananTarih ?? '',
       });
 
       // Auto-assign logic for SDR
@@ -112,7 +115,8 @@ export default function CustomerModal() {
         gorusme: '', takip: '', surec: '', karar: '', not: '',
         leadSource: '', adName: '', assignedSdrId: '',
         sehirDiger: '', kaynakDiger: '',
-        doNotContact: false, doNotContactReason: ''
+        doNotContact: false, doNotContactReason: '',
+        arayanDanisman: '', arananTarih: '',
       });
     }
   }, [isOpen, customerId, currentUser]);
@@ -148,6 +152,8 @@ export default function CustomerModal() {
         not: finalNote,
         doNotContact: form.doNotContact,
         doNotContactReason: form.doNotContact ? form.doNotContactReason : '',
+        arayanDanisman: form.arayanDanisman,
+        arananTarih: form.arananTarih,
         log: [{ timestamp: nowStr, text: 'Yeni müşteri oluşturuldu.' }],
       });
     } else if (customer) {
@@ -605,6 +611,21 @@ export default function CustomerModal() {
                   </FormField>
                 )}
 
+                {(customer?.pipelineType === 'leodessa' || (!customer && isNew)) && (
+                  <>
+                    <FormField label="Arayan Danışman">
+                      <select className="form-input" value={form.arayanDanisman} onChange={e => setForm(p => ({ ...p, arayanDanisman: e.target.value }))}>
+                        <option value="">Seçin...</option>
+                        <option value="Hanife">Hanife</option>
+                        <option value="Zeynep">Zeynep</option>
+                      </select>
+                    </FormField>
+                    <FormField label="Aranan Tarih">
+                      <input className="form-input" type="date" value={form.arananTarih} onChange={e => setForm(p => ({ ...p, arananTarih: e.target.value }))} />
+                    </FormField>
+                  </>
+                )}
+
                 {(currentUser?.role === 'leodessa_admin' || currentUser?.role === 'vizemo_admin') && (
                   <FormField label="SDR Ataması Yapan (Admin)">
                     <select className="form-input" value={form.assignedSdrId} onChange={e => setForm(p => ({ ...p, assignedSdrId: e.target.value }))}>
@@ -675,7 +696,38 @@ export default function CustomerModal() {
                   </select>
                 </FormField>
                 <FormField label="Müşteri Statüsü">
-                  <input className="form-input" type="text" value={form.statu} onChange={e => setForm(p => ({ ...p, statu: e.target.value }))} placeholder="Örn: Evrak Bekleniyor" />
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <select
+                      className="form-input"
+                      value={['Ofiste Görüşüldü', 'Arandı', 'Evrak Bekleniyor', 'Ulaşılamadı', ''].includes(form.statu) ? form.statu : 'Diğer'}
+                      onChange={e => {
+                        const val = e.target.value;
+                        if (val !== 'Diğer') setForm(p => ({ ...p, statu: val }));
+                        // "Diğer" seçilirse mevcut text kalır, yandaki input ile değiştirilir.
+                        if (val === 'Diğer' && ['Ofiste Görüşüldü', 'Arandı', 'Evrak Bekleniyor', 'Ulaşılamadı', ''].includes(form.statu)) {
+                          setForm(p => ({ ...p, statu: 'Özel Statü' })); // Placeholder text for input
+                        }
+                      }}
+                      style={{ flex: 1 }}
+                    >
+                      <option value="">Seçin...</option>
+                      <option>Ofiste Görüşüldü</option>
+                      <option>Arandı</option>
+                      <option>Evrak Bekleniyor</option>
+                      <option>Ulaşılamadı</option>
+                      <option value="Diğer">Diğer...</option>
+                    </select>
+                    {!['Ofiste Görüşüldü', 'Arandı', 'Evrak Bekleniyor', 'Ulaşılamadı', ''].includes(form.statu) && (
+                      <input
+                        className="form-input"
+                        type="text"
+                        value={form.statu}
+                        onChange={e => setForm(p => ({ ...p, statu: e.target.value }))}
+                        placeholder="Statü giriniz..."
+                        style={{ flex: 1 }}
+                      />
+                    )}
+                  </div>
                 </FormField>
                 <FormField label="Süreç (Konsolosluk/Başvuru)">
                   <select className="form-input" value={form.surec} onChange={e => setForm(p => ({ ...p, surec: e.target.value }))}>
