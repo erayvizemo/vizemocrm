@@ -56,13 +56,14 @@ export default function CityView({ city }: Props) {
     if (filterDurum) list = list.filter(c => c.durum === filterDurum);
     if (filterDanisman) list = list.filter(c => c.danisman === filterDanisman);
     if (search) {
-      const q = search.toLowerCase();
-      list = list.filter(c =>
-        (c.firstName + ' ' + c.lastName).toLowerCase().includes(q) ||
-        c.telefon.toLowerCase().includes(q) ||
-        (c.vize || '').toLowerCase().includes(q) ||
-        (c.not ?? '').toLowerCase().includes(q)
-      );
+      const q = search.trim().toLowerCase();
+      list = list.filter(c => {
+        const fullName = `${c.firstName || ''} ${c.lastName || ''}`.toLowerCase();
+        const phone = (c.telefon || '').toLowerCase();
+        const visa = (c.vize || '').toLowerCase();
+        const notes = (c.not || '').toLowerCase();
+        return fullName.includes(q) || phone.includes(q) || visa.includes(q) || notes.includes(q);
+      });
     }
     return [...list].sort((a, b) => {
       let av = a[sortCol] ?? '';

@@ -28,6 +28,27 @@ function normalizeKey(str) {
     return str.toLowerCase().replace(/ş/g, 's').replace(/ı/g, 'i').replace(/i̇/g, 'i').replace(/ğ/g, 'g').replace(/ç/g, 'c').replace(/ö/g, 'o').replace(/ü/g, 'u').replace(/ /g, '').replace(/[^a-z]/g, '');
 }
 
+function cleanPhone(phone) {
+    if (!phone) return '';
+    let p = String(phone).trim();
+    p = p.replace(/^p:/i, '');
+    p = p.replace(/\s+/g, ''); // remove all spaces during parsing
+
+    if (p.startsWith('+90')) p = '0' + p.slice(3);
+    else if (p.startsWith('90') && p.length === 12) p = '0' + p.slice(2);
+    else if (p.startsWith('+')) p = p.replace('+', ''); // some typos like +507
+
+    // If it's a 10 digit number starting with 5, add 0
+    if (p.length === 10 && p.startsWith('5')) p = '0' + p;
+
+    // Format clearly
+    if (p.length === 11 && p.startsWith('05')) {
+        p = `${p.substring(0, 4)} ${p.substring(4, 7)} ${p.substring(7, 9)} ${p.substring(9, 11)}`;
+    }
+
+    return p;
+}
+
 workbook.SheetNames.forEach(sheetName => {
     const parts = sheetName.split('_');
     const city = parts.length > 1 ? parts[1] : 'Eskişehir';
@@ -68,7 +89,7 @@ workbook.SheetNames.forEach(sheetName => {
                 id: String(idCounter++),
                 firstName: firstName || rowObj['Ad Soyad'].trim(),
                 lastName: lastName,
-                telefon: String(rowObj['Telefon'] || '').trim(),
+                telefon: cleanPhone(rowObj['Telefon']),
                 email: String(rowObj['Mail'] || '').trim(),
                 vize: String(rowObj['Vize Türü'] || 'Diğer').trim(),
                 ulke: String(rowObj['Ülke'] || '').trim(),
