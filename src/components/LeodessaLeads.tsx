@@ -13,7 +13,7 @@ function getTemperatureColor(temp: string): string {
 }
 
 export default function LeodessaLeads() {
-  const { leodessaLeads, deleteLeodessaLead, updateLeodessaLead, addCustomer, showToast, setView } = useApp();
+  const { leodessaLeads, deleteLeodessaLead, updateLeodessaLead, addCustomer, showToast, setView, currentUser } = useApp();
   const [filterService, setFilterService] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [selectedLead, setSelectedLead] = useState<LeodessaLead | null>(null);
@@ -58,6 +58,7 @@ export default function LeodessaLeads() {
       evrakPct: '',
       ulke: '',
       leadSource: lead.kaynak || 'Diğer',
+      assignedSdrId: currentUser?.role === 'sdr' ? currentUser.id : undefined,
     });
 
     updateLeodessaLead(lead.id, { crmTransferred: true, status: 'transferred' });
@@ -69,8 +70,8 @@ export default function LeodessaLeads() {
     return (
       <div className="chart-card" style={{ padding: '20px', flex: 1, minWidth: 140, position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', right: -20, top: -20, width: 80, height: 80, background: `radial-gradient(circle, ${color}20 0%, transparent 70%)`, borderRadius: '50%' }} />
-        <div style={{ fontSize: '32px', fontWeight: 800, color, fontFamily: "'Syne', sans-serif", letterSpacing: '-0.02em', lineHeight: 1 }}>{value}</div>
-        <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.07em', marginTop: 8, fontWeight: 700 }}>{label}</div>
+        <div style={{ fontSize: '32px', fontWeight: 800, color, fontFamily: "'DM Sans', sans-serif", letterSpacing: '-0.02em', lineHeight: 1 }}>{value}</div>
+        <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: "'DM Sans', sans-serif", textTransform: 'uppercase', letterSpacing: '0.07em', marginTop: 8, fontWeight: 700 }}>{label}</div>
       </div>
     );
   }
@@ -124,7 +125,7 @@ export default function LeodessaLeads() {
           <option value="disq">❌ Diskalifiye</option>
           <option value="transferred">✅ CRM'e Aktarılan</option>
         </select>
-        <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: "'Syne', sans-serif", fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: "'DM Sans', sans-serif", fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
           {filtered.length} sonuç bulundu
         </span>
       </div>
@@ -133,7 +134,7 @@ export default function LeodessaLeads() {
       {leodessaLeads.length === 0 && (
         <div style={{ textAlign: 'center', padding: '80px 24px', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 16 }}>
           <div style={{ fontSize: '48px', marginBottom: 16 }}>🤖</div>
-          <div style={{ fontSize: '18px', fontFamily: "'Syne', sans-serif", fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>Havuz Boş</div>
+          <div style={{ fontSize: '18px', fontFamily: "'DM Sans', sans-serif", fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>Havuz Boş</div>
           <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Leodessa asistanı üzerinden yapılan görüşmeler buraya düşecek.</div>
         </div>
       )}
@@ -165,21 +166,21 @@ export default function LeodessaLeads() {
                       width: 48, height: 48, borderRadius: 12, flexShrink: 0,
                       background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.2)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: '18px', fontWeight: 800, color: LEODESSA_COLOR, fontFamily: "'Syne', sans-serif"
+                      fontSize: '18px', fontWeight: 800, color: LEODESSA_COLOR, fontFamily: "'DM Sans', sans-serif"
                     }}>
                       {lead.firstName + ' ' + lead.lastName.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>{lead.firstName + ' ' + lead.lastName}</div>
+                      <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif" }}>{lead.firstName + ' ' + lead.lastName}</div>
                       <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: 4 }}>{lead.telefon}</div>
                     </div>
                   </div>
 
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '24px', fontWeight: 800, color: tempColor, fontFamily: "'Syne', sans-serif", lineHeight: 1 }}>
+                    <div style={{ fontSize: '24px', fontWeight: 800, color: tempColor, fontFamily: "'DM Sans', sans-serif", lineHeight: 1 }}>
                       {lead.isDisqualified ? '✗' : lead.score}
                     </div>
-                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: 4, fontWeight: 700 }}>puan</div>
+                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: "'DM Sans', sans-serif", textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: 4, fontWeight: 700 }}>puan</div>
                   </div>
                 </div>
 
@@ -252,7 +253,7 @@ export default function LeodessaLeads() {
           <div className="modal-content" style={{ width: 620, maxWidth: '95vw' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24, borderBottom: '1px solid var(--border-subtle)', paddingBottom: 16 }}>
               <div>
-                <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", marginBottom: 6 }}>
+                <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", marginBottom: 6 }}>
                   {selectedLead.firstName + ' ' + selectedLead.lastName}
                 </div>
                 <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
@@ -286,7 +287,7 @@ export default function LeodessaLeads() {
             <div style={{ background: 'var(--bg-elevated)', borderRadius: 12, padding: '20px', border: '1px solid var(--border-subtle)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: LEODESSA_COLOR }} />
-                <div style={{ fontSize: '11px', color: LEODESSA_COLOR, fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>
+                <div style={{ fontSize: '11px', color: LEODESSA_COLOR, fontFamily: "'DM Sans', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>
                   Yapay Zeka Görüşme Özeti
                 </div>
               </div>

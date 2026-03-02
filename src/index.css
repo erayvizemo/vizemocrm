@@ -98,7 +98,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: 'Syne', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
@@ -122,7 +122,7 @@ h6 {
 }
 
 .sidebar-logo {
-  font-family: 'Syne', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 22px;
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -195,7 +195,7 @@ h6 {
 }
 
 .sidebar-city-count {
-  font-family: 'Syne', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 11px;
   font-weight: 700;
   background: var(--bg-elevated);
@@ -507,7 +507,7 @@ h6 {
 }
 
 .kanban-count {
-  font-family: 'Syne', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 13px;
   font-weight: 700;
   color: var(--text-muted);
@@ -595,7 +595,7 @@ h6 {
 }
 
 .amount-cell {
-  font-family: 'Syne', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 14px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -607,7 +607,7 @@ h6 {
 }
 
 .revenue-total {
-  font-family: 'Syne', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 48px;
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -651,7 +651,7 @@ h6 {
 }
 
 .form-modal-title {
-  font-family: 'Syne', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 22px;
   font-weight: 700;
   color: var(--text-primary);
@@ -827,7 +827,7 @@ h6 {
 }
 
 .calendar-day-num {
-  font-family: 'Syne', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 14px;
   font-weight: 600;
   color: var(--text-secondary);
@@ -880,7 +880,7 @@ h6 {
 }
 
 .chart-title {
-  font-family: 'Syne', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 16px;
   font-weight: 700;
   color: var(--text-primary);
@@ -907,7 +907,7 @@ h6 {
   display: flex;
   align-items: center;
   padding: 0 16px;
-  font-family: 'Syne', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 18px;
   font-weight: 700;
   color: white;

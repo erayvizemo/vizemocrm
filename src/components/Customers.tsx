@@ -195,7 +195,7 @@ export default function Customers() {
                       {c.sehir && <span style={{ display: 'block', fontSize: 11, color: 'var(--text-muted)', marginTop: 2, fontWeight: 500 }}>{c.sehir}</span>}
                     </td>
                     <td>
-                      <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 13, color: 'var(--text-secondary)' }}>{c.telefon || '—'}</div>
+                      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'var(--text-secondary)' }}>{c.telefon || '—'}</div>
                     </td>
                     <td>
                       {c.vize ? (
@@ -210,10 +210,10 @@ export default function Customers() {
                       </div>
                     </td>
                     <td style={{ color: 'var(--text-secondary)' }}>{c.statu || '—'}</td>
-                    <td style={{ fontFamily: "'Syne', sans-serif", fontSize: 13, color: 'var(--text-muted)' }}>
+                    <td style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'var(--text-muted)' }}>
                       {c.createdAt ? new Date(c.createdAt).toLocaleDateString('tr-TR') : '—'}
                     </td>
-                    <td style={{ fontFamily: "'Syne', sans-serif", fontSize: 12, fontWeight: 600, color: 'var(--accent-secondary)' }}>
+                    <td style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: 'var(--accent-secondary)' }}>
                       {formatLastActivity(c.lastActivityDate)}
                     </td>
                     <td onClick={e => e.stopPropagation()}>

@@ -263,14 +263,14 @@ export default function LeodessaTracking() {
       }}>
         {/* Branding */}
         <div style={{ marginBottom: 32, paddingBottom: 24, borderBottom: '1px solid var(--border-subtle)' }}>
-          <div style={{ fontSize: '12px', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.12em', color: LEODESSA_COLOR, fontWeight: 800, marginBottom: 6 }}>
+          <div style={{ fontSize: '12px', fontFamily: "'DM Sans', sans-serif", textTransform: 'uppercase', letterSpacing: '0.12em', color: LEODESSA_COLOR, fontWeight: 800, marginBottom: 6 }}>
             ✈ LEODESSA ASİSTAN
           </div>
           <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Müşteri Kalifikasyon Akışı</div>
         </div>
 
         {/* Service select */}
-        <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700, marginBottom: 12, paddingLeft: 12 }}>
+        <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: "'DM Sans', sans-serif", textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700, marginBottom: 12, paddingLeft: 12 }}>
           Hizmet Menüsü
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 32 }}>
@@ -298,21 +298,21 @@ export default function LeodessaTracking() {
         {/* Customer info summary (shown once filled) */}
         {(leadFirstName || leadTel) && (
           <div style={{ padding: '16px', background: 'rgba(139, 92, 246, 0.05)', borderRadius: 12, border: `1px solid rgba(139, 92, 246, 0.2)`, marginBottom: 16 }}>
-            <div style={{ fontSize: '10px', color: LEODESSA_COLOR, fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, fontWeight: 700 }}>
+            <div style={{ fontSize: '10px', color: LEODESSA_COLOR, fontFamily: "'DM Sans', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, fontWeight: 700 }}>
               👤 Müşteri Kimliği
             </div>
             {leadAd && <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>{leadAd}</div>}
-            {leadSehir && <div style={{ fontSize: '12px', color: LEODESSA_COLOR, fontFamily: "'Syne', sans-serif", marginBottom: 2 }}>📍 {leadSehir}</div>}
-            {leadTel && <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: "'Syne', sans-serif" }}>{leadTel}</div>}
+            {leadSehir && <div style={{ fontSize: '12px', color: LEODESSA_COLOR, fontFamily: "'DM Sans', sans-serif", marginBottom: 2 }}>📍 {leadSehir}</div>}
+            {leadTel && <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: "'DM Sans', sans-serif" }}>{leadTel}</div>}
           </div>
         )}
 
         {/* Score panel */}
         <div style={{ padding: '20px 16px', background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-subtle)', marginBottom: 'auto' }}>
-          <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12, textAlign: 'center' }}>
+          <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: "'DM Sans', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12, textAlign: 'center' }}>
             Anlık Lead Skoru
           </div>
-          <div style={{ fontSize: '48px', fontWeight: 800, textAlign: 'center', color: tempInfo.color, fontFamily: "'Syne', sans-serif", lineHeight: 1 }}>
+          <div style={{ fontSize: '48px', fontWeight: 800, textAlign: 'center', color: tempInfo.color, fontFamily: "'DM Sans', sans-serif", lineHeight: 1 }}>
             {isIntro ? '—' : tempInfo.scoreDisplay}
           </div>
           <div style={{ fontSize: '12px', textAlign: 'center', color: isIntro ? 'var(--text-muted)' : tempInfo.color, fontWeight: 700, marginTop: 12, fontFamily: "'DM Sans', sans-serif" }}>
@@ -322,7 +322,7 @@ export default function LeodessaTracking() {
 
         {/* Progress */}
         <div style={{ padding: '20px 0 0', marginTop: 32, borderTop: '1px solid var(--border-subtle)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-muted)', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10, fontWeight: 600 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-muted)', fontFamily: "'DM Sans', sans-serif", textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10, fontWeight: 600 }}>
             <span>İlerleme Seviyesi</span>
             <span style={{ color: 'var(--text-primary)' }}>{progressText}</span>
           </div>
@@ -349,7 +349,7 @@ export default function LeodessaTracking() {
             👤
           </div>
           <div>
-            <h2 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6, fontFamily: "'Syne', sans-serif" }}>Görüşme Başlangıcı</h2>
+            <h2 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6, fontFamily: "'DM Sans', sans-serif" }}>Görüşme Başlangıcı</h2>
             <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
               {svc.icon} <strong style={{ color: 'var(--text-primary)' }}>{svc.name}</strong> görüşmesine başlamadan önce temasa geçeceğiniz kişinin bilgilerini girin.
             </div>
@@ -361,7 +361,7 @@ export default function LeodessaTracking() {
           background: 'var(--bg-card)', border: `1px solid var(--border-subtle)`,
           borderRadius: 16, padding: '32px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
         }}>
-          <div style={{ fontSize: '12px', color: LEODESSA_COLOR, fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ fontSize: '12px', color: LEODESSA_COLOR, fontFamily: "'DM Sans', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: LEODESSA_COLOR }} />
             Müşteri Kimlik Detayları
           </div>
@@ -501,7 +501,7 @@ export default function LeodessaTracking() {
         {disq && (
           <div style={{ background: 'rgba(244, 63, 94, 0.05)', border: '1px solid rgba(244, 63, 94, 0.3)', borderRadius: 16, padding: '24px', marginBottom: 32, textAlign: 'center' }}>
             <div style={{ fontSize: '36px', marginBottom: 12 }}>🚫</div>
-            <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--accent-rose)', fontFamily: "'Syne', sans-serif", marginBottom: 8 }}>Bu Lead Diskalifiye Edildi</div>
+            <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--accent-rose)', fontFamily: "'DM Sans', sans-serif", marginBottom: 8 }}>Bu Lead Diskalifiye Edildi</div>
             <div style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: 20 }}>{getDisqMsg(disqReason)}</div>
             <button className="btn-secondary" onClick={handleClearDisq} style={{ color: 'var(--accent-rose)', borderColor: 'rgba(244, 63, 94, 0.4)' }}>
               Yanıtı Değiştir ve Devam Et
@@ -511,11 +511,11 @@ export default function LeodessaTracking() {
 
         {/* Step header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
-          <div style={{ width: 48, height: 48, background: `linear-gradient(135deg, ${LEODESSA_COLOR}, #8B5CF6)`, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '20px', fontFamily: "'Syne', sans-serif", color: '#fff', flexShrink: 0, boxShadow: `0 4px 16px rgba(168,85,247,0.3)` }}>
+          <div style={{ width: 48, height: 48, background: `linear-gradient(135deg, ${LEODESSA_COLOR}, #8B5CF6)`, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '20px', fontFamily: "'DM Sans', sans-serif", color: '#fff', flexShrink: 0, boxShadow: `0 4px 16px rgba(168,85,247,0.3)` }}>
             {curStep + 1}
           </div>
           <div>
-            <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", marginBottom: 6 }}>{step.title}</div>
+            <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", marginBottom: 6 }}>{step.title}</div>
             <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{step.hint}</div>
           </div>
         </div>
@@ -533,7 +533,7 @@ export default function LeodessaTracking() {
                 border: `1px solid ${isAnswered ? 'var(--border-glow)' : 'var(--border-subtle)'}`,
                 borderRadius: 16, padding: '24px', transition: 'all 0.2s',
               }}>
-                <div style={{ fontSize: '11px', color: LEODESSA_COLOR, textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8, fontFamily: "'Syne', sans-serif" }}>
+                <div style={{ fontSize: '11px', color: LEODESSA_COLOR, textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8, fontFamily: "'DM Sans', sans-serif" }}>
                   <div style={{ width: 6, height: 6, borderRadius: '50%', background: LEODESSA_COLOR }} />
                   Soru {qi + 1} {q.required && <span style={{ color: 'var(--accent-rose)' }}>*</span>}
                 </div>
@@ -573,7 +573,7 @@ export default function LeodessaTracking() {
                             onMouseLeave={e => { if (!isSelected) e.currentTarget.style.borderColor = btnBorder; }}
                           >
                             {opt.label}
-                            <span style={{ fontSize: '11px', fontFamily: "'Syne', sans-serif", fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(0,0,0,0.2)' }}>{scoreStr}</span>
+                            <span style={{ fontSize: '11px', fontFamily: "'DM Sans', sans-serif", fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(0,0,0,0.2)' }}>{scoreStr}</span>
                           </button>
                         );
                       })}
@@ -589,7 +589,7 @@ export default function LeodessaTracking() {
                     })()}
                     {q.subFields && answers[q.id] && q.subFields.showOnValues.includes(answers[q.id]) && (
                       <div style={{ padding: '20px', borderRadius: 12, background: 'rgba(245, 158, 11, 0.03)', border: '1px solid rgba(245, 158, 11, 0.2)', marginBottom: 16 }}>
-                        <div style={{ fontSize: '11px', color: 'var(--accent-amber)', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 16 }}>
+                        <div style={{ fontSize: '11px', color: 'var(--accent-amber)', fontFamily: "'DM Sans', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 16 }}>
                           📋 Ek Bilgiler Gerekiyor
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -672,7 +672,7 @@ export default function LeodessaTracking() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
           <div style={{ width: 48, height: 48, background: 'var(--accent-emerald)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '24px', color: '#fff', flexShrink: 0, boxShadow: '0 4px 16px rgba(16, 185, 129, 0.4)' }}>✓</div>
           <div>
-            <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", marginBottom: 6 }}>Görüşme Tamamlandı</div>
+            <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", marginBottom: 6 }}>Görüşme Tamamlandı</div>
             <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{svc.name} — Lead kalifikasyon sonucu ve önerilen aksiyonlar</div>
           </div>
         </div>
@@ -680,9 +680,9 @@ export default function LeodessaTracking() {
         <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 20, padding: '32px' }}>
           {/* Müşteri + Skor */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginBottom: 32, flexWrap: 'wrap' }}>
-            <div style={{ fontSize: '64px', fontWeight: 800, color: tempInfo.color, fontFamily: "'Syne', sans-serif", lineHeight: 1 }}>{tempInfo.scoreDisplay}</div>
+            <div style={{ fontSize: '64px', fontWeight: 800, color: tempInfo.color, fontFamily: "'DM Sans', sans-serif", lineHeight: 1 }}>{tempInfo.scoreDisplay}</div>
             <div>
-              <div style={{ fontSize: '24px', fontWeight: 800, color: tempInfo.color, fontFamily: "'Syne', sans-serif", marginBottom: 4 }}>{tempInfo.label}</div>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: tempInfo.color, fontFamily: "'DM Sans', sans-serif", marginBottom: 4 }}>{tempInfo.label}</div>
               <div style={{ fontSize: '14px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ padding: '2px 8px', borderRadius: 4, background: 'var(--bg-elevated)', color: 'var(--text-primary)' }}>{svc.name}</span>
                 <span>{leadAd}</span>
@@ -693,7 +693,7 @@ export default function LeodessaTracking() {
           </div>
 
           <div style={{ padding: '24px', borderRadius: 16, border: `1px solid ${action.border}`, background: action.bg, marginBottom: 32 }}>
-            <div style={{ fontSize: '14px', fontFamily: "'Syne', sans-serif", fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 16, color: action.color, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ fontSize: '14px', fontFamily: "'DM Sans', sans-serif", fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 16, color: action.color, display: 'flex', alignItems: 'center', gap: 8 }}>
               <div style={{ width: 8, height: 8, borderRadius: '50%', background: action.color }} />
               Önerilen Aksiyon Planı
             </div>
@@ -703,7 +703,7 @@ export default function LeodessaTracking() {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-            <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700 }}>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: "'DM Sans', sans-serif", textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700 }}>
               Detaylı Görüşme Özeti
             </div>
             <button onClick={() => { const t = buildSummaryText(); navigator.clipboard?.writeText(t).catch(() => { }); }} className="btn-secondary" style={{ padding: '6px 14px', fontSize: '12px', background: 'rgba(139, 92, 246, 0.1)', color: LEODESSA_COLOR, borderColor: 'rgba(139, 92, 246, 0.3)' }}>
@@ -715,7 +715,7 @@ export default function LeodessaTracking() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {summaryItems.map((item, i) => (
                 <div key={i} style={{ background: item.isNote ? 'rgba(245, 158, 11, 0.05)' : 'var(--bg-elevated)', borderRadius: 12, padding: '16px 20px', border: `1px solid ${item.isNote ? 'rgba(245, 158, 11, 0.2)' : 'var(--border-subtle)'}` }}>
-                  <div style={{ fontSize: '11px', color: item.isNote ? 'var(--accent-amber)' : 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, fontFamily: "'Syne', sans-serif", fontWeight: 600 }}>{item.label}</div>
+                  <div style={{ fontSize: '11px', color: item.isNote ? 'var(--accent-amber)' : 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, fontFamily: "'DM Sans', sans-serif", fontWeight: 600 }}>{item.label}</div>
                   <div style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)', whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>{item.value}</div>
                 </div>
               ))}
@@ -742,7 +742,7 @@ export default function LeodessaTracking() {
     return (
       <div className="modal-overlay" onClick={() => setShowTransfer(false)}>
         <div className="modal-content" style={{ maxWidth: 460 }} onClick={e => e.stopPropagation()}>
-          <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", marginBottom: 8, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", marginBottom: 8, display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 10, height: 10, borderRadius: '50%', background: LEODESSA_COLOR, boxShadow: `0 0 10px ${LEODESSA_COLOR}` }} />
             Lead Havuzuna Kaydet
           </div>

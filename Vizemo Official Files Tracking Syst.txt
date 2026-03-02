@@ -1,0 +1,36 @@
+Vizemo Official Files Tracking System
+
+Turistik Bireysel Schengen  
+- Müşteri profiline göre gerekli evrak listesi otomatik açılsın
+- Gerekli evrakların isimlerinin listesi
+- Müşterinin sponsoru varsa alt bir klasör açılsın onun içinde gerekli evraklar kısmı olsun. Buradada emekli mi , iş yeri sahibi mi çalışan mı kısımlarına göre evraklar listelensin
+- Bu belgeleri müşteriden pdf alıp yükleyeceğimiz kısım olsun
+- Evrakların tamamlanma yüzdesini ve eksik dökümanları söyleyen bir yapı olsun
+- Kişinin randevu tarihini girip randevudan bir hafta önce ilgili satış danışmanına evrakları tamamla bildirimi gelsin
+- Rıfat onay kısmı veya red kısmı eklensin (approved/reject) aynı zamanda Rıfat Bey için not kısmı olsun 
+- Kişinin neyle ülkeden çıkış yapacağı ( uçaksa uçak bileti satın alınmış olması gerekiyor bunun için bir kısım olsun, araba ise yeşil sigorta ve ehliyet ruhsat kısmı olsun)
+- Tapu kısmı olsun
+- Konaklama bilgisi ( otel rezrvasyon bilgisi kısmı)
+- Niyet Mektubu kısmı olsun
+- Seyahat sağlım sigortası yapıldı mı yapılmadı mı kısmı
+- Pasaport fotoğrafı ve son vize fotoğrafı kısmı
+
+Aile/ Arkadaş Ziyareti
+- Davet mektubu kısmı
+- Kişinin neyle ülkeden çıkış yapacağı ( uçaksa uçak bileti satın alınmış olması gerekiyor bunun için bir kısım olsun, araba ise yeşil sigorta ve ehliyet ruhsat kısmı olsun)
+- Tapu kısmı olsun
+- Konaklama bilgisi ( otel rezrvasyon bilgisi kısmı)
+- Niyet Mektubu kısmı olsun
+- Seyahat sağlım sigortası yapıldı mı yapılmadı mı kısmı
+- Pasaport fotoğrafı ve son vize fotoğrafı kısmı
+
+İş Ziyareti
+- Davet mektubu kısmı
+- Davet edilen şirketin Son 6 ay içerisinde yapılan ticari sicil kaydı gerekecek
+- Kişinin neyle ülkeden çıkış yapacağı ( uçaksa uçak bileti satın alınmış olması gerekiyor bunun için bir kısım olsun, araba ise yeşil sigorta ve ehliyet ruhsat kısmı olsun)
+- Tapu kısmı olsun
+- Konaklama bilgisi ( otel rezrvasyon bilgisi kısmı)
+- Niyet Mektubu kısmı olsun
+- Seyahat sağlım sigortası yapıldı mı yapılmadı mı kısmı
+- Pasaport fotoğrafı ve son vize fotoğrafı kısmı
+

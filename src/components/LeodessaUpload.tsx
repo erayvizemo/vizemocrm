@@ -204,7 +204,7 @@ export default function LeodessaUpload() {
               }}
             >
               <div style={{ fontSize: '48px', marginBottom: 16, lineHeight: 1 }}>�</div>
-              <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8, fontFamily: "'Syne', sans-serif" }}>
+              <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8, fontFamily: "'DM Sans', sans-serif" }}>
                 Yeni Excel/CSV Yükle
               </div>
               <div style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: 24 }}>
@@ -227,7 +227,7 @@ export default function LeodessaUpload() {
 
             {uploadBatches.length > 0 ? (
               <div>
-                <h3 style={{ fontSize: '18px', color: 'var(--text-primary)', marginBottom: 16, fontFamily: "'Syne', sans-serif" }}>Yüklü Müşteri Klasörleri</h3>
+                <h3 style={{ fontSize: '18px', color: 'var(--text-primary)', marginBottom: 16, fontFamily: "'DM Sans', sans-serif" }}>Yüklü Müşteri Klasörleri</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
                   {uploadBatches.map(batch => (
                     <div key={batch.id} style={{
@@ -296,7 +296,7 @@ export default function LeodessaUpload() {
 
               {activeBatch.colMap && (
                 <div style={{ marginBottom: 20, padding: '16px 20px', background: 'var(--bg-card)', borderRadius: 14, border: '1px solid var(--border-subtle)' }}>
-                  <div style={{ fontSize: '11px', color: LEODESSA_COLOR, fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', fontWeight: 700, marginBottom: 12, letterSpacing: '0.06em' }}>
+                  <div style={{ fontSize: '11px', color: LEODESSA_COLOR, fontFamily: "'DM Sans', sans-serif", textTransform: 'uppercase', fontWeight: 700, marginBottom: 12, letterSpacing: '0.06em' }}>
                     Sütun Eşleşmeleri
                   </div>
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>

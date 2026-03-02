@@ -173,7 +173,7 @@ export default function CityView({ city }: Props) {
                   cursor: 'pointer',
                   fontSize: '12px',
                   color: filterDanisman === d ? cityColor : 'var(--text-secondary)',
-                  fontFamily: "'Syne', sans-serif",
+                  fontFamily: "'DM Sans', sans-serif",
                   fontWeight: 600,
                   transition: 'all 0.15s',
                 }}
@@ -184,7 +184,7 @@ export default function CityView({ city }: Props) {
             {filterDanisman && (
               <button
                 onClick={() => setFilterDanisman('')}
-                style={{ padding: '6px 12px', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '12px', fontWeight: 600, fontFamily: "'Syne', sans-serif" }}
+                style={{ padding: '6px 12px', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '12px', fontWeight: 600, fontFamily: "'DM Sans', sans-serif" }}
               >
                 ✕ Filtreyi Temizle
               </button>
@@ -240,7 +240,7 @@ export default function CityView({ city }: Props) {
                   style={{ cursor: 'pointer' }}
                 >
                   <td className="td-name">{c.firstName + ' ' + c.lastName}</td>
-                  <td style={{ fontFamily: "'Syne', sans-serif", fontSize: 13, color: 'var(--text-secondary)' }}>
+                  <td style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'var(--text-secondary)' }}>
                     {c.telefon || '—'}
                   </td>
                   <td>

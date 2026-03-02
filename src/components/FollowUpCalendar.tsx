@@ -73,7 +73,7 @@ export default function FollowUpCalendar() {
               className="btn-secondary"
               style={{ padding: '6px 12px' }}
             >‹ Önceki</button>
-            <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: '18px', color: 'var(--text-primary)' }}>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: '18px', color: 'var(--text-primary)' }}>
               {MONTHS[viewMonth]} {viewYear}
             </div>
             <button
@@ -147,7 +147,7 @@ export default function FollowUpCalendar() {
           {/* Selected date detail */}
           {selectedDate && (
             <div className="chart-card" style={{ padding: 20 }}>
-              <div style={{ fontSize: '11px', fontFamily: "'Syne', sans-serif", color: 'var(--accent-cyan)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 16, fontWeight: 700 }}>
+              <div style={{ fontSize: '11px', fontFamily: "'DM Sans', sans-serif", color: 'var(--accent-cyan)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 16, fontWeight: 700 }}>
                 {selectedDate.split('-').reverse().join('.')} — {selectedCustomers.length} Takip
               </div>
 
@@ -178,7 +178,7 @@ export default function FollowUpCalendar() {
                       }}
                     >
                       <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)', marginBottom: 4 }}>{c.firstName + ' ' + c.lastName}</div>
-                      {c.telefon && <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontFamily: "'Syne', sans-serif", marginBottom: 8 }}>{c.telefon}</div>}
+                      {c.telefon && <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif", marginBottom: 8 }}>{c.telefon}</div>}
 
                       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                         <div className={`status-indicator ${getStatusClass(c.durum)}`} style={{ transform: 'scale(0.85)', transformOrigin: 'left' }}>
@@ -197,7 +197,7 @@ export default function FollowUpCalendar() {
 
           {/* Upcoming 14 days */}
           <div className="chart-card" style={{ padding: 20, flex: 1, maxHeight: 'calc(100vh - 200px)', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ fontSize: '11px', fontFamily: "'Syne', sans-serif", color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 16, fontWeight: 700 }}>
+            <div style={{ fontSize: '11px', fontFamily: "'DM Sans', sans-serif", color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 16, fontWeight: 700 }}>
               Yaklaşan 14 Gün
             </div>
 
@@ -235,7 +235,7 @@ export default function FollowUpCalendar() {
                     >
                       <div style={{
                         fontSize: '11px',
-                        fontFamily: "'Syne', sans-serif",
+                        fontFamily: "'DM Sans', sans-serif",
                         color: days === 0 ? 'var(--accent-rose)' : days === 1 ? 'var(--accent-amber)' : 'var(--text-secondary)',
                         fontWeight: 700,
                         minWidth: 50,

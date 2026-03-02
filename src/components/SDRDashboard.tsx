@@ -36,7 +36,7 @@ function StatCard({ label, value, color, icon }: { label: string; value: number 
       gap: 8,
     }}>
       <div style={{ fontSize: 24 }}>{icon}</div>
-      <div style={{ fontSize: 32, fontFamily: "'Syne', sans-serif", fontWeight: 800, color }}>{value}</div>
+      <div style={{ fontSize: 32, fontFamily: "'DM Sans', sans-serif", fontWeight: 800, color }}>{value}</div>
       <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif", fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</div>
     </div>
   );
@@ -55,7 +55,7 @@ function LeadRow({ c, badge }: { c: Customer; badge?: React.ReactNode }) {
       border: '1px solid var(--border-subtle)',
     }}>
       <div style={{ flex: 1 }}>
-        <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif" }}>
+        <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif" }}>
           {c.firstName} {c.lastName}
         </div>
         <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 2 }}>{c.telefon}</div>
@@ -67,7 +67,7 @@ function LeadRow({ c, badge }: { c: Customer; badge?: React.ReactNode }) {
         fontWeight: 700,
         background: `${getStatusColor(c.durum)}18`,
         color: getStatusColor(c.durum),
-        fontFamily: "'Syne', sans-serif",
+        fontFamily: "'DM Sans', sans-serif",
         whiteSpace: 'nowrap',
       }}>
         {c.durum}
@@ -82,7 +82,7 @@ function SectionTitle({ children, color = 'var(--accent-primary)' }: { children:
   return (
     <div style={{
       fontSize: '11px',
-      fontFamily: "'Syne', sans-serif",
+      fontFamily: "'DM Sans', sans-serif",
       fontWeight: 800,
       textTransform: 'uppercase',
       letterSpacing: '0.1em',
@@ -100,15 +100,18 @@ export default function SDRDashboard() {
 
   const todayStr = today();
 
+  // Exclude legacy imported data (IDs are 4 digits) to prevent data chaos
+  const sdrCustomers = customers.filter(c => c.id.length > 4);
+
   // Visible customers filtered by current user role
   const visibleCustomers = currentUser?.role === 'sdr'
-    ? customers.filter(c => c.assignedSdrId === currentUser.id)
-    : customers;
+    ? sdrCustomers.filter(c => c.assignedSdrId === currentUser.id)
+    : sdrCustomers;
 
   // ── Buckets ─────────────────────────────────────────────────────────────────
   const overdueFollowups = visibleCustomers.filter(c => isOverdue(c.nextFollowupDate) && !c.doNotContact);
-  const todayFollowups   = visibleCustomers.filter(c => isDueToday(c.nextFollowupDate));
-  const soonFollowups    = visibleCustomers.filter(c => isDueSoon(c.nextFollowupDate) && !isDueToday(c.nextFollowupDate));
+  const todayFollowups = visibleCustomers.filter(c => isDueToday(c.nextFollowupDate));
+  const soonFollowups = visibleCustomers.filter(c => isDueSoon(c.nextFollowupDate) && !isDueToday(c.nextFollowupDate));
 
   // 48h no activity
   const inactive48h = visibleCustomers.filter(c => {
@@ -117,7 +120,7 @@ export default function SDRDashboard() {
   });
 
   // Unassigned leads (admin only)
-  const unassigned = customers.filter(c => !c.assignedSdrId && LEODESSA_STAGES.includes(c.durum as any));
+  const unassigned = sdrCustomers.filter(c => !c.assignedSdrId && LEODESSA_STAGES.includes(c.durum as any));
 
   // ── Pipeline stage counts ────────────────────────────────────────────────────
   const stageCounts: Record<string, number> = {};
@@ -139,7 +142,7 @@ export default function SDRDashboard() {
   // ── Per-SDR stats (admin view) ────────────────────────────────────────────────
   const sdrs = users.filter(u => u.role === 'sdr');
   const sdrStats = sdrs.map(sdr => {
-    const mine = customers.filter(c => c.assignedSdrId === sdr.id);
+    const mine = sdrCustomers.filter(c => c.assignedSdrId === sdr.id);
     const overdue = mine.filter(c => isOverdue(c.nextFollowupDate));
     const todayDue = mine.filter(c => isDueToday(c.nextFollowupDate));
     const calls = mine.reduce((sum, c) => sum + (c.callLogs?.length ?? 0), 0);
@@ -153,7 +156,7 @@ export default function SDRDashboard() {
 
       {/* Page title */}
       <div style={{ marginBottom: 32 }}>
-        <div style={{ fontSize: '28px', fontFamily: "'Syne', sans-serif", fontWeight: 800, color: 'var(--text-primary)' }}>
+        <div style={{ fontSize: '28px', fontFamily: "'DM Sans', sans-serif", fontWeight: 800, color: 'var(--text-primary)' }}>
           📊 SDR Dashboard
         </div>
         <div style={{ fontSize: '14px', color: 'var(--text-muted)', marginTop: 6 }}>
@@ -234,7 +237,7 @@ export default function SDRDashboard() {
         <SectionTitle color="var(--accent-primary)">📊 Pipeline Dağılımı</SectionTitle>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 10 }}>
           {/* LeoDessa stages */}
-          <div style={{ gridColumn: '1 / -1', fontSize: '11px', color: '#a855f7', fontWeight: 700, fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
+          <div style={{ gridColumn: '1 / -1', fontSize: '11px', color: '#a855f7', fontWeight: 700, fontFamily: "'DM Sans', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
             ✈ LeoDessa Aşamaları
           </div>
           {LEODESSA_STAGES.map(s => (
@@ -249,11 +252,11 @@ export default function SDRDashboard() {
               alignItems: 'center',
             }}>
               <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif" }}>{s}</div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: getStatusColor(s), fontFamily: "'Syne', sans-serif" }}>{stageCounts[s]}</div>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: getStatusColor(s), fontFamily: "'DM Sans', sans-serif" }}>{stageCounts[s]}</div>
             </div>
           ))}
           {/* Vizemo stages */}
-          <div style={{ gridColumn: '1 / -1', fontSize: '11px', color: 'var(--accent-cyan)', fontWeight: 700, fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 8, marginBottom: 4 }}>
+          <div style={{ gridColumn: '1 / -1', fontSize: '11px', color: 'var(--accent-cyan)', fontWeight: 700, fontFamily: "'DM Sans', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 8, marginBottom: 4 }}>
             🏢 Vizemo Aşamaları
           </div>
           {VIZEMO_STAGES.map(s => (
@@ -268,7 +271,7 @@ export default function SDRDashboard() {
               alignItems: 'center',
             }}>
               <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif" }}>{s}</div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: getStatusColor(s), fontFamily: "'Syne', sans-serif" }}>{stageCounts[s]}</div>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: getStatusColor(s), fontFamily: "'DM Sans', sans-serif" }}>{stageCounts[s]}</div>
             </div>
           ))}
         </div>
@@ -286,13 +289,13 @@ export default function SDRDashboard() {
               const pct = totalCalls > 0 ? Math.round((count / totalCalls) * 100) : 0;
               const barColor = o.startsWith('Ulaşıldı') ? 'var(--accent-emerald)'
                 : o.startsWith('Ulaşılamadı') ? 'var(--accent-rose)'
-                : o === 'Numara Yanlış' ? '#94a3b8'
-                : 'var(--accent-amber)';
+                  : o === 'Numara Yanlış' ? '#94a3b8'
+                    : 'var(--accent-amber)';
               return (
                 <div key={o} style={{ background: 'var(--bg-elevated)', borderRadius: 8, padding: '12px 16px', border: '1px solid var(--border-subtle)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                     <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif" }}>{o}</div>
-                    <div style={{ fontSize: '16px', fontWeight: 800, color: barColor, fontFamily: "'Syne', sans-serif" }}>{count}</div>
+                    <div style={{ fontSize: '16px', fontWeight: 800, color: barColor, fontFamily: "'DM Sans', sans-serif" }}>{count}</div>
                   </div>
                   <div style={{ height: 4, borderRadius: 2, background: 'var(--bg-void)' }}>
                     <div style={{ height: '100%', borderRadius: 2, background: barColor, width: `${pct}%`, transition: 'width 0.4s' }} />
@@ -335,7 +338,7 @@ export default function SDRDashboard() {
                 borderRadius: 12,
                 padding: '20px',
               }}>
-                <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: '16px', color: 'var(--text-primary)', marginBottom: 16 }}>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: '16px', color: 'var(--text-primary)', marginBottom: 16 }}>
                   👤 {sdr.name}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -347,7 +350,7 @@ export default function SDRDashboard() {
                   ].map(row => (
                     <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif" }}>{row.label}</div>
-                      <div style={{ fontSize: '18px', fontWeight: 800, color: row.value > 0 ? row.color : 'var(--text-muted)', fontFamily: "'Syne', sans-serif" }}>{row.value}</div>
+                      <div style={{ fontSize: '18px', fontWeight: 800, color: row.value > 0 ? row.color : 'var(--text-muted)', fontFamily: "'DM Sans', sans-serif" }}>{row.value}</div>
                     </div>
                   ))}
                 </div>

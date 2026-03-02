@@ -15,7 +15,7 @@ const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
   return (
-    <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={11} fontFamily="'Syne', sans-serif" fontWeight={700}>
+    <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={11} fontFamily="'DM Sans', sans-serif" fontWeight={700}>
       {`${(percent * 100).toFixed(0)}%`}
     </text>
   );
@@ -262,7 +262,7 @@ export default function Dashboard() {
                     <span className="legend-dot" style={{ background: d.color }} />
                     <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{d.name}</span>
                   </div>
-                  <span style={{ fontSize: '14px', fontFamily: "'Syne', sans-serif", fontWeight: 700, color: 'var(--text-primary)' }}>
+                  <span style={{ fontSize: '14px', fontFamily: "'DM Sans', sans-serif", fontWeight: 700, color: 'var(--text-primary)' }}>
                     {d.value}
                   </span>
                 </div>
@@ -316,7 +316,7 @@ export default function Dashboard() {
                         <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>{c.firstName + ' ' + c.lastName}</div>
                         <div style={{
                           fontSize: '11px',
-                          fontFamily: "'Syne', sans-serif",
+                          fontFamily: "'DM Sans', sans-serif",
                           color: days === 0 ? 'var(--accent-rose)' : days === 1 ? 'var(--accent-amber)' : 'var(--accent-primary)',
                           fontWeight: 700,
                         }}>
@@ -357,7 +357,7 @@ export default function Dashboard() {
                   >
                     <div style={{
                       fontSize: '11px',
-                      fontFamily: "'Syne', sans-serif",
+                      fontFamily: "'DM Sans', sans-serif",
                       fontWeight: 600,
                       color: 'var(--text-secondary)',
                       paddingTop: 2,

@@ -34,7 +34,7 @@ const renderLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: an
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
   return (
-    <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={11} fontFamily="'Syne', sans-serif" fontWeight={700}>
+    <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={11} fontFamily="'DM Sans', sans-serif" fontWeight={700}>
       {`${(percent * 100).toFixed(0)}%`}
     </text>
   );
@@ -104,10 +104,10 @@ export default function Reports() {
           { label: 'Kayıp Oranı', value: `${lostRate}%`, color: 'var(--accent-rose)', desc: 'Olumsuz kapanış' },
         ].map(kpi => (
           <div key={kpi.label} className="chart-card" style={{ padding: '20px' }}>
-            <div style={{ color: 'var(--text-muted)', fontSize: '11px', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12, fontWeight: 700 }}>
+            <div style={{ color: 'var(--text-muted)', fontSize: '11px', fontFamily: "'DM Sans', sans-serif", textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12, fontWeight: 700 }}>
               {kpi.label}
             </div>
-            <div style={{ fontSize: '36px', fontWeight: 800, color: kpi.color, fontFamily: "'Syne', sans-serif", lineHeight: 1, marginBottom: 8 }}>
+            <div style={{ fontSize: '36px', fontWeight: 800, color: kpi.color, fontFamily: "'DM Sans', sans-serif", lineHeight: 1, marginBottom: 8 }}>
               {kpi.value}
             </div>
             <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{kpi.desc}</div>
@@ -191,7 +191,7 @@ export default function Reports() {
                         transition: 'width 0.5s ease',
                       }} />
                     </div>
-                    <div style={{ fontSize: '13px', color: 'var(--text-primary)', fontFamily: "'Syne', sans-serif", fontWeight: 700, minWidth: 24, textAlign: 'right' }}>
+                    <div style={{ fontSize: '13px', color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", fontWeight: 700, minWidth: 24, textAlign: 'right' }}>
                       {item.value}
                     </div>
                   </div>
@@ -221,7 +221,7 @@ export default function Reports() {
                     <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{karar}</span>
                     <span style={{
                       fontSize: '12px',
-                      fontFamily: "'Syne', sans-serif",
+                      fontFamily: "'DM Sans', sans-serif",
                       color: 'var(--accent-cyan)',
                       fontWeight: 700,
                       background: 'rgba(6,182,212,0.1)',
@@ -289,7 +289,7 @@ export default function Reports() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: '#fff',
-                    fontFamily: "'Syne', sans-serif",
+                    fontFamily: "'DM Sans', sans-serif",
                     fontSize: '18px',
                     fontWeight: 700,
                   }}>

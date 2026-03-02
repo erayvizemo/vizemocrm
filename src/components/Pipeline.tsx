@@ -106,7 +106,7 @@ export default function Pipeline() {
       <div style={{ padding: '24px 32px 16px', borderBottom: '1px solid var(--border-subtle)', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
           <div>
-            <h1 style={{ fontSize: '24px', color: 'var(--text-primary)', margin: 0, fontFamily: "'Syne', sans-serif", fontWeight: 700 }}>
+            <h1 style={{ fontSize: '24px', color: 'var(--text-primary)', margin: 0, fontFamily: "'DM Sans', sans-serif", fontWeight: 700 }}>
               Pipeline
             </h1>
             <div style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: 4 }}>
@@ -136,7 +136,7 @@ export default function Pipeline() {
         </div>
 
         {/* Section labels */}
-        <div style={{ display: 'flex', gap: 20, marginTop: 14, fontSize: '11px', fontWeight: 700, fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+        <div style={{ display: 'flex', gap: 20, marginTop: 14, fontSize: '11px', fontWeight: 700, fontFamily: "'DM Sans', sans-serif", textTransform: 'uppercase', letterSpacing: '0.1em' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <div style={{ width: 10, height: 10, borderRadius: '50%', background: LEODESSA_COLOR }} />
             <span style={{ color: LEODESSA_COLOR }}>✈ LeoDessa Aşamaları (1-6)</span>
@@ -219,7 +219,7 @@ export default function Pipeline() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <span style={{ fontSize: '14px' }}>{meta.icon}</span>
                         <span style={{
-                          fontSize: '10px', fontFamily: "'Syne', sans-serif", fontWeight: 700,
+                          fontSize: '10px', fontFamily: "'DM Sans', sans-serif", fontWeight: 700,
                           textTransform: 'uppercase', letterSpacing: '0.06em',
                           color: isLeodessa ? LEODESSA_COLOR : isVizemo ? VIZEMO_COLOR : 'var(--text-muted)',
                         }}>
@@ -227,7 +227,7 @@ export default function Pipeline() {
                         </span>
                       </div>
                       <span style={{
-                        fontSize: '11px', fontWeight: 700, fontFamily: "'Syne', sans-serif",
+                        fontSize: '11px', fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
                         padding: '2px 8px', borderRadius: 20,
                         background: `${meta.color}20`, color: meta.color,
                       }}>
@@ -292,7 +292,7 @@ export default function Pipeline() {
                             </div>
 
                             {c.telefon && (
-                              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: "'Syne', sans-serif", marginBottom: 4 }}>
+                              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: "'DM Sans', sans-serif", marginBottom: 4 }}>
                                 {c.telefon}
                               </div>
                             )}

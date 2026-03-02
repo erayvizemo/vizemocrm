@@ -111,7 +111,7 @@ export default function Revenue() {
         style={{
           padding: '12px 16px',
           textAlign: 'left',
-          fontFamily: "'Syne', sans-serif",
+          fontFamily: "'DM Sans', sans-serif",
           fontSize: '11px',
           textTransform: 'uppercase',
           letterSpacing: '0.06em',
@@ -210,13 +210,13 @@ export default function Revenue() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
         <div className="chart-card" style={{ padding: '24px', position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', right: -20, top: -20, width: 100, height: 100, background: 'radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%)', borderRadius: '50%' }} />
-          <div style={{ fontSize: '11px', fontFamily: "'Syne', sans-serif", color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12, fontWeight: 700 }}>Toplam Gelir</div>
+          <div style={{ fontSize: '11px', fontFamily: "'DM Sans', sans-serif", color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12, fontWeight: 700 }}>Toplam Gelir</div>
           <div style={{ fontSize: '32px', fontWeight: 700, fontFamily: "'DM Sans', sans-serif", color: GOLD, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{fmt(toplam)}</div>
           <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: 8 }}>{revenue.length} müşteri kaydı</div>
         </div>
         <div className="chart-card" style={{ padding: '24px', position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', right: -20, top: -20, width: 100, height: 100, background: 'radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%)', borderRadius: '50%' }} />
-          <div style={{ fontSize: '11px', fontFamily: "'Syne', sans-serif", color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12, fontWeight: 700 }}>Tahsil Edilen</div>
+          <div style={{ fontSize: '11px', fontFamily: "'DM Sans', sans-serif", color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12, fontWeight: 700 }}>Tahsil Edilen</div>
           <div style={{ fontSize: '32px', fontWeight: 700, fontFamily: "'DM Sans', sans-serif", color: 'var(--accent-emerald)', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{fmt(onOdemeToplam)}</div>
           <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: 8 }}>
             {toplam > 0 ? Math.round(onOdemeToplam / toplam * 100) : 0}% tahsil edildi
@@ -224,7 +224,7 @@ export default function Revenue() {
         </div>
         <div className="chart-card" style={{ padding: '24px', position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', right: -20, top: -20, width: 100, height: 100, background: 'radial-gradient(circle, rgba(244, 63, 94, 0.15) 0%, transparent 70%)', borderRadius: '50%' }} />
-          <div style={{ fontSize: '11px', fontFamily: "'Syne', sans-serif", color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12, fontWeight: 700 }}>Kalan Tahsilat</div>
+          <div style={{ fontSize: '11px', fontFamily: "'DM Sans', sans-serif", color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12, fontWeight: 700 }}>Kalan Tahsilat</div>
           <div style={{ fontSize: '32px', fontWeight: 700, fontFamily: "'DM Sans', sans-serif", color: kalanToplam > 0 ? 'var(--accent-rose)' : 'var(--accent-emerald)', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{fmt(kalanToplam)}</div>
           <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: 8 }}>
             {kalanToplam === 0 ? '✓ Tüm ödemeler tahsil edildi' : 'Bekleyen ödemeler var'}
@@ -271,7 +271,7 @@ export default function Revenue() {
                 <div key={s.name}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                     <span style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 600 }}>{s.name}</span>
-                    <span style={{ fontSize: '13px', fontFamily: "'Syne', sans-serif", fontWeight: 700, color }}>
+                    <span style={{ fontSize: '13px', fontFamily: "'DM Sans', sans-serif", fontWeight: 700, color }}>
                       {fmt(s.toplam)} <span style={{ color: 'var(--text-muted)', fontWeight: 500, marginLeft: 4 }}>({s.count} kayıt)</span>
                     </span>
                   </div>
@@ -285,7 +285,7 @@ export default function Revenue() {
 
           {/* Payment methods */}
           <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--border-subtle)' }}>
-            <div style={{ fontSize: '11px', fontFamily: "'Syne', sans-serif", color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12, fontWeight: 700 }}>
+            <div style={{ fontSize: '11px', fontFamily: "'DM Sans', sans-serif", color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12, fontWeight: 700 }}>
               Ödeme Yöntemleri Dağılımı
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
@@ -300,7 +300,7 @@ export default function Revenue() {
                   color: 'var(--text-secondary)',
                   fontWeight: 500
                 }}>
-                  {o.name} — <span style={{ color: GOLD, fontWeight: 700, fontFamily: "'Syne', sans-serif" }}>{fmt(o.value)}</span>
+                  {o.name} — <span style={{ color: GOLD, fontWeight: 700, fontFamily: "'DM Sans', sans-serif" }}>{fmt(o.value)}</span>
                 </div>
               ))}
             </div>
@@ -370,7 +370,7 @@ export default function Revenue() {
             <strong>{filtered.length}</strong> kayıt bulundur
           </span>
           <span style={{ height: 16, width: 1, background: 'var(--border-subtle)' }} />
-          <span style={{ fontSize: '14px', fontFamily: "'Syne', sans-serif", fontWeight: 700, color: GOLD }}>
+          <span style={{ fontSize: '14px', fontFamily: "'DM Sans', sans-serif", fontWeight: 700, color: GOLD }}>
             {fmt(filtered.reduce((a, r) => a + r.toplam, 0))}
           </span>
         </div>
@@ -385,13 +385,13 @@ export default function Revenue() {
                 <TH col="firstName" label="Müşteri İsim / Ad" />
                 <TH col="danisman" label="Danışman" />
                 <TH col="sehir" label="Şehir" />
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontFamily: "'Syne', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>Ödeme Yöntemi</th>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>Ödeme Yöntemi</th>
                 <TH col="onOdemeTarihi" label="Ön Ödeme Tarihi" />
-                <th style={{ padding: '12px 16px', textAlign: 'right', fontFamily: "'Syne', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>Ön Ödeme</th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontFamily: "'Syne', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>Kalan Tarih</th>
-                <th style={{ padding: '12px 16px', textAlign: 'right', fontFamily: "'Syne', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>Kalan</th>
+                <th style={{ padding: '12px 16px', textAlign: 'right', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>Ön Ödeme</th>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>Kalan Tarih</th>
+                <th style={{ padding: '12px 16px', textAlign: 'right', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>Kalan</th>
                 <TH col="toplam" label="Toplam" />
-                <th style={{ padding: '12px 16px', textAlign: 'center', fontFamily: "'Syne', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>İşlem</th>
+                <th style={{ padding: '12px 16px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>İşlem</th>
               </tr>
             </thead>
             <tbody>
@@ -471,7 +471,7 @@ export default function Revenue() {
             {filtered.length > 0 && (
               <tfoot>
                 <tr style={{ borderTop: `1px solid var(--border-glow)`, background: 'rgba(245, 158, 11, 0.05)' }}>
-                  <td colSpan={5} style={{ padding: '16px', fontSize: '13px', fontFamily: "'Syne', sans-serif", color: 'var(--text-primary)', fontWeight: 700 }}>
+                  <td colSpan={5} style={{ padding: '16px', fontSize: '13px', fontFamily: "'DM Sans', sans-serif", color: 'var(--text-primary)', fontWeight: 700 }}>
                     KARŞILAŞTIRILAN TOPLAM YEKÜN ({filtered.length} işlem)
                   </td>
                   <td style={{ padding: '16px', textAlign: 'right', fontSize: '14px', fontFamily: "'DM Sans', sans-serif", color: 'var(--accent-emerald)', fontWeight: 700 }}>
@@ -500,7 +500,7 @@ export default function Revenue() {
           <div className="modal-content" style={{ maxWidth: 540 }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28, borderBottom: '1px solid var(--border-subtle)', paddingBottom: 16 }}>
               <div style={{ width: 12, height: 12, borderRadius: '50%', background: GOLD, boxShadow: `0 0 12px ${GOLD}` }} />
-              <h3 style={{ fontSize: '20px', fontFamily: "'Syne', sans-serif", fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+              <h3 style={{ fontSize: '20px', fontFamily: "'DM Sans', sans-serif", fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
                 {editEntryId ? 'Gelir Kaydını Düzenle' : 'Yeni Gelir Kaydı Ekle'}
               </h3>
             </div>
@@ -611,8 +611,8 @@ export default function Revenue() {
               borderRadius: 12, padding: '16px 20px', marginTop: 24, marginBottom: 32,
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             }}>
-              <span style={{ fontSize: '12px', fontFamily: "'Syne', sans-serif", color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Hesaplanan Toplam Tutar</span>
-              <span style={{ fontSize: '24px', fontWeight: 800, fontFamily: "'Syne', sans-serif", color: GOLD }}>
+              <span style={{ fontSize: '12px', fontFamily: "'DM Sans', sans-serif", color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Hesaplanan Toplam Tutar</span>
+              <span style={{ fontSize: '24px', fontWeight: 800, fontFamily: "'DM Sans', sans-serif", color: GOLD }}>
                 {fmt((parseFloat(form.onOdeme) || 0) + (parseFloat(form.kalanOdeme) || 0))}
               </span>
             </div>

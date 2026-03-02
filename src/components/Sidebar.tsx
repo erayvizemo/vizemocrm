@@ -50,7 +50,7 @@ export default function Sidebar() {
           VİZEMO
         </div>
         <div style={{
-          fontFamily: "'Syne', sans-serif",
+          fontFamily: "'DM Sans', sans-serif",
           fontSize: '11px',
           fontWeight: 700,
           color: 'var(--text-muted)',
@@ -133,7 +133,7 @@ export default function Sidebar() {
           <span style={{ flex: 1 }}>Akıllı Lead Havuzu</span>
           {leodessaLeads.length > 0 && (
             <span style={{
-              fontSize: '10px', fontFamily: "'Syne', sans-serif",
+              fontSize: '10px', fontFamily: "'DM Sans', sans-serif",
               background: `var(--bg-elevated)`, color: LEODESSA_COLOR, border: `1px solid ${LEODESSA_COLOR}40`,
               borderRadius: 6, padding: '2px 8px', fontWeight: 700,
             }}>
@@ -164,7 +164,7 @@ export default function Sidebar() {
               }} />
               <span style={{ fontSize: '12px', color: 'var(--text-secondary)', flex: 1, fontFamily: "'DM Sans', sans-serif", fontWeight: 500 }}>{s.label}</span>
               <span style={{
-                fontSize: '13px', fontFamily: "'Syne', sans-serif",
+                fontSize: '13px', fontFamily: "'DM Sans', sans-serif",
                 color: getStatusColor(s.status), fontWeight: 700,
               }}>{counts[s.status] ?? 0}</span>
             </div>

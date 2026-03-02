@@ -19,7 +19,7 @@ function FormField({ label, children }: { label: string; children: React.ReactNo
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
       <label style={{
         fontSize: '11px',
-        fontFamily: "'Syne', sans-serif",
+        fontFamily: "'DM Sans', sans-serif",
         textTransform: 'uppercase',
         letterSpacing: '0.06em',
         color: 'var(--text-secondary)',
@@ -263,12 +263,12 @@ export default function CustomerModal() {
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid var(--border-subtle)' }}>
           <div>
-            <div style={{ fontSize: '24px', fontFamily: "'Syne', sans-serif", fontWeight: 700, color: 'var(--text-primary)' }}>
+            <div style={{ fontSize: '24px', fontFamily: "'DM Sans', sans-serif", fontWeight: 700, color: 'var(--text-primary)' }}>
               {isNew ? '✨ Yeni Müşteri' : `${form.firstName} ${form.lastName}`}
             </div>
             {!isNew && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
-                <span style={{ fontSize: '14px', fontFamily: "'Syne', sans-serif", color: 'var(--text-secondary)' }}>
+                <span style={{ fontSize: '14px', fontFamily: "'DM Sans', sans-serif", color: 'var(--text-secondary)' }}>
                   {form.telefon || 'Telefon yok'}
                 </span>
                 {customer && (
@@ -337,7 +337,7 @@ export default function CustomerModal() {
                   color: activeTab === tab ? 'var(--accent-primary)' : 'var(--text-secondary)',
                   cursor: 'pointer',
                   fontSize: '13px',
-                  fontFamily: "'Syne', sans-serif",
+                  fontFamily: "'DM Sans', sans-serif",
                   fontWeight: 600,
                   marginBottom: -1,
                   transition: 'all 0.2s',
@@ -357,7 +357,7 @@ export default function CustomerModal() {
             {showCallForm && (
               <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)', borderRadius: 12, padding: 20, marginBottom: 24 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-                  <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--accent-primary)', fontFamily: "'Syne', sans-serif" }}>📞 Arama Kaydı Ekle</div>
+                  <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--accent-primary)', fontFamily: "'DM Sans', sans-serif" }}>📞 Arama Kaydı Ekle</div>
                   <button onClick={() => setShowCallForm(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>✖</button>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
@@ -394,7 +394,7 @@ export default function CustomerModal() {
                     borderBottom: i < customer.log.length - 1 ? '1px solid var(--border-subtle)' : 'none',
                   }}>
                     <div style={{
-                      fontFamily: "'Syne', sans-serif",
+                      fontFamily: "'DM Sans', sans-serif",
                       fontWeight: 700,
                       color: 'var(--text-muted)',
                       fontSize: '12px',
@@ -428,7 +428,7 @@ export default function CustomerModal() {
             ) : (
               <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-glow)', borderRadius: 12, padding: 20, marginBottom: 24 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-                  <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--accent-primary)', fontFamily: "'Syne', sans-serif" }}>📋 Yeni Task Ekle</div>
+                  <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--accent-primary)', fontFamily: "'DM Sans', sans-serif" }}>📋 Yeni Task Ekle</div>
                   <button onClick={() => setShowTaskForm(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '16px' }}>✖</button>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
@@ -485,7 +485,7 @@ export default function CustomerModal() {
                         <div style={{ flex: 1 }}>
                           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                             <span style={{
-                              padding: '3px 8px', borderRadius: 6, fontSize: '11px', fontWeight: 700, fontFamily: "'Syne', sans-serif",
+                              padding: '3px 8px', borderRadius: 6, fontSize: '11px', fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
                               background: isDone ? 'rgba(16,185,129,0.1)' : task.status === 'in_progress' ? 'rgba(99,102,241,0.1)' : 'rgba(245,158,11,0.1)',
                               color: isDone ? 'var(--accent-emerald)' : task.status === 'in_progress' ? 'var(--accent-primary)' : 'var(--accent-amber)',
                               border: `1px solid ${isDone ? 'rgba(16,185,129,0.25)' : task.status === 'in_progress' ? 'rgba(99,102,241,0.25)' : 'rgba(245,158,11,0.25)'}`,
@@ -495,7 +495,7 @@ export default function CustomerModal() {
                             {isOverdue && !isDone && (
                               <span style={{ fontSize: '11px', color: 'var(--accent-rose)', fontWeight: 700 }}>⚠ Süresi Geçti!</span>
                             )}
-                            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: "'Syne', sans-serif" }}>
+                            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: "'DM Sans', sans-serif" }}>
                               📅 {task.dueDate}
                             </span>
                             {assignedUser && (
@@ -550,7 +550,7 @@ export default function CustomerModal() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
             {/* Section: Kişisel Bilgiler */}
             <div>
-              <div style={{ fontSize: '12px', fontFamily: "'Syne', sans-serif", fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--accent-primary)', marginBottom: 16 }}>
+              <div style={{ fontSize: '12px', fontFamily: "'DM Sans', sans-serif", fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--accent-primary)', marginBottom: 16 }}>
                 Kişisel Bilgiler
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
@@ -622,7 +622,7 @@ export default function CustomerModal() {
                       onChange={e => setForm(p => ({ ...p, doNotContact: e.target.checked, doNotContactReason: e.target.checked ? p.doNotContactReason : '' }))}
                       style={{ width: 18, height: 18, accentColor: 'var(--accent-rose)', cursor: 'pointer' }}
                     />
-                    <span style={{ fontSize: '14px', fontFamily: "'Syne', sans-serif", fontWeight: 600, color: form.doNotContact ? 'var(--accent-rose)' : 'var(--text-primary)' }}>
+                    <span style={{ fontSize: '14px', fontFamily: "'DM Sans', sans-serif", fontWeight: 600, color: form.doNotContact ? 'var(--accent-rose)' : 'var(--text-primary)' }}>
                       🚫 Bu Müşteriyle İletişime Geçmeyin (Do Not Contact)
                     </span>
                   </label>
@@ -646,7 +646,7 @@ export default function CustomerModal() {
 
             {/* Section: Vize & Durum */}
             <div>
-              <div style={{ fontSize: '12px', fontFamily: "'Syne', sans-serif", fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--accent-primary)', marginBottom: 16 }}>
+              <div style={{ fontSize: '12px', fontFamily: "'DM Sans', sans-serif", fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--accent-primary)', marginBottom: 16 }}>
                 Vize & Operasyon
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
@@ -697,7 +697,7 @@ export default function CustomerModal() {
 
             {/* Section: Tarihler */}
             <div>
-              <div style={{ fontSize: '12px', fontFamily: "'Syne', sans-serif", fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--accent-primary)', marginBottom: 16 }}>
+              <div style={{ fontSize: '12px', fontFamily: "'DM Sans', sans-serif", fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--accent-primary)', marginBottom: 16 }}>
                 Takvim
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
@@ -713,7 +713,7 @@ export default function CustomerModal() {
             {/* Note builder */}
             <div>
               <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)', borderRadius: 12, padding: 20 }}>
-                <div style={{ fontSize: '11px', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--accent-cyan)', fontWeight: 600, marginBottom: 16 }}>
+                <div style={{ fontSize: '11px', fontFamily: "'DM Sans', sans-serif", textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--accent-cyan)', fontWeight: 600, marginBottom: 16 }}>
                   Hızlı Not Oluşturucu
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
@@ -727,7 +727,7 @@ export default function CustomerModal() {
                           padding: '6px 12px',
                           borderRadius: 20,
                           fontSize: '11px',
-                          fontFamily: "'Syne', sans-serif",
+                          fontFamily: "'DM Sans', sans-serif",
                           fontWeight: 600,
                           cursor: 'pointer',
                           border: `1px solid ${active ? 'var(--accent-cyan)' : 'var(--border-subtle)'}`,
