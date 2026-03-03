@@ -131,22 +131,26 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         textAnswers: l.textAnswers || []
       }));
       setLeodessaLeads(safeLeodessa);
-
-      // Fetch upload batches via dedicated function (safe mapping)
-      await fetchUploadBatches();
-
+      // NOTE: upload_batches is intentionally NOT fetched here.
+      // It is loaded once on mount (below) and then managed purely through
+      // local state (addUploadBatch / removeRowFromBatch / deleteUploadBatch).
+      // This prevents customer/revenue realtime events from overwriting
+      // upload batch rows with stale DB data.
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
     }
-  }, [fetchUploadBatches]);
+  }, []);
 
   // Initial Data Fetch
   useEffect(() => {
     setLoading(true);
     fetchAllData();
-  }, [fetchAllData]);
+    // Load upload_batches ONCE on mount, separately from main data.
+    // After this point, local state is the source of truth for upload_batches.
+    fetchUploadBatches();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Realtime Subscriptions
   useEffect(() => {
@@ -154,16 +158,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'customers' }, fetchAllData)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'revenue' }, fetchAllData)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'leodessa_leads' }, fetchAllData)
-      // upload_batches uses its own targeted handler to avoid race conditions.
-      // This ensures ALL users see newly uploaded files in real-time
-      // without triggering a full data re-fetch that could create race conditions.
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'upload_batches' }, fetchUploadBatches)
+      // upload_batches is intentionally NOT in realtime.
+      // Local state (managed by addUploadBatch/removeRowFromBatch/deleteUploadBatch)
+      // is the source of truth. DB is the persistence layer only.
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [fetchAllData, fetchUploadBatches]);
+  }, [fetchAllData]);
 
   const openModal = useCallback((customerId?: string) => {
     setModal({ isOpen: true, customerId: customerId ?? null });
