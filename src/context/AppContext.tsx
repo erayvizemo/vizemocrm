@@ -72,18 +72,37 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [users] = useState<User[]>(FAKE_USERS);
   const [currentUser, setCurrentUser] = useState<User | null>(FAKE_USERS[1]); // Default to 'Eray' (sdr)
 
+  // ── Dedicated safe fetch for upload_batches ──
+  // Used both on initial load and by realtime handler.
+  // Keeps rows / headers / colMap safe against null values from DB.
+  const fetchUploadBatches = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('upload_batches')
+      .select('*')
+      .order('uploadDate', { ascending: false });
+    if (error) {
+      console.error('Error fetching upload_batches:', error);
+      return;
+    }
+    const safe = (data || []).map((b: any) => ({
+      ...b,
+      rows: Array.isArray(b.rows) ? b.rows : [],
+      headers: Array.isArray(b.headers) ? b.headers : [],
+      colMap: b.colMap ?? { adSoyad: null, ad: null, soyad: null, telefon: null, email: null, sehir: null, kaynak: null },
+    }));
+    setUploadBatches(safe);
+  }, []);
+
   const fetchAllData = useCallback(async () => {
     try {
       const [
         { data: customersData },
         { data: revenueData },
         { data: leodessaData },
-        { data: batchesData }
       ] = await Promise.all([
         supabase.from('customers').select('*').order('createdAt', { ascending: false }),
         supabase.from('revenue').select('*'),
         supabase.from('leodessa_leads').select('*').order('createdAt', { ascending: false }),
-        supabase.from('upload_batches').select('*').order('uploadDate', { ascending: false })
       ]);
 
       const safeCustomers = (customersData || []).map((c: any) => ({
@@ -103,14 +122,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         textAnswers: l.textAnswers || []
       }));
       setLeodessaLeads(safeLeodessa);
-      setUploadBatches(batchesData || []);
+
+      // Fetch upload batches via dedicated function (safe mapping)
+      await fetchUploadBatches();
 
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fetchUploadBatches]);
 
   // Initial Data Fetch
   useEffect(() => {
@@ -124,15 +145,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'customers' }, fetchAllData)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'revenue' }, fetchAllData)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'leodessa_leads' }, fetchAllData)
-      // NOTE: upload_batches is intentionally excluded from realtime
-      // to prevent race conditions that would reset uploaded lead data.
-      // Batches are fetched once on load and managed optimistically.
+      // upload_batches uses its own targeted handler to avoid race conditions.
+      // This ensures ALL users see newly uploaded files in real-time
+      // without triggering a full data re-fetch that could create race conditions.
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'upload_batches' }, fetchUploadBatches)
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [fetchAllData]);
+  }, [fetchAllData, fetchUploadBatches]);
 
   const openModal = useCallback((customerId?: string) => {
     setModal({ isOpen: true, customerId: customerId ?? null });
