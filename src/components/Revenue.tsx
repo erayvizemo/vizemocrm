@@ -7,7 +7,26 @@ const CITY_COLORS: Record<string, string> = {
   'Eskişehir': 'var(--accent-primary)',
   'Gaziantep': 'var(--accent-amber)',
   'İstanbul': 'var(--accent-emerald)',
+  'Ankara': 'var(--accent-cyan)',
+  'İzmir': 'var(--accent-secondary)',
+  'Konya': 'var(--accent-rose)',
 };
+
+// Türkiye'nin tüm şehirleri
+const ALL_CITIES = [
+  'Eskişehir', 'Gaziantep', 'İstanbul', 'Ankara', 'İzmir', 'Konya', 'Adana', 'Bursa',
+  'Antalya', 'Kayseri', 'Mersin', 'Trabzon', 'Samsun', 'Diyarbakır', 'Şanlıurfa',
+  'Malatya', 'Erzurum', 'Van', 'Kahramanmaraş', 'Batman', 'Balıkesir', 'Denizli',
+  'Kocaeli', 'Sakarya', 'Manisa', 'Muğla', 'Aydın', 'Tekirdağ', 'Edirne',
+  'Kırklareli', 'Çanakkale', 'Afyonkarahisar', 'Kütahya', 'Uşak', 'Isparta', 'Burdur',
+  'Kastamonu', 'Çorum', 'Amasya', 'Tokat', 'Ordu', 'Giresun', 'Rize', 'Artvin',
+  'Ardahan', 'Kars', 'Iğdır', 'Ağrı', 'Muş', 'Bitlis', 'Siirt', 'Şırnak', 'Hakkari',
+  'Mardin', 'Adıyaman', 'Elazığ', 'Bingöl', 'Tunceli', 'Erzincan', 'Gümüşhane',
+  'Bayburt', 'Sinop', 'Karabük', 'Zonguldak', 'Bartın', 'Bolu', 'Düzce', 'Yalova',
+  'Bilecik', 'Eskişehir', 'Kırikkale', 'Aksaray', 'Nevşehir', 'Kırşehir', 'Niğde',
+  'Karaman', 'Konya', 'Sivas', 'Yozgat', 'Çankırı', 'Ankara', 'Osmaniye', 'Kilis',
+  'Diğer'
+];
 
 const DANISMAN_OPTIONS = ['Eray', 'Dilara', 'Elanur'];
 
@@ -32,7 +51,7 @@ export default function Revenue() {
   };
   const [form, setForm] = useState(emptyForm);
 
-  // Unique consultants & cities – merge hardcoded list with dynamic ones
+  // Unique consultants – merge hardcoded list with dynamic ones
   const consultants = useMemo(() => {
     const s = new Set<string>(DANISMAN_OPTIONS);
     revenue.forEach(r => { if (r.danisman) s.add(r.danisman); });
@@ -40,9 +59,13 @@ export default function Revenue() {
   }, [revenue]);
 
   const cities = useMemo(() => {
-    const s = new Set<string>();
+    // Start with full city list, then add any dynamic ones from DB
+    const s = new Set<string>(ALL_CITIES);
     revenue.forEach(r => { if (r.sehir) s.add(r.sehir); });
-    return Array.from(s).sort();
+    // Return as sorted unique array but with main cities first
+    const mainCities = ['Eskişehir', 'Gaziantep', 'İstanbul', 'Ankara', 'İzmir', 'Konya'];
+    const rest = Array.from(s).filter(c => !mainCities.includes(c)).sort();
+    return [...mainCities.filter(c => s.has(c)), ...rest];
   }, [revenue]);
 
   // KPIs
