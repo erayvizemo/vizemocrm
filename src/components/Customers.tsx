@@ -18,10 +18,10 @@ export default function Customers() {
     let data = customers.filter(c => {
       const q = search.toLowerCase();
       const matchSearch = !q
-        || c.firstName + ' ' + c.lastName.toLowerCase().includes(q)
-        || c.telefon.includes(q)
-        || c.email.toLowerCase().includes(q)
-        || c.not.toLowerCase().includes(q)
+        || `${c.firstName || ''} ${c.lastName || ''}`.toLowerCase().includes(q)
+        || (c.telefon || '').includes(q)
+        || (c.email || '').toLowerCase().includes(q)
+        || (c.not || '').toLowerCase().includes(q)
         || (c.danisman ?? '').toLowerCase().includes(q)
         || (c.sehir ?? '').toLowerCase().includes(q);
       const matchDurum = !filterDurum || c.durum === filterDurum;

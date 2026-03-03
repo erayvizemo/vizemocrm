@@ -13,7 +13,7 @@
 //   vizemo_daily_folder_{YYYY-MM-DD} → günlük snapshot klasörü
 //   vizemo_daily_folder_index        → tarih listesi
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useApp } from "../context/AppContext";
 
 // ─────────────────────────────────────────────────────────────────────────────
