@@ -386,34 +386,56 @@ function Toast({ toasts }: { toasts: any[] }) {
 // MAIN
 // ─────────────────────────────────────────────────────────────────────────────
 export default function OperationPanel() {
-  const { customers } = useApp();
+  const { customers, addCustomer, updateCustomer, deleteCustomer } = useApp();
   const crmAppointments = customers.filter((c: any) => c.durum === 'Randevu Alındı');
 
-  const [appointments, setAppointments] = useState<any[]>([]);
+  // Operation Panel stores "takip kayıtları" (appointments).
+  // Now we read tracking from Supabase customers instead of local state.
+  const appointments = useMemo(() => {
+    return crmAppointments.map(c => {
+      // Decode the JSONB or text string back into Operation Panel object parts if we need to.
+      // But for now, just map CRM entity -> OP entity
+      return {
+        id: c.id,
+        country: c.ulke || "Bilinmiyor",
+        visaType: c.vize || "Belirtilmemiş",
+        embassy: c.sehir || 'Bilinmiyor',
+        currentStatus: c.surec || "BAŞVURU YENİ",
+        alertLevel: "NORMAL",
+        waitingDays: 0,
+        earliestDate: c.gorusme,
+        quota: "",
+        note: c.not,
+        history: c.log?.map(l => ({ updatedAt: l.timestamp, note: l.text })) || [],
+        lastUpdatedAt: c.updatedAt,
+        lastUpdatedBy: c.assignedSdrId || "Sistem"
+      };
+    });
+  }, [crmAppointments]);
+
   const [reports, setReports] = useState<any[]>([]);
-  const [activity, setActivity] = useState([]);
-  const [autoTransferData, setAutoTransferData] = useState<any>(null); // For auto-transfer from CRM
+  const [activity, setActivity] = useState<any[]>([]);
+  const [autoTransferData, setAutoTransferData] = useState<any>(null);
 
   const [operator, setOperator] = useState("Oğuz");
-  const [toasts, setToasts] = useState([]);
+  const [toasts, setToasts] = useState<any[]>([]);
   const [filter, setFilter] = useState({ search: "", status: "", alert: "", zone: "" });
-  const [activeCard, setActiveCard] = useState(null);
+  const [activeCard, setActiveCard] = useState<string | null>(null);
   const [sortCol, setSortCol] = useState("country");
   const [sortDir, setSortDir] = useState("asc");
-  const [editItem, setEditItem] = useState(null);
+  const [editItem, setEditItem] = useState<any>(null);
   const [showDrawer, setShowDrawer] = useState(false);
   const [reportText, setReportText] = useState("");
   const [repAcc, setRepAcc] = useState(false);
   const [folderAcc, setFolderAcc] = useState(false);
-  const [selFolder, setSelFolder] = useState(null);
-  const [folderIndex, setFolderIndex] = useState([]);
-  const [ctxMenu, setCtxMenu] = useState(null);
-  const [lastUpdate, setLastUpdate] = useState(null);
-  const ctxRef = useRef(null);
+  const [selFolder, setSelFolder] = useState<any>(null);
+  const [folderIndex, setFolderIndex] = useState<any[]>([]);
+  const [ctxMenu, setCtxMenu] = useState<any>(null);
+  const [lastUpdate, setLastUpdate] = useState<any>(null);
+  const ctxRef = useRef<any>(null);
 
   // ── Init ──────────────────────────────────────────────────────────────────
   useEffect(() => {
-    setAppointments(loadLS("vizemo_appointment_data", []));
     setReports(loadLS("vizemo_daily_reports", []));
     setActivity(loadLS("vizemo_activity_feed", []));
     setOperator(loadLS("vizemo_current_operator", "Oğuz"));
@@ -468,9 +490,7 @@ export default function OperationPanel() {
   };
 
   // ── Persist & Side-effects helper ─────────────────────────────────────────
-  const persistUpdate = (newList, label) => {
-    setAppointments(newList);
-    saveLS("vizemo_appointment_data", newList);
+  const persistUpdate = (newList: any[], label: string) => {
     addSnapshotToFolder(today, operator, newList, label);
     setFolderIndex(getDailyFolderIndex());
     const lu = { at: now(), by: operator };
@@ -479,14 +499,24 @@ export default function OperationPanel() {
   };
 
   // ── Save Update ───────────────────────────────────────────────────────────
-  const saveUpdate = updated => {
+  const saveUpdate = (updated: any) => {
     const histEntry = { updatedBy: operator, updatedAt: now(), status: updated.currentStatus, note: updated.note };
-    const newItem = {
-      ...updated, lastUpdatedBy: operator, lastUpdatedAt: now(),
-      history: [histEntry, ...(updated.history || [])].slice(0, 30)
-    };
-    const newList = appointments.map(a => a.id === newItem.id ? newItem : a);
-    persistUpdate(newList, `${updated.country} güncellendi`);
+
+    // Update Supabase instead of local list array
+    const customerId = updated.id;
+    const c = crmAppointments.find((x: any) => x.id === customerId);
+    if (c) {
+      updateCustomer(customerId, {
+        ulke: updated.country,
+        vize: updated.visaType,
+        surec: updated.currentStatus, // currentStatus -> surec
+        not: updated.note,
+        gorusme: updated.earliestDate,
+        log: [...c.log, { timestamp: now(), text: `[OP] ${updated.note}` }]
+      });
+    }
+
+    persistUpdate(appointments, `${updated.country} güncellendi`);
     const act = {
       id: uid(), at: now(), by: operator, country: updated.country,
       visaType: updated.visaType, newStatus: updated.currentStatus, note: updated.note
@@ -495,19 +525,20 @@ export default function OperationPanel() {
     setActivity(newAct);
     saveLS("vizemo_activity_feed", newAct);
     setEditItem(null);
-    toast("Güncelleme kaydedildi ✓");
+    toast("Güncelleme kaydedildi ✓", "success");
   };
 
   // ── Delete ────────────────────────────────────────────────────────────────
-  const deleteItem = id => {
+  const deleteItem = (id: string) => {
     if (!window.confirm("Bu kayıt tamamen silinecek. Onaylıyor musunuz?")) return;
-    const item = appointments.find(a => a.id === id);
-    if (!item) return;
-    const newList = appointments.filter(a => a.id !== id);
-    persistUpdate(newList, `${item.country} kaydı silindi`);
+
+    // Actually delete from CRM
+    deleteCustomer(id);
+
+    persistUpdate(appointments, `Kayıt silindi`);
     const act = {
-      id: uid(), at: now(), by: operator, country: item.country,
-      visaType: item.visaType, newStatus: "SİLİNDİ", note: "Kayıt manuel silindi"
+      id: uid(), at: now(), by: operator, country: "Bilinmiyor",
+      visaType: "Bilinmiyor", newStatus: "SİLİNDİ", note: "Kayıt manuel silindi"
     };
     const newAct = [act, ...activity].slice(0, 50);
     setActivity(newAct);
@@ -516,13 +547,25 @@ export default function OperationPanel() {
   };
 
   // ── Add New ───────────────────────────────────────────────────────────────
-  const addNew = data => {
-    const item = {
-      ...data, id: uid(), lastUpdatedBy: operator, lastUpdatedAt: now(),
-      history: [{ updatedBy: operator, updatedAt: now(), status: data.currentStatus, note: data.note }]
-    };
-    const newList = [...appointments, item];
-    persistUpdate(newList, `${data.country} eklendi`);
+  const addNew = (data: any) => {
+    addCustomer({
+      firstName: "Yeni",
+      lastName: "Müşteri (Operasyon)",
+      telefon: "",
+      email: "",
+      durum: "Randevu Alındı", // Force CRM into OP Pipeline
+      surec: data.currentStatus,
+      vize: data.visaType,
+      ulke: data.country,
+      sehir: data.embassy,
+      not: data.note,
+      karar: "",
+      gorusme: data.earliestDate,
+      takip: "",
+      log: [{ timestamp: now(), text: "[OP] Kayıt eklendi" }]
+    });
+
+    persistUpdate(appointments, `${data.country} eklendi`);
 
     const act = {
       id: uid(), at: now(), by: operator, country: data.country,
@@ -532,7 +575,7 @@ export default function OperationPanel() {
     setActivity(newAct);
     saveLS("vizemo_activity_feed", newAct);
     setShowDrawer(false);
-    toast(`${data.country} — ${data.visaType} eklendi`);
+    toast(`${data.country} — ${data.visaType} eklendi`, "success");
   };
 
   // ── Manual Snapshot ───────────────────────────────────────────────────────
