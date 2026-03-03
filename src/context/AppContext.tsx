@@ -124,7 +124,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'customers' }, fetchAllData)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'revenue' }, fetchAllData)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'leodessa_leads' }, fetchAllData)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'upload_batches' }, fetchAllData)
+      // NOTE: upload_batches is intentionally excluded from realtime
+      // to prevent race conditions that would reset uploaded lead data.
+      // Batches are fetched once on load and managed optimistically.
       .subscribe();
 
     return () => {
@@ -327,11 +329,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [showToast]);
 
   const addUploadBatch = useCallback(async (batch: UploadBatch) => {
-    setUploadBatches(prev => [batch, ...prev]);
-    showToast(`${batch.fileName} yüklendi.`);
-
+    // 1. Write to DB first
     const { error } = await supabase.from('upload_batches').insert(batch);
-    if (error) console.error("Error adding upload batch:", error);
+    if (error) {
+      console.error('Error adding upload batch:', error);
+      showToast('Dosya kaydedilirken hata olustu!', 'error');
+      return;
+    }
+    // 2. Only update local state after DB confirmed
+    setUploadBatches(prev => [batch, ...prev]);
+    showToast(`${batch.fileName} yuklendi.`);
   }, [showToast]);
 
   const deleteUploadBatch = useCallback(async (batchId: string) => {
@@ -344,6 +351,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const removeRowFromBatch = useCallback(async (batchId: string, rowId: string) => {
     let newRows: any[] = [];
+    // optimistic update
     setUploadBatches(prev => prev.map(b => {
       if (b.id === batchId) {
         newRows = b.rows.filter(r => r.id !== rowId);
@@ -352,9 +360,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       return b;
     }));
 
+    // then persist
+    // We need the full updated rows from the latest state
+    // newRows is captured above from the optimistic update
     const { error } = await supabase.from('upload_batches').update({ rows: newRows }).eq('id', batchId);
-    if (error) console.error("Error updating batch rows:", error);
-  }, []);
+    if (error) {
+      console.error('Error updating batch rows:', error);
+      // Re-fetch to restore correct state
+      fetchAllData();
+    }
+  }, [fetchAllData]);
 
   return (
     <AppContext.Provider value={{
