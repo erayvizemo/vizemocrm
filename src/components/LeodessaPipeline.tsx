@@ -21,6 +21,7 @@ const STAGE_META: Record<string, { color: string; bg: string; border: string; ic
   'Beklemede': { color: '#f59e0b', bg: 'rgba(245,158,11,0.06)', border: 'rgba(245,158,11,0.2)', icon: '🟡' },
   'Tamamlandı': { color: '#10b981', bg: 'rgba(16,185,129,0.06)', border: 'rgba(16,185,129,0.2)', icon: '🟢' },
   'Olumsuz': { color: '#ef4444', bg: 'rgba(239,68,68,0.06)', border: 'rgba(239,68,68,0.2)', icon: '🔴' },
+  'Tekrar Aranacak': { color: '#a855f7', bg: 'rgba(168,85,247,0.08)', border: 'rgba(168,85,247,0.25)', icon: '📞' },
 };
 
 const LEODESSA_COLOR = '#a855f7';

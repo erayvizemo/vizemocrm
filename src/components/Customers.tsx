@@ -31,12 +31,12 @@ export default function Customers() {
 
     data = [...data].sort((a, b) => {
       let va = '', vb = '';
-      if (sortKey === 'ad') { va = a.firstName + ' ' + a.lastName; vb = b.firstName + ' ' + b.lastName; }
-      else if (sortKey === 'durum') { va = a.durum; vb = b.durum; }
-      else if (sortKey === 'vize') { va = a.vize; vb = b.vize; }
+      if (sortKey === 'ad') { va = `${a.firstName || ''} ${a.lastName || ''}`; vb = `${b.firstName || ''} ${b.lastName || ''}`; }
+      else if (sortKey === 'durum') { va = a.durum || ''; vb = b.durum || ''; }
+      else if (sortKey === 'vize') { va = a.vize || ''; vb = b.vize || ''; }
       else if (sortKey === 'danisman') { va = a.danisman ?? ''; vb = b.danisman ?? ''; }
       else if (sortKey === 'statu') { va = a.statu ?? ''; vb = b.statu ?? ''; }
-      else if (sortKey === 'createdAt') { va = a.createdAt; vb = b.createdAt; }
+      else if (sortKey === 'createdAt') { va = a.createdAt || ''; vb = b.createdAt || ''; }
       else if (sortKey === 'lastActivityDate') { va = a.lastActivityDate || ''; vb = b.lastActivityDate || ''; }
       return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
     });
