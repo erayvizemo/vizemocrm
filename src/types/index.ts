@@ -17,7 +17,8 @@ export type StatusType =
   // Legacy (geriye dönük uyumluluk için)
   | 'Beklemede'
   | 'Tamamlandı'
-  | 'Olumsuz';
+  | 'Olumsuz'
+  | 'Tekrar Aranacak';
 
 export const LEODESSA_STAGES: StatusType[] = [
   'Yeni Lead', 'Ulaşıldı', 'Ulaşılamadı', 'Unqualify Lead',
@@ -25,7 +26,7 @@ export const LEODESSA_STAGES: StatusType[] = [
 ];
 export const VIZEMO_STAGES: StatusType[] = [
   'Yeni Lead', 'Ulaşıldı', 'Ulaşılamadı', 'Unqualify Lead',
-  'Belgeler İstendi', 'Başvurular Yapıldı', 'Randevu Alındı', 'Ödeme Alındı', 'Vize Alındı ✓',
+  'Belgeler İstendi', 'Başvurular Yapıldı', 'Randevu Alındı', 'Ödeme Alındı', 'Vize Alındı ✓', 'Tekrar Aranacak'
 ];
 export const LEGACY_STAGES: StatusType[] = ['Beklemede', 'Tamamlandı', 'Olumsuz'];
 
@@ -126,10 +127,10 @@ export interface LeadTask {
   status: TaskStatus;
 }
 
-export type LeadSourceType = 'Meta Ads' | 'Google Ads' | 'Instagram' | 'Referans' | 'Web Site' | 'Yüz Yüze' | 'WhatsApp' | 'Reklam' | 'Diğer';
+export type LeadSourceType = 'Meta Ads' | 'Google Ads' | 'Instagram' | 'Referans' | 'Web Site' | 'Yüz Yüze' | 'WhatsApp' | 'Reklam' | 'Kurumsal Müşteri' | 'Diğer';
 
 export const LEAD_SOURCES: LeadSourceType[] = [
-  'Meta Ads', 'Google Ads', 'Instagram', 'Referans', 'Web Site', 'Yüz Yüze', 'WhatsApp', 'Reklam', 'Diğer'
+  'Meta Ads', 'Google Ads', 'Instagram', 'Referans', 'Web Site', 'Yüz Yüze', 'WhatsApp', 'Reklam', 'Kurumsal Müşteri', 'Diğer'
 ];
 
 export interface Customer {

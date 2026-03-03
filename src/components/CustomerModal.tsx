@@ -701,12 +701,12 @@ export default function CustomerModal() {
                   <div style={{ display: 'flex', gap: 8 }}>
                     <select
                       className="form-input"
-                      value={['Ofiste Görüşüldü', 'Arandı', 'Evrak Bekleniyor', 'Ulaşılamadı', ''].includes(form.statu) ? form.statu : 'Diğer'}
+                      value={['Ofiste Görüşüldü', 'Arandı', 'Evrak Bekleniyor', 'Ulaşılamadı', 'Tekrar Aranacak', ''].includes(form.statu) ? form.statu : 'Diğer'}
                       onChange={e => {
                         const val = e.target.value;
                         if (val !== 'Diğer') setForm(p => ({ ...p, statu: val }));
                         // "Diğer" seçilirse mevcut text kalır, yandaki input ile değiştirilir.
-                        if (val === 'Diğer' && ['Ofiste Görüşüldü', 'Arandı', 'Evrak Bekleniyor', 'Ulaşılamadı', ''].includes(form.statu)) {
+                        if (val === 'Diğer' && ['Ofiste Görüşüldü', 'Arandı', 'Evrak Bekleniyor', 'Ulaşılamadı', 'Tekrar Aranacak', ''].includes(form.statu)) {
                           setForm(p => ({ ...p, statu: 'Özel Statü' })); // Placeholder text for input
                         }
                       }}
@@ -717,9 +717,10 @@ export default function CustomerModal() {
                       <option>Arandı</option>
                       <option>Evrak Bekleniyor</option>
                       <option>Ulaşılamadı</option>
+                      <option>Tekrar Aranacak</option>
                       <option value="Diğer">Diğer...</option>
                     </select>
-                    {!['Ofiste Görüşüldü', 'Arandı', 'Evrak Bekleniyor', 'Ulaşılamadı', ''].includes(form.statu) && (
+                    {!['Ofiste Görüşüldü', 'Arandı', 'Evrak Bekleniyor', 'Ulaşılamadı', 'Tekrar Aranacak', ''].includes(form.statu) && (
                       <input
                         className="form-input"
                         type="text"

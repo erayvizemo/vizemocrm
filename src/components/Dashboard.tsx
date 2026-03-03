@@ -97,9 +97,16 @@ export default function Dashboard() {
   const statCards = [
     { label: 'Yeni Giriş (Lead)', value: counts['Yeni Lead'] || 0, class: 'lead', icon: '📩' },
     { label: 'Aktif Süreç', value: activeLeads, class: 'beklemede', icon: '⏳' },
+    { label: 'Tekrar Aranacak', value: counts['Tekrar Aranacak'] || 0, class: 'beklemede', icon: '📞' },
+    { label: 'Ödeme Alındı', value: counts['Ödeme Alındı'] || 0, class: 'tamamlandi', icon: '💳' },
     { label: 'Başarılı', value: completedLeads, class: 'tamamlandi', icon: '✓' },
     { label: 'Olumsuz', value: lostLeads, class: 'olumsuz', icon: '✕' },
   ];
+
+  const danismanCounts: Record<string, number> = {};
+  customers.forEach(c => {
+    if (c.danisman) danismanCounts[c.danisman] = (danismanCounts[c.danisman] ?? 0) + 1;
+  });
 
   return (
     <div style={{ padding: '64px 32px 40px 32px', maxWidth: 1400, margin: '0 auto' }}>
@@ -138,7 +145,7 @@ export default function Dashboard() {
       )}
 
       {/* Stat cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, marginBottom: 32 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 24, marginBottom: 24 }}>
         {statCards.map(card => (
           <div key={card.label} className={`kpi-card ${card.class}`}>
             <div className={`kpi-icon ${card.class}`}>
@@ -146,6 +153,21 @@ export default function Dashboard() {
             </div>
             <div className="kpi-number">{card.value}</div>
             <div className="kpi-label">{card.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Temsilci Genel Takip */}
+      <div style={{ display: 'flex', gap: 16, marginBottom: 32 }}>
+        {['Eray', 'Dilara', 'Elanur'].map(isim => (
+          <div key={isim} style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)', borderRadius: 12, padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 12, minWidth: 160 }}>
+            <div style={{ background: `rgba(99,102,241,0.1)`, color: 'var(--accent-primary)', width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
+              👤
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>{isim} Toplam</span>
+              <span style={{ fontSize: 20, color: 'var(--text-primary)', fontWeight: 'bold', fontFamily: "'DM Sans', sans-serif" }}>{danismanCounts[isim] || 0} Lead</span>
+            </div>
           </div>
         ))}
       </div>

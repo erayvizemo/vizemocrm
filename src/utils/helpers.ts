@@ -76,8 +76,10 @@ export function getStatusColor(status: StatusType | string): string {
   switch (status) {
     case 'Olumsuz': return 'var(--accent-rose)';
     case 'Beklemede': return 'var(--accent-amber)';
-    case 'Tamamlandı': return 'var(--accent-emerald)';
+    case 'Tamamlandı':
+    case 'Ödeme Alındı': return 'var(--accent-emerald)';
     case 'Yeni Lead': return 'var(--accent-primary)';
+    case 'Tekrar Aranacak': return 'var(--accent-purple, #a855f7)';
     default: return 'var(--text-muted)';
   }
 }
@@ -86,8 +88,10 @@ export function getStatusBg(status: StatusType | string): string {
   switch (status) {
     case 'Olumsuz': return 'rgba(244,63,94,0.12)';
     case 'Beklemede': return 'rgba(245,158,11,0.12)';
-    case 'Tamamlandı': return 'rgba(16,185,129,0.12)';
+    case 'Tamamlandı':
+    case 'Ödeme Alındı': return 'rgba(16,185,129,0.12)';
     case 'Yeni Lead': return 'rgba(99,102,241,0.12)';
+    case 'Tekrar Aranacak': return 'rgba(168,85,247,0.12)';
     default: return 'rgba(74,79,106,0.12)';
   }
 }
@@ -96,8 +100,10 @@ export function getStatusBorder(status: StatusType | string): string {
   switch (status) {
     case 'Olumsuz': return 'rgba(244,63,94,0.25)';
     case 'Beklemede': return 'rgba(245,158,11,0.25)';
-    case 'Tamamlandı': return 'rgba(16,185,129,0.25)';
+    case 'Tamamlandı':
+    case 'Ödeme Alındı': return 'rgba(16,185,129,0.25)';
     case 'Yeni Lead': return 'rgba(99,102,241,0.25)';
+    case 'Tekrar Aranacak': return 'rgba(168,85,247,0.25)';
     default: return 'rgba(74,79,106,0.25)';
   }
 }
@@ -116,8 +122,9 @@ export function getStatusClass(status: string) {
   const s = status.toLowerCase();
   if (s.includes('yeni lead')) return 'yeni-lead';
   if (s.includes('beklemede')) return 'beklemede';
-  if (s.includes('tamamlandı') || s.includes('tamamlandi')) return 'tamamlandi';
+  if (s.includes('tamamlandı') || s.includes('tamamlandi') || s.includes('ödeme')) return 'tamamlandi';
   if (s.includes('olumsuz')) return 'olumsuz';
+  if (s.includes('tekrar')) return 'tekrar-aranacak';
   return '';
 }
 

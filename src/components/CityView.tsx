@@ -7,7 +7,7 @@ interface Props {
   city: string;
 }
 
-const STATUS_OPTS: StatusType[] = ['Yeni Lead', 'Beklemede', 'Tamamlandı', 'Olumsuz'];
+const STATUS_OPTS: StatusType[] = ['Yeni Lead', 'Beklemede', 'Tekrar Aranacak', 'Ödeme Alındı', 'Tamamlandı', 'Olumsuz'];
 
 const cityColors: Record<string, string> = {
   'Eskişehir': '#4f8ef7',
@@ -120,6 +120,8 @@ export default function CityView({ city }: Props) {
             const classMapping: Record<string, string> = {
               'Yeni Lead': 'lead',
               'Beklemede': 'beklemede',
+              'Tekrar Aranacak': 'beklemede', // Or 'lead' or something subtle, we'll use inline styles anyway
+              'Ödeme Alındı': 'tamamlandi',
               'Tamamlandı': 'tamamlandi',
               'Olumsuz': 'olumsuz'
             };
@@ -144,6 +146,21 @@ export default function CityView({ city }: Props) {
               </div>
             );
           })}
+        </div>
+
+        {/* Eray, Dilara, Elanur Temsilci Takibi */}
+        <div style={{ display: 'flex', gap: 16, marginTop: 4 }}>
+          {['Eray', 'Dilara', 'Elanur'].map(isim => (
+            <div key={isim} style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)', borderRadius: 12, padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 12, minWidth: 140 }}>
+              <div style={{ background: `${cityColor}15`, color: cityColor, width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
+                👤
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>{isim}</span>
+                <span style={{ fontSize: 20, color: 'var(--text-primary)', fontWeight: 'bold', fontFamily: "'DM Sans', sans-serif" }}>{danismanCounts[isim] || 0}</span>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Consultant breakdown */}
