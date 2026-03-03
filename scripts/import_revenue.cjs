@@ -1,5 +1,4 @@
 // import_revenue.cjs — Gelir Takibi Excel Import (Supabase)
-// Bu script revenue tablosuna önce ALTER TABLE yapıp sonra veriyi yükler.
 // Usage: node scripts/import_revenue.cjs
 const XLSX = require('xlsx');
 const { createClient } = require('@supabase/supabase-js');
@@ -8,13 +7,6 @@ const SUPABASE_URL = 'https://fqzvimrfyxzqzenftuqo.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_XT56UY-oJIelU7HcKV-MsQ_4PNucauK';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// Danışman -> Şehir mapping
-const DANISMAN_SEHIR = {
-    'Dilara': 'Eskişehir',
-    'Eray': 'Eskişehir',
-    'Elanur': 'Gaziantep',
-};
 
 function parseTRDate(s) {
     if (!s || s === '-' || s.trim() === '' || s.trim() === '-') return '';
@@ -45,10 +37,6 @@ function parseName(fullName) {
 }
 
 async function main() {
-    // Step 1: Try to directly insert with the schema used by AppContext
-    // (firstName, lastName, danisman, sehir, odemeYontemi, onOdemeTarihi, onOdeme, kalanTarih, kalanOdeme, toplam)
-    // If the fiscal table is missing columns, we catch the error and report
-
     console.log('🔍 Revenue tablosu sütunları kontrol ediliyor...');
     const id = require('crypto').randomUUID();
     await supabase.from('revenue').insert({ id });
@@ -57,21 +45,8 @@ async function main() {
     await supabase.from('revenue').delete().eq('id', id);
     console.log('Mevcut sütunlar:', existingCols.join(', '));
 
-    const needsDanisman = !existingCols.includes('danisman');
-
-    if (needsDanisman) {
-        console.log('\n⚠️  revenue tablosunda gerekli sütunlar eksik!');
-        console.log('Supabase SQL Editor\'da şu komutu çalıştırın:\n');
-        console.log(`ALTER TABLE revenue
-  ADD COLUMN IF NOT EXISTS "danisman" text,
-  ADD COLUMN IF NOT EXISTS "sehir" text,
-  ADD COLUMN IF NOT EXISTS "odemeYontemi" text DEFAULT '💵 Elden',
-  ADD COLUMN IF NOT EXISTS "onOdemeTarihi" text,
-  ADD COLUMN IF NOT EXISTS "onOdeme" numeric DEFAULT 0,
-  ADD COLUMN IF NOT EXISTS "kalanTarih" text DEFAULT '-',
-  ADD COLUMN IF NOT EXISTS "kalanOdeme" numeric DEFAULT 0,
-  ADD COLUMN IF NOT EXISTS "toplam" numeric DEFAULT 0;`);
-        console.log('\nSonra bu script\'i tekrar çalıştırın.');
+    if (!existingCols.includes('danisman')) {
+        console.log('\n⚠️  Revenue tablosunda hâlâ eksik sütunlar var! SQL migration çalıştırıldı mı?');
         return;
     }
 
@@ -100,14 +75,13 @@ async function main() {
         const kalanTarih = parseTRDate(kalanOdemeTarihiRaw) || '-';
         const kalanOdeme = parseAmount(kalanOdemeMiktariRaw);
         const toplam = onOdeme + kalanOdeme;
-        const sehir = DANISMAN_SEHIR[danisman] || 'Eskişehir';
 
         dataRows.push({
             id: require('crypto').randomUUID(),
             firstName,
             lastName,
             danisman,
-            sehir,
+            sehir: '',          // Şehir boş — kullanıcı manuel seçecek
             odemeYontemi,
             onOdemeTarihi,
             onOdeme,
@@ -117,13 +91,11 @@ async function main() {
         });
 
         const kalanStr = kalanOdeme > 0 ? ` + ₺${kalanOdeme} kalan` : '';
-        const tarihStr = onOdemeTarihi || 'tarih yok';
-        console.log(`  ✓ ${adSoyad} (${danisman}/${sehir}) | ₺${onOdeme}${kalanStr} = ₺${toplam} | ${tarihStr}`);
+        console.log(`  ✓ ${adSoyad} (${danisman}) | ₺${onOdeme}${kalanStr} = ₺${toplam} | ${onOdemeTarihi}`);
     }
 
     console.log(`\n📊 ${dataRows.length} kayıt hazırlandı. Supabase'e yükleniyor...`);
 
-    // Insert in batches of 10
     const batchSize = 10;
     let successCount = 0;
     for (let i = 0; i < dataRows.length; i += batchSize) {
@@ -138,7 +110,7 @@ async function main() {
     }
 
     const { count } = await supabase.from('revenue').select('*', { count: 'exact', head: true });
-    console.log(`\n✅ TAMAMLANDI! ${successCount}/${dataRows.length} kayıt eklendi. Supabase'deki toplam: ${count}`);
+    console.log(`\n✅ TAMAMLANDI! ${successCount}/${dataRows.length} kayıt eklendi. Supabase toplam: ${count}`);
 }
 
 main().catch(console.error);
