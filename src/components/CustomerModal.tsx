@@ -144,9 +144,11 @@ export default function CustomerModal() {
     const now = new Date();
     const nowStr = now.toLocaleDateString('tr-TR') + ' ' + now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
 
+    const { sehirDiger, kaynakDiger, ...pureForm } = form;
+
     if (isNew) {
       addCustomer({
-        ...form,
+        ...pureForm,
         sehir: finalSehir,
         leadSource: finalLeadSource,
         not: finalNote,
@@ -170,7 +172,7 @@ export default function CustomerModal() {
       }
 
       const updatePayload: any = {
-        ...form,
+        ...pureForm,
         sehir: finalSehir,
         leadSource: finalLeadSource,
         not: finalNote,
