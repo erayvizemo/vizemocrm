@@ -117,7 +117,7 @@ export default function LeodessaUpload() {
         const rows = parseRawRows(raw as unknown[][], colMap);
 
         const newBatch: UploadBatch = {
-          id: generateId(),
+          id: crypto.randomUUID(),
           fileName: file.name,
           uploadDate: new Date().toISOString(),
           headers,
