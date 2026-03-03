@@ -16,7 +16,15 @@ import SDRDashboard from './components/SDRDashboard';
 import OperationPanel from './components/OperationPanel';
 
 function AppShell() {
-  const { view, toasts } = useApp();
+  const { view, toasts, loading } = useApp();
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center', background: 'var(--bg-void)' }}>
+        <div style={{ color: 'var(--accent-primary)', fontSize: '24px', fontFamily: "'DM Sans', sans-serif" }}>Veriler Supabase'den Yükleniyor...</div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: 'var(--bg-void)' }}>

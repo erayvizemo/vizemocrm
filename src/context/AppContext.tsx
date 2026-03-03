@@ -1,11 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Customer, ModalState, ViewType, LeodessaLead, User, LeadTask, UploadBatch } from '../types';
-import { allImportedCustomers, revenueData as importedRevenue, RevenueEntry } from '../data/importedData';
 import { generateId } from '../utils/helpers';
 import { sendToGoogleSheets } from '../services/googleSheets';
-
-// Bump this version whenever the imported dataset changes.
-const DATA_VERSION = '6';
+import { supabase } from '../lib/supabaseClient';
 
 interface Toast {
   id: string;
@@ -15,7 +12,7 @@ interface Toast {
 
 interface AppContextType {
   customers: Customer[];
-  revenue: RevenueEntry[];
+  revenue: any[]; // Using any for revenue to avoid importing RevenueEntry strictly for now, or match existing
   view: ViewType;
   setView: (v: ViewType) => void;
   modal: ModalState;
@@ -27,8 +24,8 @@ interface AppContextType {
   updateCustomer: (id: string, data: Partial<Omit<Customer, 'id' | 'createdAt'>>) => void;
   deleteCustomer: (id: string) => void;
   bulkDeleteCustomers: (ids: string[]) => void;
-  addRevenue: (data: Omit<RevenueEntry, 'id'>) => void;
-  updateRevenue: (id: string, data: Partial<Omit<RevenueEntry, 'id'>>) => void;
+  addRevenue: (data: any) => void;
+  updateRevenue: (id: string, data: any) => void;
   deleteRevenue: (id: string) => void;
   toasts: Toast[];
   showToast: (message: string, type?: Toast['type']) => void;
@@ -47,6 +44,7 @@ interface AppContextType {
   addUploadBatch: (batch: UploadBatch) => void;
   deleteUploadBatch: (batchId: string) => void;
   removeRowFromBatch: (batchId: string, rowId: string) => void;
+  loading: boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -59,44 +57,13 @@ export const FAKE_USERS: User[] = [
 ];
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [customers, setCustomers] = useState<Customer[]>(() => {
-    try {
-      // If data version doesn't match, wipe old cache and load fresh Excel data
-      const storedVersion = localStorage.getItem('vizemo_data_version');
-      if (storedVersion !== DATA_VERSION) {
-        localStorage.removeItem('vizemo_customers');
-        localStorage.setItem('vizemo_data_version', DATA_VERSION);
-        return allImportedCustomers;
-      }
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [revenue, setRevenue] = useState<any[]>([]);
+  const [leodessaLeads, setLeodessaLeads] = useState<LeodessaLead[]>([]);
+  const [uploadBatches, setUploadBatches] = useState<UploadBatch[]>([]);
 
-      const saved = localStorage.getItem('vizemo_customers');
-      if (saved) {
-        const parsed = JSON.parse(saved) as Customer[];
-        // Extra safety: if none have a sehir field it's legacy data → replace
-        if (parsed.length > 0 && parsed.some(c => c.sehir)) return parsed;
-      }
-    } catch { /* ignore */ }
+  const [loading, setLoading] = useState(true);
 
-    localStorage.setItem('vizemo_data_version', DATA_VERSION);
-    return allImportedCustomers;
-  });
-
-  const [revenue, setRevenue] = useState<RevenueEntry[]>(() => {
-    try {
-      const storedVersion = localStorage.getItem('vizemo_data_version');
-      if (storedVersion !== DATA_VERSION) {
-        localStorage.removeItem('vizemo_revenue');
-        return importedRevenue;
-      }
-
-      const saved = localStorage.getItem('vizemo_revenue');
-      if (saved) {
-        const parsed = JSON.parse(saved) as RevenueEntry[];
-        if (parsed.length > 0 && parsed.some(r => r.firstName)) return parsed;
-      }
-    } catch { /* ignore */ }
-    return importedRevenue;
-  });
   const [view, setView] = useState<ViewType>('dashboard');
   const [modal, setModal] = useState<ModalState>({ isOpen: false, customerId: null });
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -105,37 +72,37 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [users] = useState<User[]>(FAKE_USERS);
   const [currentUser, setCurrentUser] = useState<User | null>(FAKE_USERS[1]); // Default to 'Eray' (sdr)
 
-  const [leodessaLeads, setLeodessaLeads] = useState<LeodessaLead[]>(() => {
-    try {
-      const saved = localStorage.getItem('vizemo_leodessa_leads');
-      if (saved) return JSON.parse(saved) as LeodessaLead[];
-    } catch { /* ignore */ }
-    return [];
-  });
-
-  const [uploadBatches, setUploadBatches] = useState<UploadBatch[]>(() => {
-    try {
-      const saved = localStorage.getItem('vizemo_upload_batches');
-      if (saved) return JSON.parse(saved) as UploadBatch[];
-    } catch { /* ignore */ }
-    return [];
-  });
-
+  // Initial Data Fetch
   useEffect(() => {
-    localStorage.setItem('vizemo_customers', JSON.stringify(customers));
-  }, [customers]);
+    const fetchAllData = async () => {
+      setLoading(true);
+      try {
+        const [
+          { data: customersData },
+          { data: revenueData },
+          { data: leodessaData },
+          { data: batchesData }
+        ] = await Promise.all([
+          supabase.from('customers').select('*').order('createdAt', { ascending: false }),
+          supabase.from('revenue').select('*'),
+          supabase.from('leodessa_leads').select('*').order('createdAt', { ascending: false }),
+          supabase.from('upload_batches').select('*').order('uploadDate', { ascending: false })
+        ]);
 
-  useEffect(() => {
-    localStorage.setItem('vizemo_revenue', JSON.stringify(revenue));
-  }, [revenue]);
+        if (customersData) setCustomers(customersData);
+        if (revenueData) setRevenue(revenueData);
+        if (leodessaData) setLeodessaLeads(leodessaData);
+        if (batchesData) setUploadBatches(batchesData);
 
-  useEffect(() => {
-    localStorage.setItem('vizemo_leodessa_leads', JSON.stringify(leodessaLeads));
-  }, [leodessaLeads]);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  useEffect(() => {
-    localStorage.setItem('vizemo_upload_batches', JSON.stringify(uploadBatches));
-  }, [uploadBatches]);
+    fetchAllData();
+  }, []);
 
   const openModal = useCallback((customerId?: string) => {
     setModal({ isOpen: true, customerId: customerId ?? null });
@@ -151,19 +118,27 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3500);
   }, []);
 
-  const addCustomer = useCallback((data: Omit<Customer, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const now = new Date().toISOString().substring(0, 10);
+  const addCustomer = useCallback(async (data: Omit<Customer, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const now = new Date().toISOString();
     const customer: Customer = {
       ...data,
       id: generateId(),
       createdAt: now,
       updatedAt: now,
-      lastActivityDate: new Date().toISOString()
+      lastActivityDate: now
     };
-    setCustomers(prev => [customer, ...prev]);
-    showToast(`${data.firstName + ' ' + data.lastName} başarıyla eklendi.`);
 
-    // Google Sheets'e otomatik gönder
+    // Optimistic UI Update
+    setCustomers(prev => [customer, ...prev]);
+    showToast(`${customer.firstName} ${customer.lastName} başarıyla eklendi.`);
+
+    // DB Insert
+    const { error } = await supabase.from('customers').insert(customer);
+    if (error) {
+      console.error("Error adding customer:", error);
+      showToast("Müşteri eklenirken hata oluştu!", "error");
+    }
+
     sendToGoogleSheets({
       id: customer.id,
       ad: customer.firstName + ' ' + customer.lastName,
@@ -186,10 +161,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, [showToast]);
 
-  const updateCustomer = useCallback((id: string, data: Partial<Omit<Customer, 'id' | 'createdAt'>>) => {
-    const now = new Date().toISOString().substring(0, 10);
+  const updateCustomer = useCallback(async (id: string, data: Partial<Omit<Customer, 'id' | 'createdAt'>>) => {
+    const now = new Date().toISOString();
     setCustomers(prev => prev.map(c => c.id === id ? { ...c, ...data, updatedAt: now } : c));
     showToast('Müşteri bilgileri güncellendi.');
+
+    const { error } = await supabase.from('customers').update({ ...data, updatedAt: now }).eq('id', id);
+    if (error) console.error("Error updating customer:", error);
   }, [showToast]);
 
   const assignSdrToCustomer = useCallback((customerId: string, sdrId: string) => {
@@ -197,101 +175,157 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     showToast(`Lead temsilciye atandı.`, 'success');
   }, [updateCustomer, showToast]);
 
-  const deleteCustomer = useCallback((id: string) => {
+  const deleteCustomer = useCallback(async (id: string) => {
     setCustomers(prev => {
       const c = prev.find(x => x.id === id);
       const name = c ? `${c.firstName} ${c.lastName}` : 'Müşteri';
       showToast(`${name} silindi.`, 'info');
       return prev.filter(x => x.id !== id);
     });
+
+    const { error } = await supabase.from('customers').delete().eq('id', id);
+    if (error) console.error("Error deleting customer:", error);
   }, [showToast]);
 
-  const bulkDeleteCustomers = useCallback((ids: string[]) => {
+  const bulkDeleteCustomers = useCallback(async (ids: string[]) => {
     setCustomers(prev => {
       showToast(`${ids.length} müşteri silindi.`, 'info');
       return prev.filter(x => !ids.includes(x.id));
     });
+
+    const { error } = await supabase.from('customers').delete().in('id', ids);
+    if (error) console.error("Error bulk deleting customers:", error);
   }, [showToast]);
 
-  const addRevenue = useCallback((data: Omit<RevenueEntry, 'id'>) => {
-    const entry: RevenueEntry = { ...data, id: generateId() };
+  const addRevenue = useCallback(async (data: any) => {
+    const entry = { ...data, id: generateId() };
     setRevenue(prev => [entry, ...prev]);
-    showToast(`${data.firstName + ' ' + data.lastName} için gelir kaydı eklendi.`);
+    showToast(`${data.firstName} ${data.lastName} için gelir kaydı eklendi.`);
+
+    const { error } = await supabase.from('revenue').insert(entry);
+    if (error) console.error("Error adding revenue:", error);
   }, [showToast]);
 
-  const updateRevenue = useCallback((id: string, data: Partial<Omit<RevenueEntry, 'id'>>) => {
+  const updateRevenue = useCallback(async (id: string, data: any) => {
     setRevenue(prev => prev.map(r => r.id === id ? { ...r, ...data } : r));
     showToast('Gelir kaydı güncellendi.');
+
+    const { error } = await supabase.from('revenue').update(data).eq('id', id);
+    if (error) console.error("Error updating revenue:", error);
   }, [showToast]);
 
-  const deleteRevenue = useCallback((id: string) => {
+  const deleteRevenue = useCallback(async (id: string) => {
     setRevenue(prev => {
       const entry = prev.find(r => r.id === id);
       showToast(`${entry ? entry.firstName + ' ' + entry.lastName : 'Gelir kaydı'} silindi.`, 'info');
       return prev.filter(r => r.id !== id);
     });
+
+    const { error } = await supabase.from('revenue').delete().eq('id', id);
+    if (error) console.error("Error deleting revenue:", error);
   }, [showToast]);
 
-  const addLeodessaLead = useCallback((data: Omit<LeodessaLead, 'id' | 'createdAt'>) => {
-    const now = new Date().toISOString().substring(0, 10);
+  const addLeodessaLead = useCallback(async (data: Omit<LeodessaLead, 'id' | 'createdAt'>) => {
+    const now = new Date().toISOString();
     const lead: LeodessaLead = { ...data, id: generateId(), createdAt: now };
     setLeodessaLeads(prev => [lead, ...prev]);
-    showToast(`${data.firstName + ' ' + data.lastName} Leodessa lead olarak kaydedildi.`);
+    showToast(`${data.firstName} ${data.lastName} Leodessa lead olarak kaydedildi.`);
+
+    const { error } = await supabase.from('leodessa_leads').insert(lead);
+    if (error) console.error("Error adding leodessa lead:", error);
   }, [showToast]);
 
-  const updateLeodessaLead = useCallback((id: string, data: Partial<LeodessaLead>) => {
+  const updateLeodessaLead = useCallback(async (id: string, data: Partial<LeodessaLead>) => {
     setLeodessaLeads(prev => prev.map(l => l.id === id ? { ...l, ...data } : l));
+    const { error } = await supabase.from('leodessa_leads').update(data).eq('id', id);
+    if (error) console.error("Error updating leodessa lead:", error);
   }, []);
 
-  const deleteLeodessaLead = useCallback((id: string) => {
+  const deleteLeodessaLead = useCallback(async (id: string) => {
     setLeodessaLeads(prev => {
       const lead = prev.find(l => l.id === id);
       showToast(`${lead ? `${lead.firstName} ${lead.lastName}` : 'Lead'} silindi.`, 'info');
       return prev.filter(l => l.id !== id);
     });
+    const { error } = await supabase.from('leodessa_leads').delete().eq('id', id);
+    if (error) console.error("Error deleting leodessa lead:", error);
   }, [showToast]);
 
-  const addTask = useCallback((customerId: string, task: LeadTask) => {
-    const now = new Date().toISOString().substring(0, 10);
-    setCustomers(prev => prev.map(c => c.id === customerId ? {
-      ...c,
-      tasks: [...(c.tasks || []), task],
-      updatedAt: now,
-    } : c));
+  const addTask = useCallback(async (customerId: string, task: LeadTask) => {
+    const now = new Date().toISOString();
+    let updatedTasks: LeadTask[] = [];
+
+    setCustomers(prev => prev.map(c => {
+      if (c.id === customerId) {
+        updatedTasks = [...(c.tasks || []), task];
+        return { ...c, tasks: updatedTasks, updatedAt: now };
+      }
+      return c;
+    }));
     showToast('Task eklendi.', 'success');
+
+    await supabase.from('customers').update({ tasks: updatedTasks, updatedAt: now }).eq('id', customerId);
   }, [showToast]);
 
-  const updateTask = useCallback((customerId: string, taskId: string, data: Partial<LeadTask>) => {
-    const now = new Date().toISOString().substring(0, 10);
-    setCustomers(prev => prev.map(c => c.id === customerId ? {
-      ...c,
-      tasks: (c.tasks || []).map(t => t.id === taskId ? { ...t, ...data } : t),
-      updatedAt: now,
-    } : c));
+  const updateTask = useCallback(async (customerId: string, taskId: string, data: Partial<LeadTask>) => {
+    const now = new Date().toISOString();
+    let updatedTasks: LeadTask[] = [];
+
+    setCustomers(prev => prev.map(c => {
+      if (c.id === customerId) {
+        updatedTasks = (c.tasks || []).map(t => t.id === taskId ? { ...t, ...data } : t);
+        return { ...c, tasks: updatedTasks, updatedAt: now };
+      }
+      return c;
+    }));
+
+    await supabase.from('customers').update({ tasks: updatedTasks, updatedAt: now }).eq('id', customerId);
   }, []);
 
-  const deleteTask = useCallback((customerId: string, taskId: string) => {
-    const now = new Date().toISOString().substring(0, 10);
-    setCustomers(prev => prev.map(c => c.id === customerId ? {
-      ...c,
-      tasks: (c.tasks || []).filter(t => t.id !== taskId),
-      updatedAt: now,
-    } : c));
+  const deleteTask = useCallback(async (customerId: string, taskId: string) => {
+    const now = new Date().toISOString();
+    let updatedTasks: LeadTask[] = [];
+
+    setCustomers(prev => prev.map(c => {
+      if (c.id === customerId) {
+        updatedTasks = (c.tasks || []).filter(t => t.id !== taskId);
+        return { ...c, tasks: updatedTasks, updatedAt: now };
+      }
+      return c;
+    }));
     showToast('Task silindi.', 'info');
+
+    await supabase.from('customers').update({ tasks: updatedTasks, updatedAt: now }).eq('id', customerId);
   }, [showToast]);
 
-  const addUploadBatch = useCallback((batch: UploadBatch) => {
+  const addUploadBatch = useCallback(async (batch: UploadBatch) => {
     setUploadBatches(prev => [batch, ...prev]);
     showToast(`${batch.fileName} yüklendi.`);
+
+    const { error } = await supabase.from('upload_batches').insert(batch);
+    if (error) console.error("Error adding upload batch:", error);
   }, [showToast]);
 
-  const deleteUploadBatch = useCallback((batchId: string) => {
+  const deleteUploadBatch = useCallback(async (batchId: string) => {
     setUploadBatches(prev => prev.filter(b => b.id !== batchId));
     showToast('Yükleme silindi.', 'info');
+
+    const { error } = await supabase.from('upload_batches').delete().eq('id', batchId);
+    if (error) console.error("Error deleting upload batch:", error);
   }, [showToast]);
 
-  const removeRowFromBatch = useCallback((batchId: string, rowId: string) => {
-    setUploadBatches(prev => prev.map(b => b.id === batchId ? { ...b, rows: b.rows.filter(r => r.id !== rowId) } : b));
+  const removeRowFromBatch = useCallback(async (batchId: string, rowId: string) => {
+    let newRows: any[] = [];
+    setUploadBatches(prev => prev.map(b => {
+      if (b.id === batchId) {
+        newRows = b.rows.filter(r => r.id !== rowId);
+        return { ...b, rows: newRows };
+      }
+      return b;
+    }));
+
+    const { error } = await supabase.from('upload_batches').update({ rows: newRows }).eq('id', batchId);
+    if (error) console.error("Error updating batch rows:", error);
   }, []);
 
   return (
@@ -306,6 +340,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       users, currentUser, setCurrentUser, assignSdrToCustomer,
       addTask, updateTask, deleteTask,
       uploadBatches, addUploadBatch, deleteUploadBatch, removeRowFromBatch,
+      loading
     }}>
       {children}
     </AppContext.Provider>
@@ -317,3 +352,4 @@ export function useApp(): AppContextType {
   if (!ctx) throw new Error('useApp must be used within AppProvider');
   return ctx;
 }
+
