@@ -334,6 +334,8 @@ export default function Revenue() {
       {/* Filters */}
       <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center' }}>
         <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Filtrele:</span>
+
+        {/* Danışman - pill butonlar */}
         {consultants.map(d => (
           <button
             key={d}
@@ -356,28 +358,32 @@ export default function Revenue() {
             👤 {d}
           </button>
         ))}
-        {cities.map(c => (
-          <button
-            key={c}
-            onClick={() => setFilterSehir(filterSehir === c ? '' : c)}
-            style={{
-              padding: '6px 14px',
-              background: filterSehir === c ? 'rgba(99, 102, 241, 0.1)' : 'var(--bg-elevated)',
-              border: filterSehir === c ? '1px solid var(--accent-primary)' : '1px solid var(--border-subtle)',
-              borderRadius: 20,
-              cursor: 'pointer',
-              fontSize: '13px',
-              fontFamily: "'DM Sans', sans-serif",
-              fontWeight: 500,
-              color: filterSehir === c ? 'var(--accent-primary)' : 'var(--text-secondary)',
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={e => { if (filterSehir !== c) { e.currentTarget.style.borderColor = 'var(--border-glow)'; e.currentTarget.style.color = 'var(--text-primary)'; } }}
-            onMouseLeave={e => { if (filterSehir !== c) { e.currentTarget.style.borderColor = 'var(--border-subtle)'; e.currentTarget.style.color = 'var(--text-secondary)'; } }}
-          >
-            🏙️ {c}
-          </button>
-        ))}
+
+        {/* Şehir - tek dropdown */}
+        <select
+          value={filterSehir}
+          onChange={e => setFilterSehir(e.target.value)}
+          style={{
+            padding: '7px 14px',
+            background: filterSehir ? 'rgba(99,102,241,0.08)' : 'var(--bg-elevated)',
+            border: filterSehir ? '1px solid var(--accent-primary)' : '1px solid var(--border-subtle)',
+            borderRadius: 8,
+            cursor: 'pointer',
+            fontSize: '13px',
+            fontFamily: "'DM Sans', sans-serif",
+            fontWeight: 500,
+            color: filterSehir ? 'var(--accent-primary)' : 'var(--text-secondary)',
+            minWidth: 160,
+            outline: 'none',
+            transition: 'all 0.2s',
+          }}
+        >
+          <option value="">🏙️ Tüm Şehirler</option>
+          {cities.map(c => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+
         {(filterDanisman || filterSehir) && (
           <button
             onClick={() => { setFilterDanisman(''); setFilterSehir(''); }}
@@ -388,9 +394,10 @@ export default function Revenue() {
             ✕ Temizle
           </button>
         )}
+
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-            <strong>{filtered.length}</strong> kayıt bulundur
+            <strong>{filtered.length}</strong> kayıt bulundu
           </span>
           <span style={{ height: 16, width: 1, background: 'var(--border-subtle)' }} />
           <span style={{ fontSize: '14px', fontFamily: "'DM Sans', sans-serif", fontWeight: 700, color: GOLD }}>
