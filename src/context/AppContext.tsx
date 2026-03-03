@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { Customer, ModalState, ViewType, LeodessaLead, User, LeadTask, UploadBatch } from '../types';
+import { Customer, ModalState, ViewType, LeodessaLead, User, LeadTask, UploadBatch, CustomerDocument, EvrakOperatorNotu } from '../types';
 import { generateId } from '../utils/helpers';
 import { sendToGoogleSheets } from '../services/googleSheets';
 import { supabase } from '../lib/supabaseClient';
@@ -45,6 +45,14 @@ interface AppContextType {
   deleteUploadBatch: (batchId: string) => void;
   removeRowFromBatch: (batchId: string, rowId: string) => void;
   loading: boolean;
+  // Evrak Takip
+  evrakCustomerId: string | null;
+  setEvrakCustomerId: (id: string | null) => void;
+  uploadCustomerDoc: (customerId: string, file: File, uploaderName: string) => Promise<void>;
+  deleteCustomerDoc: (customerId: string, docId: string, fileName: string) => Promise<void>;
+  updateEvrakKarar: (customerId: string, karar: 'approved' | 'feedback' | 'rejected', not: string) => Promise<void>;
+  addEvrakNot: (customerId: string, text: string, author: string) => Promise<void>;
+  saveEvrakFields: (customerId: string, fields: Partial<Customer>) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -61,6 +69,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [revenue, setRevenue] = useState<any[]>([]);
   const [leodessaLeads, setLeodessaLeads] = useState<LeodessaLead[]>([]);
   const [uploadBatches, setUploadBatches] = useState<UploadBatch[]>([]);
+  const [evrakCustomerId, setEvrakCustomerId] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(true);
 
@@ -393,6 +402,78 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }, [fetchAllData]);
 
+  // ── Evrak Takip Functions ──
+
+  const uploadCustomerDoc = useCallback(async (customerId: string, file: File, uploaderName: string) => {
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Dosya boyutu 10MB limitini aşıyor!');
+      return;
+    }
+    const docId = crypto.randomUUID();
+    const path = `${customerId}/${docId}_${file.name}`;
+
+    const { error: uploadErr } = await supabase.storage.from('customer-docs').upload(path, file);
+    if (uploadErr) {
+      console.error('Storage upload error:', uploadErr);
+      showToast('Dosya yüklenemedi: ' + uploadErr.message, 'error');
+      return;
+    }
+
+    const { data: { publicUrl } } = supabase.storage.from('customer-docs').getPublicUrl(path);
+
+    const doc: CustomerDocument = {
+      id: docId,
+      name: file.name,
+      url: publicUrl,
+      size: file.size,
+      uploadedAt: new Date().toISOString(),
+      uploadedBy: uploaderName,
+    };
+
+    const customer = customers.find(c => c.id === customerId);
+    const updatedDocs = [...(customer?.evraklar ?? []), doc];
+    await updateCustomer(customerId, { evraklar: updatedDocs });
+    showToast(`${file.name} yüklendi.`);
+  }, [customers, updateCustomer, showToast]);
+
+  const deleteCustomerDoc = useCallback(async (customerId: string, docId: string, fileName: string) => {
+    const path = `${customerId}/${docId}_${fileName}`;
+    const { error } = await supabase.storage.from('customer-docs').remove([path]);
+    if (error) console.error('Storage delete error:', error);
+
+    const customer = customers.find(c => c.id === customerId);
+    const updatedDocs = (customer?.evraklar ?? []).filter(d => d.id !== docId);
+    await updateCustomer(customerId, { evraklar: updatedDocs });
+    showToast('Dosya silindi.', 'info');
+  }, [customers, updateCustomer, showToast]);
+
+  const updateEvrakKarar = useCallback(async (
+    customerId: string,
+    karar: 'approved' | 'feedback' | 'rejected',
+    not: string
+  ) => {
+    await updateCustomer(customerId, {
+      evrakKarar: karar,
+      evrakKararNotu: not,
+      evrakKararTarihi: new Date().toISOString(),
+    });
+    showToast('Karar kaydedildi.');
+  }, [updateCustomer, showToast]);
+
+  const addEvrakNot = useCallback(async (customerId: string, text: string, author: string) => {
+    const customer = customers.find(c => c.id === customerId);
+    const yeniNot: EvrakOperatorNotu = { text, author, timestamp: new Date().toISOString() };
+    await updateCustomer(customerId, {
+      evrakOperatorNotlari: [...(customer?.evrakOperatorNotlari ?? []), yeniNot],
+    });
+    showToast('Not kaydedildi.');
+  }, [customers, updateCustomer, showToast]);
+
+  const saveEvrakFields = useCallback(async (customerId: string, fields: Partial<Customer>) => {
+    await updateCustomer(customerId, fields);
+    showToast('Kaydedildi.');
+  }, [updateCustomer, showToast]);
+
   return (
     <AppContext.Provider value={{
       customers, revenue, view, setView,
@@ -405,7 +486,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       users, currentUser, setCurrentUser, assignSdrToCustomer,
       addTask, updateTask, deleteTask,
       uploadBatches, addUploadBatch, deleteUploadBatch, removeRowFromBatch,
-      loading
+      loading,
+      evrakCustomerId, setEvrakCustomerId,
+      uploadCustomerDoc, deleteCustomerDoc,
+      updateEvrakKarar, addEvrakNot, saveEvrakFields,
     }}>
       {children}
     </AppContext.Provider>

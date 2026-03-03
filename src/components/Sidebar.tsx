@@ -9,6 +9,7 @@ const mainNav: { view: ViewType; icon: string; label: string }[] = [
   { view: 'customers', icon: '👥', label: 'Tüm Müşteriler' },
   { view: 'vizemoPipeline', icon: '📈', label: 'Vizemo Pipeline' },
   { view: 'operationPanel', icon: '⚙️', label: 'Operasyon Paneli' },
+  { view: 'evrakTakip', icon: '📎', label: 'Evrak Takip' },
   { view: 'calendar', icon: '📅', label: 'Takvim' },
   { view: 'reports', icon: '📊', label: 'Raporlar' },
 ];

@@ -14,6 +14,7 @@ import LeodessaLeads from './components/LeodessaLeads';
 import LeodessaUpload from './components/LeodessaUpload';
 import SDRDashboard from './components/SDRDashboard';
 import OperationPanel from './components/OperationPanel';
+import EvrakTakip from './components/EvrakTakip';
 
 function AppShell() {
   const { view, toasts, loading } = useApp();
@@ -47,6 +48,7 @@ function AppShell() {
           {view === 'leodessaLeads' && <LeodessaLeads />}
           {view === 'sdrDashboard' && <SDRDashboard />}
           {view === 'operationPanel' && <OperationPanel />}
+          {view === 'evrakTakip' && <EvrakTakip />}
         </div>
       </main>
       <CustomerModal />

@@ -30,7 +30,7 @@ export const VIZEMO_STAGES: StatusType[] = [
 ];
 export const LEGACY_STAGES: StatusType[] = ['Beklemede', 'Tamamlandı', 'Olumsuz'];
 
-export type ViewType = 'dashboard' | 'customers' | 'leodessaPipeline' | 'vizemoPipeline' | 'calendar' | 'reports' | 'eskisehir' | 'gaziantep' | 'istanbul' | 'konya' | 'gelir' | 'leodessaTracking' | 'leodessaLeads' | 'sdrDashboard' | 'leodessaUpload' | 'operationPanel';
+export type ViewType = 'dashboard' | 'customers' | 'leodessaPipeline' | 'vizemoPipeline' | 'calendar' | 'reports' | 'eskisehir' | 'gaziantep' | 'istanbul' | 'konya' | 'gelir' | 'leodessaTracking' | 'leodessaLeads' | 'sdrDashboard' | 'leodessaUpload' | 'operationPanel' | 'evrakTakip';
 
 export type LeodessaStatus = 'new' | 'contacted' | 'transferred' | 'cancelled';
 
@@ -186,6 +186,20 @@ export interface Customer {
 
   arayanDanisman?: string;
   arananTarih?: string;
+
+  // Evrak Takip & Değerlendirme
+  evraklar?: CustomerDocument[];
+  evrakKarar?: 'approved' | 'feedback' | 'rejected' | null;
+  evrakKararNotu?: string;
+  evrakKararTarihi?: string;
+  pasaportNo?: string;
+  seyahatTipi?: ('araba' | 'ucak' | 'gemi')[];
+  sponsorlu?: boolean | null;
+  schengenGecmisi?: boolean | null;
+  schengenUlkesi?: string;
+  hizmetler?: HizmetDurumu;
+  evrakOperatorNotlari?: EvrakOperatorNotu[];
+  vizeTuru?: 'turistik' | 'ticari' | 'aile' | null;
 }
 
 export const VISA_TYPES = ['Schengen', 'İspanya Oturum', 'Amerika', 'İngiltere', 'Diğer'] as const;
@@ -259,4 +273,27 @@ export interface UploadBatch {
   headers: string[];
   colMap: ColMap;
   rows: BulkRow[];
+}
+
+// ── Evrak Takip & Değerlendirme ──
+export interface CustomerDocument {
+  id: string;          // uuid — crypto.randomUUID() ile üretilir
+  name: string;        // orijinal dosya adı
+  url: string;         // Supabase Storage public URL
+  size: number;        // byte cinsinden
+  uploadedAt: string;  // ISO timestamp
+  uploadedBy: string;  // kullanıcı adı
+}
+
+export interface EvrakOperatorNotu {
+  text: string;
+  timestamp: string;   // ISO
+  author: string;      // kullanıcı adı
+}
+
+export interface HizmetDurumu {
+  otelRezervasyonu: 'biz' | 'gerekmez' | null;
+  ucakRezervasyonu: 'biz' | 'gerekmez' | null;
+  seyahatSigortasi: 'biz' | 'gerekmez' | null;
+  aracSigortasi: 'biz' | 'gerekmez' | null;
 }
