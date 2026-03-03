@@ -384,26 +384,26 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [showToast]);
 
   const removeRowFromBatch = useCallback(async (batchId: string, rowId: string) => {
-    let newRows: any[] = [];
-    // optimistic update
+    // 1. Calculate the new rows FIRST based on current state directly, avoiding state updater closures for async vars
+    const batch = uploadBatches.find(b => b.id === batchId);
+    if (!batch) return;
+
+    const newRows = batch.rows.filter(r => r.id !== rowId);
+
+    // 2. Optimistic update
     setUploadBatches(prev => prev.map(b => {
-      if (b.id === batchId) {
-        newRows = b.rows.filter(r => r.id !== rowId);
-        return { ...b, rows: newRows };
-      }
+      if (b.id === batchId) return { ...b, rows: newRows };
       return b;
     }));
 
-    // then persist
-    // We need the full updated rows from the latest state
-    // newRows is captured above from the optimistic update
+    // 3. Persist to Supabase
     const { error } = await supabase.from('upload_batches').update({ rows: newRows }).eq('id', batchId);
     if (error) {
       console.error('Error updating batch rows:', error);
-      // Re-fetch to restore correct state
-      fetchAllData();
+      // Re-fetch to restore correct state if DB fails
+      fetchUploadBatches();
     }
-  }, [fetchAllData]);
+  }, [uploadBatches, fetchUploadBatches]);
 
   // ── Evrak Takip Functions ──
 
