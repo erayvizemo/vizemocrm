@@ -19,9 +19,11 @@ export default function FollowUpCalendar() {
     const map: Record<string, typeof customers> = {};
     customers.forEach(c => {
       if (!c.takip) return;
-      const key = c.takip.substring(0, 10);
-      if (!map[key]) map[key] = [];
-      map[key].push(c);
+      const key = c.takip ? c.takip.substring(0, 10) : '';
+      if (key) {
+        if (!map[key]) map[key] = [];
+        map[key].push(c);
+      }
     });
     return map;
   }, [customers]);

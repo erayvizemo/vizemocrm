@@ -49,7 +49,7 @@ export default function LeodessaLeads() {
       takip: '',
       surec: '',
       karar: '',
-      not: lead.summaryText.substring(0, 500),
+      not: (lead.summaryText || '').substring(0, 500),
       log: [],
       sehir: lead.sehir || '',
       danisman: lead.salesConsultant || '',

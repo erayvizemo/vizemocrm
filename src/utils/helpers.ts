@@ -5,7 +5,7 @@ export function generateId(): string {
 }
 
 export function formatDate(dateStr: string): { html: string; raw: string } {
-  if (!dateStr) return { html: '<span style="color:var(--muted)">—</span>', raw: '' };
+  if (!dateStr || typeof dateStr !== 'string') return { html: '<span style="color:var(--muted)">—</span>', raw: '' };
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const dt = new Date(dateStr);
@@ -159,6 +159,7 @@ export function getMonthlyData(customers: Customer[]): { month: string; yeni: nu
     months[key] = { yeni: 0, kapandi: 0 };
   }
   customers.forEach(c => {
+    if (!c.createdAt) return;
     const key = c.createdAt.substring(0, 7);
     if (months[key]) months[key].yeni++;
     if ((c.durum === 'Tamamlandı' || c.durum === 'Olumsuz') && months[key]) {

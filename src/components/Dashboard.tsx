@@ -367,7 +367,7 @@ export default function Dashboard() {
                       color: 'var(--text-secondary)',
                       paddingTop: 2,
                     }}>
-                      {a.time.substring(5, 10).replace('-', '.')}
+                      {a.time ? a.time.substring(5, 10).replace('-', '.') : ''}
                     </div>
                     <div>
                       <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--accent-cyan)', marginBottom: 2 }}>{a.customer}</div>
