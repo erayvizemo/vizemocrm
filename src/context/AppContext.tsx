@@ -72,37 +72,51 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [users] = useState<User[]>(FAKE_USERS);
   const [currentUser, setCurrentUser] = useState<User | null>(FAKE_USERS[1]); // Default to 'Eray' (sdr)
 
+  const fetchAllData = useCallback(async () => {
+    try {
+      const [
+        { data: customersData },
+        { data: revenueData },
+        { data: leodessaData },
+        { data: batchesData }
+      ] = await Promise.all([
+        supabase.from('customers').select('*').order('createdAt', { ascending: false }),
+        supabase.from('revenue').select('*'),
+        supabase.from('leodessa_leads').select('*').order('createdAt', { ascending: false }),
+        supabase.from('upload_batches').select('*').order('uploadDate', { ascending: false })
+      ]);
+
+      if (customersData) setCustomers(customersData);
+      if (revenueData) setRevenue(revenueData);
+      if (leodessaData) setLeodessaLeads(leodessaData);
+      if (batchesData) setUploadBatches(batchesData);
+
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   // Initial Data Fetch
   useEffect(() => {
-    const fetchAllData = async () => {
-      setLoading(true);
-      try {
-        const [
-          { data: customersData },
-          { data: revenueData },
-          { data: leodessaData },
-          { data: batchesData }
-        ] = await Promise.all([
-          supabase.from('customers').select('*').order('createdAt', { ascending: false }),
-          supabase.from('revenue').select('*'),
-          supabase.from('leodessa_leads').select('*').order('createdAt', { ascending: false }),
-          supabase.from('upload_batches').select('*').order('uploadDate', { ascending: false })
-        ]);
-
-        if (customersData) setCustomers(customersData);
-        if (revenueData) setRevenue(revenueData);
-        if (leodessaData) setLeodessaLeads(leodessaData);
-        if (batchesData) setUploadBatches(batchesData);
-
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+    setLoading(true);
     fetchAllData();
-  }, []);
+  }, [fetchAllData]);
+
+  // Realtime Subscriptions
+  useEffect(() => {
+    const channel = supabase.channel('realtime_all')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'customers' }, fetchAllData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'revenue' }, fetchAllData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'leodessa_leads' }, fetchAllData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'upload_batches' }, fetchAllData)
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchAllData]);
 
   const openModal = useCallback((customerId?: string) => {
     setModal({ isOpen: true, customerId: customerId ?? null });
