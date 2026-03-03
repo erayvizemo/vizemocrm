@@ -392,6 +392,8 @@ export default function OperationPanel() {
   const [appointments, setAppointments] = useState<any[]>([]);
   const [reports, setReports] = useState<any[]>([]);
   const [activity, setActivity] = useState([]);
+  const [autoTransferData, setAutoTransferData] = useState<any>(null); // For auto-transfer from CRM
+
   const [operator, setOperator] = useState("Oğuz");
   const [toasts, setToasts] = useState([]);
   const [filter, setFilter] = useState({ search: "", status: "", alert: "", zone: "" });
@@ -496,6 +498,23 @@ export default function OperationPanel() {
     toast("Güncelleme kaydedildi ✓");
   };
 
+  // ── Delete ────────────────────────────────────────────────────────────────
+  const deleteItem = id => {
+    if (!window.confirm("Bu kayıt tamamen silinecek. Onaylıyor musunuz?")) return;
+    const item = appointments.find(a => a.id === id);
+    if (!item) return;
+    const newList = appointments.filter(a => a.id !== id);
+    persistUpdate(newList, `${item.country} kaydı silindi`);
+    const act = {
+      id: uid(), at: now(), by: operator, country: item.country,
+      visaType: item.visaType, newStatus: "SİLİNDİ", note: "Kayıt manuel silindi"
+    };
+    const newAct = [act, ...activity].slice(0, 50);
+    setActivity(newAct);
+    saveLS("vizemo_activity_feed", newAct);
+    toast("Kayıt başarıyla silindi 🗑️", "info");
+  };
+
   // ── Add New ───────────────────────────────────────────────────────────────
   const addNew = data => {
     const item = {
@@ -504,6 +523,7 @@ export default function OperationPanel() {
     };
     const newList = [...appointments, item];
     persistUpdate(newList, `${data.country} eklendi`);
+
     const act = {
       id: uid(), at: now(), by: operator, country: data.country,
       visaType: data.visaType, newStatus: data.currentStatus, note: data.note
@@ -524,6 +544,17 @@ export default function OperationPanel() {
 
   // ── Quick status from welcome card ────────────────────────────────────────
   const openDrawerWith = (country) => {
+    setAutoTransferData({ country });
+    setShowDrawer(true);
+  };
+
+  // ── Transfer CRM Appointment ──────────────────────────────────────────────
+  const transferFromCrm = (crm) => {
+    setAutoTransferData({
+      country: crm.gidilecekUlke || "",
+      visaType: crm.hizmetTuru || "Schengen Turist (C)",
+      note: `CRM'den aktarıldı: Müşteri ${crm.firstName} ${crm.lastName}`
+    });
     setShowDrawer(true);
   };
 
@@ -671,6 +702,7 @@ export default function OperationPanel() {
                     <th>Hizmet Türü</th>
                     <th>Ekleyen Danışman</th>
                     <th>İşlem Tarihi</th>
+                    <th>Aksiyon</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -682,6 +714,9 @@ export default function OperationPanel() {
                       <td style={{ color: "var(--gray2)" }}>{c.hizmetTuru || "—"}</td>
                       <td><span className="op-badge">{c.danisman || "—"}</span></td>
                       <td style={{ fontFamily: "'IBM Plex Mono'", color: "var(--gray2)", fontSize: 11 }}>{fmtDate(c.createdAt)}</td>
+                      <td>
+                        <button className="btn btn-teal btn-sm" onClick={() => transferFromCrm(c)}>Takibe Al ⚡</button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -700,14 +735,14 @@ export default function OperationPanel() {
                 </p>
                 <div className="welcome-grid">
                   {SCHENGEN_MEMBERS.filter(m => m.zone === "Schengen").map(m => (
-                    <div key={m.country} className="welcome-card" onClick={() => setShowDrawer(true)}>
+                    <div key={m.country} className="welcome-card" onClick={() => openDrawerWith(m.country)}>
                       <strong>{m.country}</strong>
                       <span>{m.embassy}</span>
                       <div><span className="chip-s zone-chip">Schengen</span></div>
                     </div>
                   ))}
                   {SCHENGEN_MEMBERS.filter(m => !m.zone.startsWith("Schengen")).map(m => (
-                    <div key={m.country} className="welcome-card" onClick={() => setShowDrawer(true)}>
+                    <div key={m.country} className="welcome-card" onClick={() => openDrawerWith(m.country)}>
                       <strong>{m.country}</strong>
                       <span>{m.embassy}</span>
                       <div><span className="chip-n zone-chip">Non-Schengen</span></div>
@@ -752,12 +787,11 @@ export default function OperationPanel() {
                         <td style={{ color: "var(--gray)", fontSize: 11, maxWidth: 110, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.quota || "—"}</td>
                         <td style={{ maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--gray2)", fontSize: 11 }} title={a.note}>{a.note || "—"}</td>
                         <td>
-                          <div style={{ fontSize: 10 }}>
-                            <div style={{ fontFamily: "'IBM Plex Mono'", color: "var(--gray)" }}>{fmtDT(a.lastUpdatedAt)}</div>
-                            <span className={`op-badge op-badge-${a.lastUpdatedBy}`}>{a.lastUpdatedBy}</span>
+                          <div style={{ display: "flex", gap: 5 }}>
+                            <button className="btn btn-ghost btn-sm" onClick={() => setEditItem({ ...a })}>✏️</button>
+                            <button className="btn btn-ghost btn-sm" onClick={() => deleteItem(a.id)}>🗑️</button>
                           </div>
                         </td>
-                        <td><button className="btn btn-ghost btn-sm" onClick={() => setEditItem({ ...a })}>✏️</button></td>
                       </tr>
                     );
                   })}
@@ -875,24 +909,34 @@ export default function OperationPanel() {
 
         {/* ═══ SIDEBAR ═══════════════════════════════════════════════════════ */}
         <div className="op-sidebar">
-          <div className="sb-title">🕒 Son Aktiviteler</div>
-          {activity.slice(0, 20).map(a => (
-            <div key={a.id} className="feed-item">
-              <div className={`avatar avatar-${a.by[0]}`}>{a.by[0]}</div>
-              <div className="feed-body">
-                <div className="feed-name">{a.by}</div>
-                <div className="feed-detail">
-                  <b style={{ color: "var(--white)" }}>{a.country}</b> — {a.visaType}
-                  <br /><span className={`badge badge-${a.newStatus}`} style={{ fontSize: 9, padding: "1px 5px" }}>{a.newStatus}</span>
-                  {a.note && <span style={{ marginLeft: 4, color: "var(--gray)" }}>{a.note.slice(0, 32)}</span>}
+          <div className="sb-title" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span>🕒 Son Aktiviteler</span>
+            <button className="btn btn-ghost btn-sm" style={{ padding: "2px 6px", fontSize: 9 }} onClick={() => {
+              if (window.confirm("Tüm aktiviteleri temizlemek istediğinize emin misiniz?")) {
+                setActivity([]);
+                saveLS("vizemo_activity_feed", []);
+              }
+            }}>Temizle</button>
+          </div>
+          <div style={{ flex: 1, overflowY: "auto", marginRight: -12, paddingRight: 12 }}>
+            {activity.slice(0, 20).map(a => (
+              <div key={a.id} className="feed-item">
+                <div className={`avatar avatar-${a.by[0]}`}>{a.by[0]}</div>
+                <div className="feed-body">
+                  <div className="feed-name">{a.by}</div>
+                  <div className="feed-detail">
+                    <b style={{ color: "var(--white)" }}>{a.country}</b> — {a.visaType}
+                    <br /><span className={`badge badge-${a.newStatus}`} style={{ fontSize: 9, padding: "1px 5px" }}>{a.newStatus}</span>
+                    {a.note && <span style={{ marginLeft: 4, color: "var(--gray)" }}>{a.note.slice(0, 32)}</span>}
+                  </div>
+                  <div className="feed-time">{fmtDT(a.at)}</div>
                 </div>
-                <div className="feed-time">{fmtDT(a.at)}</div>
               </div>
-            </div>
-          ))}
-          {activity.length === 0 && <div style={{ color: "var(--gray)", fontSize: 11 }}>Henüz aktivite yok.</div>}
+            ))}
+            {activity.length === 0 && <div style={{ color: "var(--gray)", fontSize: 11 }}>Henüz aktivite yok.</div>}
+          </div>
 
-          <div style={{ marginTop: "auto" }}>
+          <div style={{ marginTop: "16px" }}>
             <div className="divider" />
             <div className="sb-title">📊 Bugün</div>
             {currentFolder ? (
@@ -916,6 +960,7 @@ export default function OperationPanel() {
         }}>
           {[
             { icon: "✏️", label: "Düzenle", action: () => { setEditItem({ ...ctxMenu.item }); setCtxMenu(null); } },
+            { icon: "🗑️", label: "Sil", action: () => { deleteItem(ctxMenu.item.id); setCtxMenu(null); } },
             { icon: "📜", label: "Geçmişi Gör", action: () => { setEditItem({ ...ctxMenu.item, viewHistory: true }); setCtxMenu(null); } },
             ...STATUSES.map(s => ({ icon: "⚡", label: `→ ${s}`, action: () => { saveUpdate({ ...ctxMenu.item, currentStatus: s }); setCtxMenu(null); } }))
           ].map((item, i) => (
@@ -928,7 +973,7 @@ export default function OperationPanel() {
       )}
 
       {editItem && <UpdateModal item={editItem} operator={operator} onSave={saveUpdate} onClose={() => setEditItem(null)} />}
-      {showDrawer && (<><div className="drawer-overlay" onClick={() => setShowDrawer(false)} /><AddCountryDrawer operator={operator} onAdd={addNew} onClose={() => setShowDrawer(false)} /></>)}
+      {showDrawer && (<><div className="drawer-overlay" onClick={() => { setShowDrawer(false); setAutoTransferData(null); }} /><AddCountryDrawer operator={operator} onAdd={addNew} defaultData={autoTransferData} onClose={() => { setShowDrawer(false); setAutoTransferData(null); }} /></>)}
       <Toast toasts={toasts} />
     </>
   );
@@ -1042,12 +1087,23 @@ function UpdateModal({ item, operator, onSave, onClose }: any) {
 // ─────────────────────────────────────────────────────────────────────────────
 // ADD COUNTRY DRAWER
 // ─────────────────────────────────────────────────────────────────────────────
-function AddCountryDrawer({ operator, onAdd, onClose }: any) {
+function AddCountryDrawer({ operator, onAdd, defaultData, onClose }: any) {
   const [form, setForm] = useState({
-    country: "", visaType: "Schengen Turist (C)", embassy: "",
+    country: defaultData?.country || "",
+    visaType: defaultData?.visaType || "Schengen Turist (C)",
+    embassy: "",
     currentStatus: "AÇIK", alertLevel: "NORMAL",
-    waitingDays: "", earliestDate: "", quota: "", note: ""
+    waitingDays: "", earliestDate: "", quota: "",
+    note: defaultData?.note || ""
   });
+
+  // Re-run embassy deduction if defaultData provided a country
+  useEffect(() => {
+    if (defaultData?.country) {
+      const meta = SCHENGEN_MEMBERS.find(m => m.country === defaultData.country);
+      if (meta && meta.embassy) setForm(p => ({ ...p, embassy: meta.embassy }));
+    }
+  }, [defaultData]);
 
   const handleCountry = val => {
     const meta = SCHENGEN_MEMBERS.find(m => m.country === val);
