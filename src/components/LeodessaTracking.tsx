@@ -76,6 +76,7 @@ export default function LeodessaTracking() {
   const [leadTel, setLeadTel] = useState('');
   const [leadEmail, setLeadEmail] = useState('');
   const [leadKaynak, setLeadKaynak] = useState('Reklam');
+  const [leadDanisman, setLeadDanisman] = useState('Hanife'); // Leodessa danışman
 
   useEffect(() => {
     if (trackingTransfer) {
@@ -188,6 +189,7 @@ export default function LeodessaTracking() {
     setLeadSehir('');
     setLeadTel('');
     setLeadEmail('');
+    setLeadDanisman('Hanife');
   }
 
   function handleClearDisq() {
@@ -248,8 +250,8 @@ export default function LeodessaTracking() {
       crmTransferred: false,
       kaynak: leadKaynak,
       sehir: leadSehir,
-      arayanDanisman: tDanisman, // New field mapping
-      arananTarih: tTarih,       // New field mapping
+      arayanDanisman: tDanisman,
+      arananTarih: tTarih,
     });
     setShowTransfer(false);
     setView('sdrDashboard');
@@ -455,6 +457,23 @@ export default function LeodessaTracking() {
                 placeholder="ornek@mail.com"
                 style={{ fontSize: '16px', padding: '12px 16px' }}
               />
+            </div>
+
+            {/* Leodessa Danışman */}
+            <div>
+              <label className="form-label">
+                Leodessa Danışman <span style={{ color: 'var(--accent-rose)' }}>*</span>
+              </label>
+              <select
+                className="form-input"
+                value={leadDanisman}
+                onChange={e => setLeadDanisman(e.target.value)}
+                style={{ fontSize: '16px', padding: '12px 16px' }}
+              >
+                <option value="Hanife">Hanife</option>
+                <option value="Zeynep">Zeynep</option>
+                <option value="Serkan">Serkan</option>
+              </select>
             </div>
           </div>
         </div>
@@ -773,6 +792,7 @@ export default function LeodessaTracking() {
               <select className="form-input" value={tDanisman} onChange={e => setTDanisman(e.target.value)}>
                 <option value="Hanife">Hanife</option>
                 <option value="Zeynep">Zeynep</option>
+                <option value="Serkan">Serkan</option>
               </select>
             </div>
             <div>

@@ -49,6 +49,7 @@ export default function CustomerModal() {
   });
   const [activeChips, setActiveChips] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'info' | 'log' | 'tasks'>('info');
+  const [newNoteInput, setNewNoteInput] = useState(''); // only the new note being typed
 
   // Call Log State
   const [showCallForm, setShowCallForm] = useState(false);
@@ -78,6 +79,7 @@ export default function CustomerModal() {
     }
     setActiveTab('info');
     setActiveChips([]);
+    setNewNoteInput('');
     if (customer) {
       setForm({
         firstName: customer.firstName, lastName: customer.lastName, telefon: customer.telefon, email: customer.email,
@@ -123,9 +125,20 @@ export default function CustomerModal() {
 
   const generatedNote = (): string => {
     const parts = [...activeChips];
-    if (form.not.trim()) parts.push(form.not.trim());
+    if (newNoteInput.trim()) parts.push(newNoteInput.trim());
     return parts.join(' ');
   };
+
+  // Always show existing notes from DB as read-only history
+  const existingNotes = form.not || '';
+
+  // Timestamp helper
+  function makeTimestampedNote(text: string): string {
+    const now = new Date();
+    const d = now.toLocaleDateString('tr-TR'); // e.g. 03.03.2026
+    const t = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }); // e.g. 15:07
+    return `[${d} ${t}] — ${text.trim()}`;
+  }
 
   function toggleChip(text: string) {
     setActiveChips(prev =>
@@ -140,7 +153,19 @@ export default function CustomerModal() {
     const finalSehir = form.sehir === 'Diğer' ? form.sehirDiger : form.sehir;
     const finalLeadSource = form.leadSource === 'Diğer' ? `Diğer: ${form.kaynakDiger}` : form.leadSource;
 
-    const finalNote = generatedNote() || form.not;
+    const newChipNote = activeChips.join(' ');
+    const freshTyped = newNoteInput.trim();
+
+    // Build timestamped new note if anything was typed / chip selected
+    let finalNote = existingNotes;
+    if (freshTyped || newChipNote) {
+      const combined = [newChipNote, freshTyped].filter(Boolean).join(' ');
+      const timestamped = makeTimestampedNote(combined);
+      // Append to existing notes with separator
+      finalNote = existingNotes
+        ? existingNotes + '\n' + timestamped
+        : timestamped;
+    }
     const now = new Date();
     const nowStr = now.toLocaleDateString('tr-TR') + ' ' + now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
 
@@ -162,8 +187,8 @@ export default function CustomerModal() {
       const log = [...customer.log];
       let didInteract = false;
 
-      if (finalNote && finalNote !== customer.not) {
-        log.push({ timestamp: nowStr, text: finalNote });
+      if (finalNote !== customer.not) {
+        log.push({ timestamp: nowStr, text: `Not eklendi: ${freshTyped || newChipNote}` });
         didInteract = true;
       }
       if (form.durum !== customer.durum) {
@@ -798,19 +823,46 @@ export default function CustomerModal() {
                 </div>
 
                 <FormField label="Ek Not / Açıklama">
-                  <textarea
-                    className="form-input"
-                    value={form.not}
-                    onChange={e => setForm(p => ({ ...p, not: e.target.value }))}
-                    placeholder="Ek detay yazın..."
-                    rows={2}
-                  />
+                  {/* Mevcut not geçmişi — salt okunur */}
+                  {existingNotes && (
+                    <div style={{
+                      background: 'var(--bg-surface)',
+                      border: '1px solid var(--border-subtle)',
+                      borderRadius: 8,
+                      padding: '10px 12px',
+                      marginBottom: 8,
+                      maxHeight: 140,
+                      overflowY: 'auto',
+                    }}>
+                      <div style={{ fontSize: '10px', color: 'var(--accent-cyan)', fontFamily: "'DM Sans', sans-serif", textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700, marginBottom: 6 }}>
+                        📅 Not Geçmişi
+                      </div>
+                      {existingNotes.split('\n').map((line, i) => (
+                        <div key={i} style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.6, borderBottom: i < existingNotes.split('\n').length - 1 ? '1px solid var(--border-subtle)' : 'none', paddingBottom: 4, marginBottom: 4 }}>
+                          {line}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {/* Yeni not alanı */}
+                  <div style={{ position: 'relative' }}>
+                    <textarea
+                      className="form-input"
+                      value={newNoteInput}
+                      onChange={e => setNewNoteInput(e.target.value)}
+                      placeholder="Yeni not ekle... (kaydedildiğinde otomatik tarih-saat damgası eklenir)"
+                      rows={2}
+                    />
+                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: 4, fontFamily: "'DM Sans', sans-serif" }}>
+                      📅 Kaydedildiğinde: [{new Date().toLocaleDateString('tr-TR')} {new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}] — {newNoteInput.trim() || '(yazan metin)'}
+                    </div>
+                  </div>
                 </FormField>
 
                 {generatedNote() && (
                   <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border-subtle)' }}>
-                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Oluşturulan Not Önizleme</div>
-                    <div style={{ fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.5 }}>
+                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Bu kaydetmede eklenecek not önizleme</div>
+                    <div style={{ fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.5, background: 'rgba(6,182,212,0.04)', border: '1px solid rgba(6,182,212,0.2)', borderRadius: 8, padding: '10px 12px' }}>
                       {generatedNote()}
                     </div>
                   </div>
