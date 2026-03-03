@@ -87,7 +87,7 @@ export default function Dashboard() {
   // Recent activity
   const recentActivity: { time: string; text: string; customer: string; id: string }[] = [];
   customers.forEach(c => {
-    c.log.forEach(entry => {
+    (c.log || []).forEach(entry => {
       recentActivity.push({ time: entry.timestamp, text: entry.text, customer: c.firstName + ' ' + c.lastName, id: c.id });
     });
   });

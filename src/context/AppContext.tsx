@@ -86,10 +86,24 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         supabase.from('upload_batches').select('*').order('uploadDate', { ascending: false })
       ]);
 
-      if (customersData) setCustomers(customersData);
-      if (revenueData) setRevenue(revenueData);
-      if (leodessaData) setLeodessaLeads(leodessaData);
-      if (batchesData) setUploadBatches(batchesData);
+      const safeCustomers = (customersData || []).map((c: any) => ({
+        ...c,
+        log: c.log || [],
+        tasks: c.tasks || [],
+        stageHistory: c.stageHistory || [],
+        callLogs: c.callLogs || []
+      }));
+      setCustomers(safeCustomers);
+      setRevenue(revenueData || []);
+
+      const safeLeodessa = (leodessaData || []).map((l: any) => ({
+        ...l,
+        answers: l.answers || [],
+        notes: l.notes || [],
+        textAnswers: l.textAnswers || []
+      }));
+      setLeodessaLeads(safeLeodessa);
+      setUploadBatches(batchesData || []);
 
     } catch (error) {
       console.error("Error fetching data:", error);
