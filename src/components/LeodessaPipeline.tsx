@@ -260,6 +260,9 @@ export default function LeodessaPipeline() {
                                 {c.vize}
                               </span>
                             )}
+                            {c.sehir && (
+                              <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 600 }}>📍 {c.sehir}</span>
+                            )}
                             {c.danisman && (
                               <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{c.danisman}</span>
                             )}

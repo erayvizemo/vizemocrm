@@ -158,8 +158,7 @@ export default function LeodessaUpload() {
       kaynak: finalKaynak,
     });
 
-    // Yükleme sırasında Lead Kalifikasyon sayfasına aktar
-    removeRowFromBatch(batchId, row.id);
+    // Lead Kalifikasyon sayfasına aktar — satır klasörde korunur, silinmez
     setView('leodessaTracking');
   }
 
