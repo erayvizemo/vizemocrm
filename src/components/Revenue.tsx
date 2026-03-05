@@ -1,4 +1,15 @@
 import { useState, useMemo, useCallback } from 'react';
+
+const MONTH_NAMES_TR: Record<number, string> = {
+  0: 'Ocak', 1: 'Şubat', 2: 'Mart', 3: 'Nisan', 4: 'Mayıs', 5: 'Haziran',
+  6: 'Temmuz', 7: 'Ağustos', 8: 'Eylül', 9: 'Ekim', 10: 'Kasım', 11: 'Aralık',
+};
+
+const MONTH_COLORS = [
+  'var(--accent-primary)', 'var(--accent-emerald)', 'var(--accent-amber)',
+  'var(--accent-cyan)', 'var(--accent-secondary)', 'var(--accent-rose)',
+  '#8b5cf6', '#06b6d4', '#f97316', '#14b8a6', '#6366f1', '#ec4899',
+];
 import { useApp } from '../context/AppContext';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
@@ -42,6 +53,7 @@ export default function Revenue() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editEntryId, setEditEntryId] = useState<string | null>(null);
+  const [collapsedMonths, setCollapsedMonths] = useState<Set<string>>(new Set());
 
   // Form state
   const emptyForm = {
@@ -121,6 +133,36 @@ export default function Revenue() {
         : String(bv).localeCompare(String(av), 'tr');
     });
   }, [revenue, filterDanisman, filterSehir, sortCol, sortDir]);
+
+  // Group filtered by month (YYYY-MM key, sorted descending)
+  const monthlyGroups = useMemo(() => {
+    const groups: Record<string, typeof filtered> = {};
+    filtered.forEach(r => {
+      const d = r.onOdemeTarihi || '';
+      const key = d.length >= 7 ? d.substring(0, 7) : 'unknown';
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(r);
+    });
+    return Object.entries(groups)
+      .sort(([a], [b]) => b.localeCompare(a))
+      .map(([key, items]) => {
+        const [y, m] = key.split('-').map(Number);
+        const monthName = MONTH_NAMES_TR[m - 1] || key;
+        const year = y;
+        const totalGelir = items.reduce((s, r) => s + r.toplam, 0);
+        const totalOn = items.reduce((s, r) => s + r.onOdeme, 0);
+        const totalKalan = items.reduce((s, r) => s + r.kalanOdeme, 0);
+        return { key, monthName, year, items, totalGelir, totalOn, totalKalan };
+      });
+  }, [filtered]);
+
+  const toggleMonth = (key: string) => {
+    setCollapsedMonths(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
+  };
 
   function toggleSort(c: typeof sortCol) {
     if (sortCol === c) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
@@ -406,123 +448,177 @@ export default function Revenue() {
         </div>
       </div>
 
-      {/* Table */}
-      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 16, overflow: 'hidden' }}>
-        <div style={{ overflowX: 'auto' }}>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <TH col="firstName" label="Müşteri İsim / Ad" />
-                <TH col="danisman" label="Danışman" />
-                <TH col="sehir" label="Şehir" />
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>Ödeme Yöntemi</th>
-                <TH col="onOdemeTarihi" label="Ön Ödeme Tarihi" />
-                <th style={{ padding: '12px 16px', textAlign: 'right', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>Ön Ödeme</th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>Kalan Tarih</th>
-                <th style={{ padding: '12px 16px', textAlign: 'right', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>Kalan</th>
-                <TH col="toplam" label="Toplam" />
-                <th style={{ padding: '12px 16px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>İşlem</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={10} style={{ padding: '48px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '14px' }}>Filtrelere uygun gelir kaydı bulunamadı.</td>
-                </tr>
-              )}
-              {filtered.map(r => {
-                const cityColor = CITY_COLORS[r.sehir] ?? 'var(--accent-primary)';
-                return (
-                  <tr key={r.id}>
-                    <td className="td-name">{r.firstName + ' ' + r.lastName}</td>
-                    <td>{r.danisman}</td>
-                    <td>
-                      <span style={{
-                        fontSize: '11px',
-                        fontWeight: 600,
-                        background: 'rgba(255,255,255,0.03)',
-                        color: cityColor,
-                        border: `1px solid ${cityColor}44`,
-                        borderRadius: 6,
-                        padding: '3px 8px',
-                      }}>
-                        {r.sehir}
-                      </span>
-                    </td>
-                    <td>{r.odemeYontemi}</td>
-                    <td style={{ color: 'var(--text-secondary)' }}>{r.onOdemeTarihi.split('-').reverse().join('.')}</td>
-                    <td style={{ textAlign: 'right', fontFamily: "'DM Sans', sans-serif", color: 'var(--accent-emerald)', fontWeight: 600 }}>
-                      {r.onOdeme > 0 ? fmt(r.onOdeme) : '—'}
-                    </td>
-                    <td style={{ color: 'var(--text-secondary)' }}>
-                      {r.kalanTarih && r.kalanTarih !== '-' ? r.kalanTarih.split('-').reverse().join('.') : '—'}
-                    </td>
-                    <td style={{ textAlign: 'right', fontFamily: "'DM Sans', sans-serif", color: r.kalanOdeme > 0 ? 'var(--accent-rose)' : 'var(--text-muted)', fontWeight: r.kalanOdeme > 0 ? 700 : 400 }}>
-                      {r.kalanOdeme > 0 ? fmt(r.kalanOdeme) : '—'}
-                    </td>
-                    <td style={{ textAlign: 'right', fontFamily: "'DM Sans', sans-serif", color: GOLD, fontWeight: 700 }}>
-                      {fmt(r.toplam)}
-                    </td>
-                    <td style={{ textAlign: 'center' }}>
-                      <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
-                        <button
-                          onClick={() => handleEdit(r)}
-                          style={{
-                            background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.3)',
-                            borderRadius: 6, color: 'var(--accent-primary)', cursor: 'pointer', padding: '6px',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            transition: 'all 0.15s'
-                          }}
-                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99, 102, 241, 0.2)'; e.currentTarget.style.borderColor = 'var(--accent-primary)'; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)'; e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.3)'; }}
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                        </button>
-                        <button
-                          onClick={() => handleDelete(r.id)}
-                          style={{
-                            background: 'rgba(244, 63, 94, 0.1)', border: '1px solid rgba(244, 63, 94, 0.3)',
-                            borderRadius: 6, color: 'var(--accent-rose)', cursor: 'pointer', padding: '6px',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            transition: 'all 0.15s'
-                          }}
-                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(244, 63, 94, 0.2)'; e.currentTarget.style.borderColor = 'var(--accent-rose)'; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(244, 63, 94, 0.1)'; e.currentTarget.style.borderColor = 'rgba(244, 63, 94, 0.3)'; }}
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-            {/* Footer totals */}
-            {filtered.length > 0 && (
-              <tfoot>
-                <tr style={{ borderTop: `1px solid var(--border-glow)`, background: 'rgba(245, 158, 11, 0.05)' }}>
-                  <td colSpan={5} style={{ padding: '16px', fontSize: '13px', fontFamily: "'DM Sans', sans-serif", color: 'var(--text-primary)', fontWeight: 700 }}>
-                    KARŞILAŞTIRILAN TOPLAM YEKÜN ({filtered.length} işlem)
-                  </td>
-                  <td style={{ padding: '16px', textAlign: 'right', fontSize: '14px', fontFamily: "'DM Sans', sans-serif", color: 'var(--accent-emerald)', fontWeight: 700 }}>
-                    {fmt(filtered.reduce((a, r) => a + r.onOdeme, 0))}
-                  </td>
-                  <td />
-                  <td style={{ padding: '16px', textAlign: 'right', fontSize: '14px', fontFamily: "'DM Sans', sans-serif", color: 'var(--accent-rose)', fontWeight: 700 }}>
-                    {filtered.reduce((a, r) => a + r.kalanOdeme, 0) > 0
-                      ? fmt(filtered.reduce((a, r) => a + r.kalanOdeme, 0))
-                      : '—'}
-                  </td>
-                  <td style={{ padding: '16px', textAlign: 'right', fontSize: '16px', fontFamily: "'DM Sans', sans-serif", color: GOLD, fontWeight: 700 }}>
-                    {fmt(filtered.reduce((a, r) => a + r.toplam, 0))}
-                  </td>
-                  <td />
-                </tr>
-              </tfoot>
-            )}
-          </table>
+      {/* Monthly Grouped Tables */}
+      {filtered.length === 0 && (
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 16, padding: '48px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '14px' }}>
+          Filtrelere uygun gelir kaydı bulunamadı.
         </div>
+      )}
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+        {monthlyGroups.map((group, gi) => {
+          const isCollapsed = collapsedMonths.has(group.key);
+          const mColor = MONTH_COLORS[gi % MONTH_COLORS.length];
+          return (
+            <div key={group.key} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 16, overflow: 'hidden', transition: 'all 0.3s ease' }}>
+              {/* Month Header */}
+              <div
+                onClick={() => toggleMonth(group.key)}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '20px 24px', cursor: 'pointer', userSelect: 'none',
+                  background: `linear-gradient(135deg, rgba(${mColor === GOLD ? '245,158,11' : '99,102,241'}, 0.04) 0%, transparent 100%)`,
+                  borderBottom: isCollapsed ? 'none' : '1px solid var(--border-subtle)',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = `linear-gradient(135deg, rgba(${mColor === GOLD ? '245,158,11' : '99,102,241'}, 0.08) 0%, transparent 100%)`}
+                onMouseLeave={e => e.currentTarget.style.background = `linear-gradient(135deg, rgba(${mColor === GOLD ? '245,158,11' : '99,102,241'}, 0.04) 0%, transparent 100%)`}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                  <div style={{
+                    width: 44, height: 44, borderRadius: 12,
+                    background: `linear-gradient(135deg, ${mColor}22, ${mColor}11)`,
+                    border: `1px solid ${mColor}33`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '18px', fontWeight: 800, color: mColor,
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}>
+                    {group.monthName.substring(0, 2).toUpperCase()}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'DM Sans', sans-serif", display: 'flex', alignItems: 'center', gap: 8 }}>
+                      {group.monthName} {group.year}
+                      <span style={{
+                        fontSize: '11px', fontWeight: 600, background: `${mColor}18`,
+                        color: mColor, border: `1px solid ${mColor}33`,
+                        borderRadius: 20, padding: '3px 10px',
+                      }}>
+                        {group.items.length} kayıt
+                      </span>
+                    </div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 2, fontFamily: "'DM Sans', sans-serif" }}>
+                      Tahsil: {fmt(group.totalOn)} · Kalan: {group.totalKalan > 0 ? fmt(group.totalKalan) : '—'}
+                    </div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600, fontFamily: "'DM Sans', sans-serif", marginBottom: 2 }}>Toplam Gelir</div>
+                    <div style={{ fontSize: '22px', fontWeight: 800, color: GOLD, fontFamily: "'DM Sans', sans-serif", fontVariantNumeric: 'tabular-nums' }}>{fmt(group.totalGelir)}</div>
+                  </div>
+                  <div style={{
+                    width: 32, height: 32, borderRadius: 8,
+                    background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    transition: 'transform 0.3s ease',
+                    transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+                  }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* Table (collapsible) */}
+              {!isCollapsed && (
+                <div style={{ overflowX: 'auto' }}>
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <TH col="firstName" label="Müşteri İsim / Ad" />
+                        <TH col="danisman" label="Danışman" />
+                        <TH col="sehir" label="Şehir" />
+                        <th style={{ padding: '12px 16px', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>Ödeme Yöntemi</th>
+                        <TH col="onOdemeTarihi" label="Ön Ödeme Tarihi" />
+                        <th style={{ padding: '12px 16px', textAlign: 'right', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>Ön Ödeme</th>
+                        <th style={{ padding: '12px 16px', textAlign: 'left', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>Kalan Tarih</th>
+                        <th style={{ padding: '12px 16px', textAlign: 'right', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>Kalan</th>
+                        <TH col="toplam" label="Toplam" />
+                        <th style={{ padding: '12px 16px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>İşlem</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {group.items.map(r => {
+                        const cityColor = CITY_COLORS[r.sehir] ?? 'var(--accent-primary)';
+                        return (
+                          <tr key={r.id}>
+                            <td className="td-name">{r.firstName + ' ' + r.lastName}</td>
+                            <td>{r.danisman}</td>
+                            <td>
+                              <span style={{ fontSize: '11px', fontWeight: 600, background: 'rgba(255,255,255,0.03)', color: cityColor, border: `1px solid ${cityColor}44`, borderRadius: 6, padding: '3px 8px' }}>
+                                {r.sehir}
+                              </span>
+                            </td>
+                            <td>{r.odemeYontemi}</td>
+                            <td style={{ color: 'var(--text-secondary)' }}>{r.onOdemeTarihi.split('-').reverse().join('.')}</td>
+                            <td style={{ textAlign: 'right', fontFamily: "'DM Sans', sans-serif", color: 'var(--accent-emerald)', fontWeight: 600 }}>{r.onOdeme > 0 ? fmt(r.onOdeme) : '—'}</td>
+                            <td style={{ color: 'var(--text-secondary)' }}>{r.kalanTarih && r.kalanTarih !== '-' ? r.kalanTarih.split('-').reverse().join('.') : '—'}</td>
+                            <td style={{ textAlign: 'right', fontFamily: "'DM Sans', sans-serif", color: r.kalanOdeme > 0 ? 'var(--accent-rose)' : 'var(--text-muted)', fontWeight: r.kalanOdeme > 0 ? 700 : 400 }}>{r.kalanOdeme > 0 ? fmt(r.kalanOdeme) : '—'}</td>
+                            <td style={{ textAlign: 'right', fontFamily: "'DM Sans', sans-serif", color: GOLD, fontWeight: 700 }}>{fmt(r.toplam)}</td>
+                            <td style={{ textAlign: 'center' }}>
+                              <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
+                                <button onClick={() => handleEdit(r)} style={{ background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.3)', borderRadius: 6, color: 'var(--accent-primary)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }} onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99, 102, 241, 0.2)'; e.currentTarget.style.borderColor = 'var(--accent-primary)'; }} onMouseLeave={e => { e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)'; e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.3)'; }}>
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                </button>
+                                <button onClick={() => handleDelete(r.id)} style={{ background: 'rgba(244, 63, 94, 0.1)', border: '1px solid rgba(244, 63, 94, 0.3)', borderRadius: 6, color: 'var(--accent-rose)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }} onMouseEnter={e => { e.currentTarget.style.background = 'rgba(244, 63, 94, 0.2)'; e.currentTarget.style.borderColor = 'var(--accent-rose)'; }} onMouseLeave={e => { e.currentTarget.style.background = 'rgba(244, 63, 94, 0.1)'; e.currentTarget.style.borderColor = 'rgba(244, 63, 94, 0.3)'; }}>
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                    <tfoot>
+                      <tr style={{ borderTop: `1px solid ${mColor}44`, background: `${mColor}08` }}>
+                        <td colSpan={5} style={{ padding: '14px 16px', fontSize: '12px', fontFamily: "'DM Sans', sans-serif", color: mColor, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                          📊 {group.monthName} {group.year} Toplamı ({group.items.length} işlem)
+                        </td>
+                        <td style={{ padding: '14px 16px', textAlign: 'right', fontSize: '14px', fontFamily: "'DM Sans', sans-serif", color: 'var(--accent-emerald)', fontWeight: 700 }}>{fmt(group.totalOn)}</td>
+                        <td />
+                        <td style={{ padding: '14px 16px', textAlign: 'right', fontSize: '14px', fontFamily: "'DM Sans', sans-serif", color: 'var(--accent-rose)', fontWeight: 700 }}>{group.totalKalan > 0 ? fmt(group.totalKalan) : '—'}</td>
+                        <td style={{ padding: '14px 16px', textAlign: 'right', fontSize: '15px', fontFamily: "'DM Sans', sans-serif", color: GOLD, fontWeight: 700 }}>{fmt(group.totalGelir)}</td>
+                        <td />
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
+
+      {/* Grand Total */}
+      {filtered.length > 0 && (
+        <div style={{
+          marginTop: 24, background: 'var(--bg-card)', border: `1px solid ${GOLD}33`,
+          borderRadius: 16, padding: '20px 24px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          boxShadow: `0 4px 24px rgba(245, 158, 11, 0.08)`,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 10, height: 10, borderRadius: '50%', background: GOLD, boxShadow: `0 0 12px ${GOLD}` }} />
+            <span style={{ fontSize: '14px', fontFamily: "'DM Sans', sans-serif", color: 'var(--text-primary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              Genel Toplam ({filtered.length} işlem · {monthlyGroups.length} ay)
+            </span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.05em' }}>Tahsil</div>
+              <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--accent-emerald)', fontFamily: "'DM Sans', sans-serif" }}>{fmt(filtered.reduce((a, r) => a + r.onOdeme, 0))}</div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.05em' }}>Kalan</div>
+              <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--accent-rose)', fontFamily: "'DM Sans', sans-serif" }}>{filtered.reduce((a, r) => a + r.kalanOdeme, 0) > 0 ? fmt(filtered.reduce((a, r) => a + r.kalanOdeme, 0)) : '—'}</div>
+            </div>
+            <div style={{ height: 32, width: 1, background: 'var(--border-subtle)' }} />
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.05em' }}>Toplam Gelir</div>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: GOLD, fontFamily: "'DM Sans', sans-serif", fontVariantNumeric: 'tabular-nums' }}>{fmt(filtered.reduce((a, r) => a + r.toplam, 0))}</div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Add/Edit Modal */}
       {showAddModal && (
